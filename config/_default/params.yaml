@@ -13,18 +13,18 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   identity:
     # Site name - shown in navbar, footer, copyright, and browser title by default
-    name: "Your Name"
+    name: "Hyeong Jun Lee | MFDL BIOS"
     # Legal entity for copyright notices (defaults to name if not set)
-    organization: ""
+    organization: "MFDL BIOS"
     # Schema.org type for structured data
     type: person                        # person | organization | local_business
     # Short tagline displayed on your site
-    tagline: ""
+    tagline: "PhD Candidate | Medical AI | PPG Signal Processing"
     # Site meta description for search engines and social sharing
-    description: "The highly-customizable Hugo Academic theme powered by HugoBlox Kit. Easily create your personal academic website."
+    description: "PhD Candidate at Yonsei University | Medical AI | PPG Signal Processing"
     # Social accounts (used for meta tags like Twitter Cards)
     social:
-      twitter: "LoreLabs_"              # Twitter/X handle for Twitter Cards (without @)
+      twitter: ""
 
   # ────────────────────────────────────────────────────────────────────────────
   # THEME
@@ -32,9 +32,9 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   theme:
     # Mode: 'light', 'dark', or 'system' (follows OS preference)
-    mode: system
+    mode: light
     # Theme pack: name from data/themes/ or { light: "x", dark: "y" } for mix-and-match
-    pack: "default"
+    pack: "minimal"
     # Optional: Override theme pack colors
     colors:
       primary: ""                       # Tailwind palette name or hex (e.g., "indigo" or "#6366f1")
@@ -60,9 +60,9 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   typography:
     # Font: 'sans' (Inter), 'serif' (Roboto Slab), or 'native' (system fonts)
-    font: "sans"
+    font: "native"
     # Size: 'sm', 'md', 'lg', or 'xl' (affects base font size and scale)
-    size: "md"
+    size: "lg"
 
   # ────────────────────────────────────────────────────────────────────────────
   # LAYOUT
@@ -116,9 +116,9 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   copyright:
     # Copyright notice - supports {year}, {name}, {license} placeholders
-    notice: "© {year} {name}. This work is licensed under {license}"
+    notice: "© {year} Jun. Built with Hugo Blox."
     license:
-      type: cc                          # cc | custom
+      type: custom
       allow_derivatives: false
       share_alike: true
       allow_commercial: false
