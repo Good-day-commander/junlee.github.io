@@ -2,3 +2,8 @@
 name: "[Disabled] Deploy Hugo site to Pages"
 on:
   workflow_dispatch:
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This workflow is disabled. Use deploy.yml instead."
