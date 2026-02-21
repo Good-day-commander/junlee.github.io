@@ -31,7 +31,7 @@ sections:
       name:
         size: md
       avatar:
-        size: large
+        size: medium
         shape: circle
 
   - block: collection

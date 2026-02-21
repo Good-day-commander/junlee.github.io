@@ -29,6 +29,13 @@ body {
     transform: scale(1.03);
   }
 }
+@media (max-width: 768px) {
+  .avatar-wrapper .avatar,
+  .hb-avatar img {
+    max-width: 150px;
+    max-height: 150px;
+  }
+}
 
 // ── Cards ──
 .card {
