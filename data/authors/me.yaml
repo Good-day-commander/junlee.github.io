@@ -50,6 +50,11 @@ education:
     end: ''
     summary: |
       Advisor: Prof. Joon Sang Lee
+  - degree: BS, Mechanical Engineering
+    institution: Pusan National University
+    start: '2016-03-01'
+    end: '2020-02-28'
+    summary: ''
 
 experience:
   - role: Graduate Researcher

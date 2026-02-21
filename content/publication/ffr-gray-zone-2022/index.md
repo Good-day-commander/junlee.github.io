@@ -4,13 +4,18 @@ authors:
   - Hyeong Jun Lee
   - Young Woo Kim
   - Jun Hong Kim
+  - Yong-Joon Lee
+  - Jinseok Moon
+  - Peter Jeong
+  - Joonhee Jeong
+  - Jung-Sun Kim
   - Joon Sang Lee
 author_notes:
   - 'First author'
-date: '2022-04-01T00:00:00Z'
-doi: ''
+date: '2022-06-01T00:00:00Z'
+doi: '10.1016/j.cmpb.2022.106827'
 publication_types: ['article-journal']
-publication: ''
+publication: '*Computer Methods and Programs in Biomedicine*, Vol. 220, 106827'
 abstract: >
   Addressed limitations in AI-based coronary diagnosis by incorporating
   hemodynamic flow features and biometric data beyond vessel imaging alone,

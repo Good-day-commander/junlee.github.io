@@ -15,8 +15,8 @@ sections:
       text: |-
         My research lies at the intersection of **biomedical engineering** and **AI**,
         developing non-invasive diagnostic systems using PPG signals.
-        Recent work on physics-integrated blood viscosity prediction achieved **81.1% accuracy**
-        in clinical trials at Severance Hospital.
+        I work closely with clinical partners at Severance Hospital on
+        IRB-approved studies for cardiovascular and emergency medicine applications.
       button:
         text: Download CV
         url: uploads/resume.pdf
