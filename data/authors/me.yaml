@@ -13,8 +13,11 @@ status:
   icon: "\U0001F52C"
 role: PhD Candidate
 bio: |
-  Developing AI-driven non-invasive biomarker prediction systems
-  using photoplethysmography (PPG) signals for clinical applications.
+  I develop AI-driven non-invasive biomarker prediction systems using
+  photoplethysmography (PPG) signals, bridging computational fluid dynamics
+  and deep learning for clinical diagnostics. My recent work on physics-integrated
+  blood viscosity assessment was published in Computer Methods and Programs
+  in Biomedicine (2025).
 
 affiliations:
   - name: MFDL (Multi-scale Fluid Dynamics Lab)
@@ -48,7 +51,14 @@ education:
     summary: |
       Advisor: Prof. Joon Sang Lee
 
-experience: []
+experience:
+  - role: Graduate Researcher
+    org: Center for Hemodynamic Precision Medical Platform
+    start: ''
+    end: ''
+    summary: |
+      IRB-approved clinical studies at Severance Hospital for
+      cardiovascular and emergency medicine applications.
 
 skills: []
 

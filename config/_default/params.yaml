@@ -32,14 +32,14 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   theme:
     # Mode: 'light', 'dark', or 'system' (follows OS preference)
-    mode: light
+    mode: system
     # Theme pack: name from data/themes/ or { light: "x", dark: "y" } for mix-and-match
     pack: "minimal"
     # Optional: Override theme pack colors
     colors:
-      primary: ""                       # Tailwind palette name or hex (e.g., "indigo" or "#6366f1")
-      secondary: ""
-      neutral: ""                       # Affects gray utilities (text-gray-*, bg-gray-*)
+      primary: "#0F4C81"                # Deep blue (Yonsei-inspired, academic trust)
+      secondary: "#2DD4BF"             # Teal (medical AI / bio accent)
+      neutral: "slate"                  # Calm neutral gray
     # Optional: Mode-specific color overrides
     colors_light: {}
     colors_dark: {}
@@ -60,9 +60,9 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   typography:
     # Font: 'sans' (Inter), 'serif' (Roboto Slab), or 'native' (system fonts)
-    font: "native"
+    font: "serif"
     # Size: 'sm', 'md', 'lg', or 'xl' (affects base font size and scale)
-    size: "lg"
+    size: "md"
 
   # ────────────────────────────────────────────────────────────────────────────
   # LAYOUT
@@ -70,7 +70,7 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   layout:
     # Border radius: 'none', 'sm', 'md', 'lg', or 'full'
-    radius: "md"
+    radius: "sm"
     # Spacing density: 'compact', 'comfortable', or 'spacious'
     spacing: "comfortable"
     # Avatar shape in author profiles
@@ -89,10 +89,10 @@ hugoblox:
     # Menu alignment
     align: center                       # left | center | right
     # Feature toggles
-    search: true
+    search: false
     theme_toggle: true
-    theme_picker: true
-    language_switcher: true
+    theme_picker: false
+    language_switcher: false
     # Call-to-action button
     cta:
       enable: false
@@ -106,7 +106,7 @@ hugoblox:
   footer:
     # Footer style variant
     style: minimal                      # minimal | columns | centered
-    language_switcher: true
+    language_switcher: false
     # Custom footer text (HTML supported)
     text: ""
 
@@ -160,10 +160,10 @@ hugoblox:
       enable: false
     # Table of contents
     toc:
-      enable: true
+      enable: false
     # Reading time estimates
     reading_time:
-      enable: true
+      enable: false
     # Academic citations
     citations:
       style: apa                        # apa | mla | chicago | ieee

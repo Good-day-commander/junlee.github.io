@@ -12,7 +12,11 @@ sections:
     id: about
     content:
       username: me
-      text: ''
+      text: |-
+        My research lies at the intersection of **biomedical engineering** and **AI**,
+        developing non-invasive diagnostic systems using PPG signals.
+        Recent work on physics-integrated blood viscosity prediction achieved **81.1% accuracy**
+        in clinical trials at Severance Hospital.
       button:
         text: Download CV
         url: uploads/resume.pdf
@@ -23,11 +27,11 @@ sections:
     design:
       background:
         gradient_mesh:
-          enable: true
+          enable: false
       name:
         size: md
       avatar:
-        size: medium
+        size: large
         shape: circle
 
   - block: collection
@@ -39,8 +43,8 @@ sections:
           - project
       count: 0
     design:
-      view: article-grid
-      columns: 2
+      view: showcase
+      columns: 1
 
   - block: collection
     id: publications
@@ -64,7 +68,7 @@ sections:
 
         **Email:** [kochujam369@gmail.com](mailto:kochujam369@gmail.com)
 
-        [GitHub](https://github.com/Good-day-commander) · [Google Scholar](https://scholar.google.com/citations?user=1NxM3T0AAAAJ&hl=ko)
+        [GitHub](https://github.com/Good-day-commander) · [Google Scholar](https://scholar.google.com/citations?user=1NxM3T0AAAAJ&hl=ko) · [LinkedIn](https://www.linkedin.com/in/hyeong-jun-lee-389435247/)
     design:
       columns: '1'
 ---
