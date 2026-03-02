@@ -11,7 +11,7 @@ authors:
 author_notes:
   - 'First author'
 date: '2025-06-01T00:00:00Z'
-doi: ''
+doi: '10.1016/j.cmpb.2025.108740'
 publication_types: ['article-journal']
 publication: '*Computer Methods and Programs in Biomedicine*, Vol. 265, 108740'
 abstract: >

@@ -59,6 +59,18 @@ sections:
       view: citation
 
   - block: markdown
+    id: awards
+    content:
+      title: Awards & Honors
+      subtitle: ''
+      text: |-
+        - **Best Paper Award** — BESCO (Biomedical Engineering Society for Circulation), 2022
+        - **Merit Academic Paper Award** — Yonsei University, 2022
+        - **Best Paper Award** — School of Mechanical Engineering, Yonsei University, 2022
+    design:
+      columns: '1'
+
+  - block: markdown
     id: patents
     content:
       title: Patents
