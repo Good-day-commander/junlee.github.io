@@ -5,7 +5,7 @@ date: 2022-10-24
 type: landing
 
 design:
-  spacing: '6rem'
+  spacing: '4rem'
 
 sections:
   - block: resume-biography-3
@@ -43,8 +43,8 @@ sections:
           - project
       count: 0
     design:
-      view: showcase
-      columns: 1
+      view: card
+      columns: 2
 
   - block: collection
     id: publications
