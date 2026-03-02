@@ -37,10 +37,11 @@ links:
     url: https://www.linkedin.com/in/hyeong-jun-lee-389435247/
 
 interests:
-  - Medical AI & Deep Learning
-  - PPG Signal Processing
-  - Cardiovascular Fluid Dynamics
-  - Physics-Informed Neural Networks
+  - Computational Fluid Dynamics in Cardiovascular Domain
+  - Machine Learning for Cardiovascular Risk Prediction
+  - PPG-based Hemodynamic Diagnostics
+  - Lattice Boltzmann Method
+  - Physics-Informed Neural Operators
   - Non-invasive Biomarker Prediction
 
 education:
@@ -64,9 +65,27 @@ experience:
     summary: |
       IRB-approved clinical studies at Severance Hospital for
       cardiovascular and emergency medicine applications.
+  - role: Research Intern
+    org: E8ight
+    start: '2021-01-01'
+    end: '2021-06-30'
+    summary: |
+      Computational Fluid Dynamics Simulations via Lattice Boltzmann Method.
 
 skills: []
 
 languages: []
 
-awards: []
+awards:
+  - title: Best Paper Award
+    awarder: BESCO (Biomedical Engineering Society for Circulation)
+    date: '2022-01-01'
+    summary: ''
+  - title: Merit Academic Paper Award
+    awarder: Yonsei University
+    date: '2022-01-01'
+    summary: ''
+  - title: Best Paper Award
+    awarder: School of Mechanical Engineering, Yonsei University
+    date: '2022-01-01'
+    summary: ''
