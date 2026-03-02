@@ -1,0 +1,148 @@
+<style>
+/* ── Base ── */
+body {
+  line-height: 1.75;
+}
+
+/* ── Section Titles: underline accent ── */
+.hbb-section .hb-section-heading h2 {
+  display: inline-block;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--color-primary, #0F4C81);
+}
+
+/* ── Navbar ── */
+.navbar {
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.dark .navbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Avatar ── */
+.avatar-wrapper .avatar,
+.hb-avatar img {
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+.avatar-wrapper .avatar:hover,
+.hb-avatar img:hover {
+  transform: scale(1.03);
+}
+@media (max-width: 768px) {
+  .avatar-wrapper .avatar,
+  .hb-avatar img {
+    max-width: 150px;
+    max-height: 150px;
+  }
+}
+
+/* ── Cards ── */
+.card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Featured Publication: left border accent ── */
+.citation[data-featured="true"],
+article.featured {
+  border-left: 4px solid var(--color-primary, #0F4C81);
+  padding-left: 16px;
+}
+
+/* ── Tech Tags / Badges ── */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin: 2px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+.dark footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Fade-in Animation ── */
+.hbb-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hbb-section:nth-child(1) { animation-delay: 0s; }
+.hbb-section:nth-child(2) { animation-delay: 0.1s; }
+.hbb-section:nth-child(3) { animation-delay: 0.2s; }
+.hbb-section:nth-child(4) { animation-delay: 0.3s; }
+
+/* ── Desktop Layout: wider content, tighter spacing ── */
+@media (min-width: 992px) {
+  /* Override Tailwind max-w-prose / max-w-[65ch] for all sections */
+  .hbb-section .max-w-prose,
+  .hbb-section [class*="max-w-\[65ch\]"] {
+    max-width: 900px !important;
+  }
+  .hbb-section .max-w-3xl {
+    max-width: 900px !important;
+  }
+  /* Tighter section padding */
+  .hbb-section {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+  /* Project cards: override Tailwind grid-cols-1 to 2-column */
+  #projects .grid.grid-cols-1 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    max-width: 900px !important;
+  }
+  /* Better card image aspect ratio */
+  #projects .group img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+}
+
+@media (min-width: 1400px) {
+  .hbb-section .max-w-prose,
+  .hbb-section [class*="max-w-\[65ch\]"],
+  .hbb-section .max-w-3xl {
+    max-width: 1000px !important;
+  }
+  #projects .grid.grid-cols-1 {
+    max-width: 1000px !important;
+  }
+}
+
+/* ── Reduce empty space between sections ── */
+.hbb-section + .hbb-section {
+  margin-top: -1rem;
+}
+
+/* ── Dark Mode ── */
+.dark .card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+.dark .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.dark .hbb-section .hb-section-heading h2 {
+  border-bottom-color: #2DD4BF;
+}
+</style>
