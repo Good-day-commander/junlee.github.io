@@ -77,6 +77,10 @@ skills: []
 languages: []
 
 awards:
+  - title: Merit Academic Paper Award, Graduate School Innovation Outstanding Thesis Awards
+    awarder: Yonsei University
+    date: '2026-01-12'
+    summary: 'Physics-integrated deep learning approach for non-invasive blood viscosity assessment using PPG'
   - title: Best Paper Award
     awarder: BESCO (Biomedical Engineering Society for Circulation)
     date: '2022-01-01'

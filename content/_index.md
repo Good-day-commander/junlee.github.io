@@ -64,6 +64,7 @@ sections:
       title: Awards & Honors
       subtitle: ''
       text: |-
+        - **Merit Academic Paper Award, Graduate School Innovation Outstanding Thesis Awards** — Yonsei University, 2026
         - **Best Paper Award** — BESCO (Biomedical Engineering Society for Circulation), 2022
         - **Merit Academic Paper Award** — Yonsei University, 2022
         - **Best Paper Award** — School of Mechanical Engineering, Yonsei University, 2022
@@ -108,13 +109,15 @@ sections:
       text: |-
         ### International Conferences
 
-        1. **H. J. Lee**, J. H. Kim, Y. W. Kim, D. S. Kim, S. Y. Shin, J. H. Hong, J. S. Lee, "Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators", *The 18th Asian Congress of Fluid Mechanics (ACFM)*, Seoul, Korea (2025) — oral
+        1. **H. J. Lee**, T. H. Han, J. S. Kim, S. G. Lee, J. S. Lee, "Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators", *Design of Medical Devices Conference (DMD2026)*, Minneapolis, MN, USA (2026) — accepted
 
-        2. **H. J. Lee**, Y. W. Kim, J. H. Kim, S. Y. Shin, S. L. Lee, C. H. Kim, J. S. Kim, K. S. Chung, J. S. Lee, "AI-based Hemorheology Prediction with Patient-Specific Biometric Boundary Conditions", *2024 ICTAM*, Daegu, Korea (2024) — short oral & poster
+        2. **H. J. Lee**, J. H. Kim, Y. W. Kim, D. S. Kim, S. Y. Shin, J. H. Hong, J. S. Lee, "Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators", *The 18th Asian Congress of Fluid Mechanics (ACFM)*, Seoul, Korea (2025) — oral
 
-        3. **H. J. Lee**, J. S. Lee, "Optimization of Artificial Intelligence Algorithms for FFR Prediction in Gray Zone", *2022 ICTME*, Gyeonggi-do, Korea (2022) — oral
+        3. **H. J. Lee**, Y. W. Kim, J. H. Kim, S. Y. Shin, S. L. Lee, C. H. Kim, J. S. Kim, K. S. Chung, J. S. Lee, "AI-based Hemorheology Prediction with Patient-Specific Biometric Boundary Conditions", *2024 ICTAM*, Daegu, Korea (2024) — short oral & poster
 
-        4. **H. J. Lee**, Y. W. Kim, J. H. Kim, J. S. Lee, "Estimating CFD-based CT FFR using lattice Boltzmann method — 3D geometry auto segmentation and novel patient specific computation", *ESCHM-ISCH-ISB 2021 FUKUOKA*, Fukuoka, Japan (2021) — oral
+        4. **H. J. Lee**, J. S. Lee, "Optimization of Artificial Intelligence Algorithms for FFR Prediction in Gray Zone", *2022 ICTME*, Gyeonggi-do, Korea (2022) — oral
+
+        5. **H. J. Lee**, Y. W. Kim, J. H. Kim, J. S. Lee, "Estimating CFD-based CT FFR using lattice Boltzmann method — 3D geometry auto segmentation and novel patient specific computation", *ESCHM-ISCH-ISB 2021 FUKUOKA*, Fukuoka, Japan (2021) — oral
 
         ---
 
