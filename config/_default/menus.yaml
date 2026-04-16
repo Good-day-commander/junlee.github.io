@@ -3,9 +3,12 @@ main:
   - name: About
     url: '#about'
     weight: 10
-  - name: Projects
-    url: '#projects'
+  - name: Research
+    url: '#selected-research'
     weight: 20
+  - name: Ongoing
+    url: '#ongoing-work'
+    weight: 25
   - name: Publications
     url: '#publications'
     weight: 30

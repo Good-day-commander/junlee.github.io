@@ -1,4 +1,3 @@
-schema: hugoblox/author/v1
 slug: me
 is_owner: true
 name:
@@ -11,13 +10,13 @@ name:
 postnominals: []
 status:
   icon: "\U0001F52C"
-role: PhD Candidate
+role: PhD Candidate in Mechanical Engineering
 bio: |
-  I develop AI-driven non-invasive biomarker prediction systems using
-  photoplethysmography (PPG) signals, bridging computational fluid dynamics
-  and deep learning for clinical diagnostics. My recent work on physics-integrated
-  blood viscosity assessment was published in Computer Methods and Programs
-  in Biomedicine (2025).
+  I investigate how hemodynamic signals, patient-specific flow physics,
+  and machine learning can be integrated into non-invasive clinical
+  decision support. My recent work spans wearable PPG-based biomarker
+  estimation, cardiovascular computational fluid dynamics, and
+  physics-informed diagnostic modeling in collaboration with clinical teams.
 
 affiliations:
   - name: MFDL (Multi-scale Fluid Dynamics Lab)
@@ -36,41 +35,11 @@ links:
   - icon: brands/linkedin
     url: https://www.linkedin.com/in/hyeong-jun-lee-389435247/
 
-interests:
-  - Computational Fluid Dynamics in Cardiovascular Domain
-  - Machine Learning for Cardiovascular Risk Prediction
-  - PPG-based Hemodynamic Diagnostics
-  - Lattice Boltzmann Method
-  - Physics-Informed Neural Operators
-  - Non-invasive Biomarker Prediction
+interests: []
 
-education:
-  - degree: PhD Candidate, Mechanical Engineering
-    institution: Yonsei University
-    start: ''
-    end: ''
-    summary: |
-      Advisor: Prof. Joon Sang Lee
-  - degree: BS, Mechanical Engineering
-    institution: Pusan National University
-    start: '2016-03-01'
-    end: '2020-02-28'
-    summary: ''
+education: []
 
-experience:
-  - role: Graduate Researcher
-    org: Center for Hemodynamic Precision Medical Platform
-    start: ''
-    end: ''
-    summary: |
-      IRB-approved clinical studies at Severance Hospital for
-      cardiovascular and emergency medicine applications.
-  - role: Research Intern
-    org: E8ight
-    start: '2021-01-01'
-    end: '2021-06-30'
-    summary: |
-      Computational Fluid Dynamics Simulations via Lattice Boltzmann Method.
+experience: []
 
 skills: []
 
