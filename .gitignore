@@ -8,6 +8,8 @@
 
 # Generated site output
 public/
+!site/client/public/
+!site/client/public/**
 
 # Hugo resources (processed assets)
 resources/
