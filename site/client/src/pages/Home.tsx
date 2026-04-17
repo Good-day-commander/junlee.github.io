@@ -25,9 +25,9 @@ const snapshots = [
     copy: "Physics-guided modeling that links PINO and CFD to clinical inference.",
   },
   {
-    label: "Current Status",
-    value: "In Submission",
-    copy: "Submission-stage study on early fluid intervention from continuous wearable PPG.",
+    label: "Current Work",
+    value: "PINO · 4DCT · PPG",
+    copy: "Ongoing studies on PINO-based coronary flow prediction, diffusion-based 4DCT synthesis for dynamic FFR, and wearable PPG modeling.",
   },
 ];
 
