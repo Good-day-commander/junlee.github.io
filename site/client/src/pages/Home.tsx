@@ -130,6 +130,81 @@ const publications = [
   },
 ];
 
+const conferenceActivities = [
+  {
+    year: "2025",
+    category: "International",
+    title: "Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators",
+    venue: "The 18th Asian Congress of Fluid Mechanics (ACFM)",
+    location: "Seoul, Korea",
+    format: "Oral",
+    note: "PINO-based coronary flow field prediction for coronary hemodynamics; CV notes this presentation as not finalized.",
+  },
+  {
+    year: "2024",
+    category: "International",
+    title: "AI-based Hemorheology Prediction with Patient-Specific Biometric Boundary Conditions",
+    venue: "2024 ICTAM",
+    location: "Daegu, Korea",
+    format: "Short oral & poster",
+    note: "Patient-specific hemorheology modeling presented in both talk and poster formats.",
+  },
+  {
+    year: "2023",
+    category: "Domestic",
+    title: "Unlocking Predictive Health Outcomes with Biometric Data",
+    venue: "KSME Conference 2023",
+    location: "Song-do, Korea",
+    format: "Oral",
+    note: "A broader translational framing of biometric prediction and wearable-health direction.",
+  },
+  {
+    year: "2023",
+    category: "Domestic",
+    title: "Modeling Coronary Artery Hemodynamics: Exploring DCNN Surrogate Models in Preliminary Research",
+    venue: "2023 BESCO summer meeting",
+    location: "Daegu, Korea",
+    format: "Oral",
+    note: "Preliminary surrogate-model exploration for coronary artery hemodynamics.",
+  },
+  {
+    year: "2022",
+    category: "Domestic",
+    title: "Artificial Intelligence Algorithms for FFR Prediction in Gray Zone by Single-view Angiography",
+    venue: "2022 BESCO winter meeting",
+    location: "Seoul, Korea",
+    format: "Short oral & poster",
+    note: "Nominee for Best Paper Award.",
+  },
+];
+
+const patents = [
+  {
+    year: "2024",
+    title: "Non-Newtonian fluid viscosity modeling of patient blood using wearable device-based PPG and biometric information",
+    jurisdiction: "Korea",
+    application: "10-2024-0026709",
+  },
+  {
+    year: "2024",
+    title: "An algorithm that collects PPG and biometric information from wearable devices and analyzes it to predict systolic and diastolic viscosity",
+    jurisdiction: "Korea",
+    application: "10-2024-0028201",
+  },
+  {
+    year: "2023",
+    title: "Glaucoma Diagnosis Method and System Based on Contactless Biosignals",
+    jurisdiction: "Korea",
+    application: "10-2023-0078883",
+  },
+  {
+    year: "2022",
+    title: "Optimization system and method of AI algorithm for prediction coronary artery lesions based on FFR",
+    jurisdiction: "Korea / US",
+    application: "10-2022-0030019 / 17/820,819",
+  },
+];
+
 const contactLinks = [
   {
     label: "Email",
@@ -166,6 +241,9 @@ export default function Home() {
             </a>
             <a className="nav-link" href="#publication-list">
               Publications
+            </a>
+            <a className="nav-link" href="#achievements">
+              Achievements
             </a>
             <a className="nav-link" href="#ongoing">
               Ongoing
@@ -397,6 +475,77 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="achievements" className="container py-16 md:py-24">
+          <div className="max-w-4xl space-y-5">
+            <div className="eyebrow">Conference and Patent Record</div>
+            <h2 className="section-title max-w-[12ch]">A working record of talks, conference appearances, and intellectual property.</h2>
+            <p className="body-copy max-w-3xl">
+              Drawn directly from the current CV, this section keeps the public-facing site aligned with active presentations and patent applications rather than limiting the record to journal publications alone.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-10 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)]">
+            <div>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <div className="eyebrow">Selected conference activity</div>
+                  <h3 className="font-display mt-2 text-[1.7rem] font-semibold leading-[1.02] tracking-[-0.05em] text-[var(--ink)] md:text-[2.1rem]">
+                    International and domestic presentations shaping the research trajectory.
+                  </h3>
+                </div>
+                <span className="year-chip">{conferenceActivities.length} entries</span>
+              </div>
+              <div className="border-b" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
+                {conferenceActivities.map((item) => (
+                  <article key={`${item.year}-${item.title}`} className="publication-row">
+                    <div className="space-y-2">
+                      <span className="year-chip">{item.year}</span>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--blue)]">{item.category}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-display text-[1.2rem] font-semibold leading-[1.08] tracking-[-0.04em] text-[var(--ink)] md:text-[1.5rem]">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--blue)]">{item.venue}</p>
+                      <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{item.note}</p>
+                    </div>
+                    <div className="space-y-2 text-sm leading-7 text-[color:var(--ink-soft)] md:text-right">
+                      <p>{item.location}</p>
+                      <p>{item.format}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <div className="eyebrow">Patent applications</div>
+                  <h3 className="font-display mt-2 text-[1.7rem] font-semibold leading-[1.02] tracking-[-0.05em] text-[var(--ink)] md:text-[2.1rem]">
+                    Translational outputs extending from wearable sensing and cardiovascular AI.
+                  </h3>
+                </div>
+                <span className="year-chip">{patents.length} selected</span>
+              </div>
+              <div className="space-y-4">
+                {patents.map((patent) => (
+                  <article key={`${patent.application}-${patent.title}`} className="metric-card p-5 md:p-6">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="year-chip">{patent.year}</span>
+                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--blue)]">{patent.jurisdiction}</span>
+                    </div>
+                    <h3 className="font-display mt-4 text-[1.25rem] font-semibold leading-[1.06] tracking-[-0.04em] text-[var(--ink)] md:text-[1.5rem]">
+                      {patent.title}
+                    </h3>
+                    <p className="mt-4 text-sm leading-7 text-[color:var(--ink-soft)]">Application No. {patent.application}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="contact" className="footer-panel mt-10">
           <div className="container py-16 md:py-20">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
@@ -404,7 +553,7 @@ export default function Home() {
                 <div className="eyebrow">Contact and Links</div>
                 <h2 className="section-title max-w-[10ch]">Open to academic, translational, and clinical collaboration.</h2>
                 <p className="body-copy max-w-2xl">
-                  The site will next expand with a broader project layer. For now, it concentrates on the papers, activity moments, and research direction most essential to understanding the current trajectory of the work.
+                  The site now foregrounds papers, talks, field moments, and translational outputs together. The next update can expand this structure with additional projects, products, and institutional materials.
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
