@@ -12,22 +12,22 @@ const snapshots = [
   {
     label: "Published Papers",
     value: "3",
-    copy: "Publications currently foregrounded in the homepage narrative.",
+    copy: "Peer-reviewed papers that best represent my current research direction.",
   },
   {
-    label: "Clinical Direction",
-    value: "PPG",
-    copy: "Wearable hemodynamics, patient-specific physiology, and decision support.",
+    label: "Research Domain",
+    value: "Coronary & PPG",
+    copy: "Coronary diagnosis, wearable biosignal interpretation, and earlier intervention support.",
   },
   {
     label: "Core Method",
-    value: "CFD × AI",
-    copy: "Computational flow modeling connected to machine learning pipelines.",
+    value: "PINO · CFD · AI",
+    copy: "Physics-guided modeling that links PINO and CFD to clinical inference.",
   },
   {
     label: "Current Status",
-    value: "1 Ongoing",
-    copy: "Submission-stage manuscript on early fluid intervention prediction.",
+    value: "In Submission",
+    copy: "Submission-stage study on early fluid intervention from continuous wearable PPG.",
   },
 ];
 
@@ -39,11 +39,11 @@ const briefs = [
     journal: "Computer Methods and Programs in Biomedicine",
     year: "2025",
     focus:
-      "Wearable PPG signals are translated into patient-specific blood viscosity estimates by fusing rheological priors with a hybrid deep-learning pipeline.",
+      "In this study, I combined wearable PPG with rheological priors to estimate patient-specific blood viscosity through a non-invasive, physics-integrated deep-learning pipeline.",
     points: [
-      "Builds a patient-level viscosity estimation workflow rather than relying on a single surrogate marker.",
-      "Connects Carreau–Yasuda rheology to a 1D CNN-LSTM architecture for clinically meaningful inference.",
-      "Frames wearable sensing as a route toward broader non-invasive circulatory assessment.",
+      "Builds a patient-specific viscosity estimation workflow instead of treating PPG as a generic screening signal.",
+      "Integrates Carreau–Yasuda rheology with a 1D CNN-LSTM model to keep the inference physically grounded.",
+      "Positions wearable sensing as a route toward broader non-invasive circulatory assessment.",
     ],
     image: "/media/papers/extracted/viscosity-000.png",
     doi: "https://doi.org/10.1016/j.cmpb.2025.108740",
@@ -54,11 +54,11 @@ const briefs = [
     journal: "Computer Methods and Programs in Biomedicine",
     year: "2022",
     focus:
-      "A coronary decision-support study combining CTA-derived morphology, hemodynamic variables, and biometric data to improve FFR prediction where diagnosis is most ambiguous.",
+      "In this study, I addressed the coronary gray zone by combining CTA morphology, hemodynamic descriptors, and biometric variables for more reliable FFR prediction in diagnostically ambiguous cases.",
     points: [
-      "Reframes the gray-zone problem as a feature-engineering challenge grounded in coronary flow physics.",
-      "Combines synthetic vessel models and patient biomarkers for more robust prediction.",
-      "Positions CFD-derived descriptors as clinically useful variables rather than purely simulation outputs.",
+      "Treats gray-zone diagnosis as a physics-informed feature design problem rather than a purely black-box classification task.",
+      "Brings together synthetic vessel models and patient biomarker data to improve robustness.",
+      "Shows how CFD-derived variables can support clinically useful coronary decision support.",
     ],
     image: "/media/papers/extracted/ffr-000.png",
     doi: "https://doi.org/10.1016/j.cmpb.2022.106827",
@@ -69,11 +69,11 @@ const briefs = [
     journal: "Engineering Applications of Computational Fluid Mechanics",
     year: "2022",
     focus:
-      "This work studies how tricuspid membrane geometry changes the balance between treatment effectiveness and leaflet durability through CFD-based hemodynamic analysis.",
+      "In this CFD study, I examined how tricuspid membrane geometry changes the balance between regurgitation control and long-term leaflet durability.",
     points: [
       "Turns valve intervention design into a measurable flow optimization problem.",
-      "Explores trade-offs between regurgitation reduction and long-term leaflet preservation.",
-      "Demonstrates how simulation can directly support procedural design choices.",
+      "Maps the trade-off between treatment effectiveness and leaflet preservation.",
+      "Demonstrates how simulation can directly inform procedural design choices.",
     ],
     image: "/media/papers/extracted/tricuspid-000.png",
     doi: "https://doi.org/10.1080/19942060.2022.2104929",
@@ -85,21 +85,21 @@ const galleryMoments = [
     label: "Research Talk · 2024",
     title: "Department symposium presentation at Yonsei University",
     note:
-      "A close in-room presentation image that gives the homepage a sense of the researcher in action without overpowering the editorial layout.",
+      "A departmental research setting that shows how I present ongoing work within the lab and university community.",
     image: "/media/profile/gallery-talk-yonsei.jpg",
   },
   {
     label: "Conference Talk · 2025",
     title: "18th Asian Congress of Fluid Mechanics",
     note:
-      "A conference-facing moment that connects the publication record to active participation in the broader fluid mechanics community.",
+      "A conference-facing scene that ties the publication record to active presentation of my work in the broader fluid mechanics community.",
     image: "/media/profile/gallery-acfm-2025.jpg",
   },
   {
     label: "Translation · 2025",
-    title: "Startup-facing and translational research context",
+    title: "Translational research and startup context",
     note:
-      "A more translational scene showing how academic work is also extending toward products, collaboration, and early innovation settings.",
+      "A translational setting that shows how the same research moves from academic work into product and collaboration contexts.",
     image: "/media/profile/gallery-translation-summit.jpg",
   },
 ];
@@ -109,27 +109,27 @@ const translationalProducts = [
     name: "CARDIOS",
     label: "Coronary CT diagnostics",
     summary:
-      "A non-invasive cardiovascular diagnostic support system that combines coronary CT images, AI, and computational flow logic to estimate the functional significance of coronary artery disease.",
+      "A CT-based coronary decision-support system that combines coronary anatomy, AI, and hemodynamic reasoning to estimate the functional significance of coronary artery disease without invasive measurement.",
     detail:
-      "Within the portfolio narrative, CARDIOS shows how CT-FFR research and hemodynamic modeling are being translated into a product-facing clinical workflow rather than remaining only as academic computation.",
+      "Within my portfolio, CARDIOS shows how my CT-FFR, coronary flow modeling, and clinical decision-support research can move toward product form.",
     support: "CTA × AI × CFD",
   },
   {
     name: "EASYCHECK",
     label: "Wearable hydration monitoring",
     summary:
-      "A wearable wellness application that interprets real-time biometric signals to monitor hydration-related status and support everyday physiological tracking.",
+      "A wearable biosignal monitoring product that interprets real-time biosignals to track hydration-related physiology in everyday settings.",
     detail:
-      "It extends the PPG-centered branch of the research toward longitudinal monitoring, making the move from laboratory signal modeling to user-facing biosignal products more explicit.",
+      "It extends my wearable PPG research from model development into continuous monitoring and user-facing physiological assessment.",
     support: "Wearable PPG × real-time biometrics",
   },
 ];
 
 const translationalMedia = {
   label: "External product intro",
-  title: "2025 CARDIOS Intro in Eng",
+  title: "CARDIOS product overview on YouTube",
   note:
-    "Kept as an external YouTube reference rather than a full embedded player so the page stays readable while still pointing to the product-facing explanation.",
+    "A short external overview for visitors who want product context without interrupting the reading flow of the portfolio.",
   href: "https://www.youtube.com/watch?v=oSsvH7LRp7E",
   thumbnail: "https://i.ytimg.com/vi/oSsvH7LRp7E/hqdefault.jpg",
 };
@@ -140,7 +140,7 @@ const publications = [
     title:
       "A Physics-Integrated Deep Learning Approach for Patient-Specific Non-Newtonian Blood Viscosity Assessment using PPG",
     venue: "Computer Methods and Programs in Biomedicine",
-    note: "Hybrid rheology-aware deep learning for patient-specific viscosity assessment.",
+    note: "Physics-guided deep learning for patient-specific viscosity estimation from wearable PPG.",
     doi: "https://doi.org/10.1016/j.cmpb.2025.108740",
   },
   {
@@ -148,7 +148,7 @@ const publications = [
     title:
       "Optimization of Tricuspid Membrane Mechanism for Effectiveness and Leaflet Longevity through Hemodynamic Analysis",
     venue: "Engineering Applications of Computational Fluid Mechanics",
-    note: "CFD-guided optimization of tricuspid intervention mechanics.",
+    note: "CFD analysis of tricuspid membrane design trade-offs between efficacy and leaflet longevity.",
     doi: "https://doi.org/10.1080/19942060.2022.2104929",
   },
   {
@@ -156,7 +156,7 @@ const publications = [
     title:
       "Optimization of FFR Prediction Algorithm for Gray Zone by Hemodynamic Features with Synthetic Model and Biometric Data",
     venue: "Computer Methods and Programs in Biomedicine",
-    note: "Patient-specific coronary diagnosis supported by hemodynamics and biometrics.",
+    note: "Hemodynamics-informed FFR prediction for diagnostically ambiguous coronary gray-zone cases.",
     doi: "https://doi.org/10.1016/j.cmpb.2022.106827",
   },
 ];
@@ -351,17 +351,18 @@ export default function Home() {
             <div className="hero-grid">
               <div className="hero-main space-y-8">
                 <div className="space-y-4">
-                  <div className="eyebrow">Fluid Dynamics · Clinical AI · Wearable Hemodynamics</div>
+                    <div className="eyebrow">Coronary Hemodynamics · Clinical AI · Wearable Biosignals</div>
+
                   <h1 className="hero-title max-w-[11ch]">Translating flow physics into clinically useful intelligence.</h1>
                 </div>
                 <div className="hero-meta-rule max-w-5xl" />
                 <div className="hero-narrative-grid">
                   <div className="space-y-6">
                     <p className="lede max-w-3xl">
-                      I build patient-specific computational and learning systems that connect
-                      <strong> hemodynamic structure</strong>, <strong> wearable physiological signals</strong>, and
-                      <strong> clinical decision-making</strong>. My work sits at the intersection of computational fluid dynamics,
-                      physics-informed modeling, and translational medical AI.
+                      I am a PhD candidate at Yonsei University&apos;s MFDL BIOS Lab, building patient-specific models and
+                      learning systems for <strong>coronary hemodynamics</strong>, <strong>CT-derived FFR</strong>,
+                      <strong> PINO-based flow prediction</strong>, and <strong>wearable PPG analysis</strong>. My research turns
+                      flow physics into clinically interpretable tools for diagnosis, monitoring, and translational medical AI.
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <a className="capsule-link" href="#research">
@@ -378,11 +379,11 @@ export default function Home() {
                       <div>
                         <div className="eyebrow">Current framing</div>
                         <h2 className="font-display mt-3 text-[1.95rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[var(--ink)] md:text-[2.2rem]">
-                          Research as brief, not archive.
+                          From hemodynamics to decision support.
                         </h2>
                       </div>
                       <p className="body-copy">
-                        The homepage reads as a compact report on how fluid-mechanical understanding becomes actionable diagnostic insight.
+                        This homepage is structured as a compact research report showing what I study, how I build the models, and where the work is moving clinically and translationally.
                       </p>
                     </div>
                   </aside>
@@ -406,7 +407,7 @@ export default function Home() {
                     </div>
                     <div>
                       <div className="eyebrow mb-2">Current scope</div>
-                      <p>PINO, clinical AI, and wearable hemodynamics</p>
+                      <p>PINO, CT-FFR, and wearable PPG analytics</p>
                     </div>
                   </div>
                 </div>
@@ -432,9 +433,9 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Research Briefs</div>
-              <h2 className="section-title max-w-[12ch]">A closer reading of the studies shaping the research agenda.</h2>
+              <h2 className="section-title max-w-[13ch]">Studies that define my current research agenda.</h2>
               <p className="body-copy max-w-3xl">
-                The papers below are presented as research briefs rather than a conventional publication list. Each brief identifies the clinical problem, the computational logic, and the translational value that emerged from the work.
+                These briefs summarize the questions I have worked on, the models I built, and the clinical value each study was designed to unlock.
               </p>
             </div>
 
@@ -479,7 +480,7 @@ export default function Home() {
           <div className="grid gap-8 border-y py-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
             <div className="space-y-4">
               <div className="eyebrow">Ongoing Clinical AI</div>
-              <h2 className="section-title max-w-[11ch]">Submission-stage manuscript focused on earlier fluid intervention.</h2>
+              <h2 className="section-title max-w-[12ch]">Current manuscript on earlier fluid intervention from continuous wearable PPG.</h2>
             </div>
             <div className="space-y-6">
               <div className="micro-label w-fit">In Submission</div>
@@ -487,20 +488,20 @@ export default function Home() {
                 Multi-Model Deep-Learning Ensemble for Predicting 24 h Fluid Bolus Administration from Continuous PPG Spectrograms
               </h3>
               <p className="body-copy">
-                This manuscript asks whether continuous smartwatch-derived PPG can identify apparently stable emergency department patients who may later require fluid bolus administration. The study combines multi-window spectrogram analysis, diverse CNN backbones, and weighted ensemble learning to detect hemodynamic vulnerability before overt instability emerges.
+                I am currently developing a multi-model deep-learning ensemble that uses continuous smartwatch-derived PPG spectrograms to flag emergency department patients who may later require fluid bolus administration. The aim is to detect hemodynamic vulnerability earlier, before overt instability becomes obvious.
               </p>
               <div className="grid gap-4 md:grid-cols-3">
                 <article className="metric-card p-5">
                   <div className="eyebrow mb-4">Setting</div>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Prospective emergency care cohort with continuous wearable PPG monitoring.</p>
+                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Prospective emergency-department cohort with continuous wearable PPG acquisition.</p>
                 </article>
                 <article className="metric-card p-5">
                   <div className="eyebrow mb-4">Method</div>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Ensemble learning across STFT and CWT spectrogram representations.</p>
+                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Weighted ensemble learning across STFT and CWT spectrogram views.</p>
                 </article>
                 <article className="metric-card p-5">
                   <div className="eyebrow mb-4">Goal</div>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Support earlier fluid intervention decisions in clinically ambiguous cases.</p>
+                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Earlier identification of patients who may need fluid bolus despite initially stable presentation.</p>
                 </article>
               </div>
             </div>
@@ -512,9 +513,9 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Field Notes</div>
-              <h2 className="section-title max-w-[12ch]">A compact gallery of talks, conference rooms, and translational moments.</h2>
+              <h2 className="section-title max-w-[12ch]">Research rooms, conference stages, and translational settings.</h2>
               <p className="body-copy max-w-3xl">
-                Instead of building a separate photo gallery page, the site keeps a restrained visual record of how the research is presented in rooms, conferences, and adjacent translational settings.
+                These images show how I present and position the work across lab meetings, conferences, and translational collaborations.
               </p>
             </div>
 
@@ -544,9 +545,9 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">The M.E.N.D. BioSimulator</div>
-              <h2 className="section-title max-w-[12ch]">A translational layer where research logic is reframed as product-facing systems.</h2>
+              <h2 className="section-title max-w-[12ch]">Where research moves into product-facing clinical tools.</h2>
               <p className="body-copy max-w-3xl">
-                Beyond papers and talks, part of the work is also connected to <strong>The M.E.N.D. BioSimulator</strong>, where computational hemodynamics, coronary CT analysis, and wearable biosignals are shaped into diagnostic and monitoring products.
+                Part of my work also continues into <strong>The M.E.N.D. BioSimulator</strong>, where coronary CT analysis, computational hemodynamics, and wearable biosignals are turned into diagnostic and monitoring products.
               </p>
             </div>
 
@@ -554,14 +555,14 @@ export default function Home() {
               <article className="translation-overview-panel">
                 <div className="space-y-4">
                   <div className="micro-label w-fit">Translational context</div>
-                  <h3 className="translation-panel-title">The section is written as a research-to-product bridge, not as a separate startup pitch.</h3>
+                  <h3 className="translation-panel-title">This section shows where the research goes after publication.</h3>
                 </div>
                 <div className="space-y-5">
                   <p className="body-copy">
-                    The value of this layer is that it makes the homepage legible as more than a paper archive. It shows how model development, signal interpretation, and clinical framing continue into deployable software narratives.
+                    I include this layer because the models and biosignal pipelines do not stop at papers. They continue into software, product concepts, and clinical workflows intended for real use.
                   </p>
                   <p className="body-copy">
-                    For that reason, the product introduction video is treated as a compact external reference rather than a full embedded player. The page keeps its editorial rhythm, while the visitor can still open the CARDIOS overview when needed.
+                    The product video stays as a compact external link so visitors can open it when needed without breaking the reading flow of the portfolio.
                   </p>
                 </div>
               </article>
@@ -603,7 +604,10 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Publication Index</div>
-              <h2 className="section-title max-w-[12ch]">A concise record of the publications currently foregrounded on the site.</h2>
+              <h2 className="section-title max-w-[12ch]">Selected papers that map my current research direction.</h2>
+              <p className="body-copy max-w-3xl">
+                This index gives a quick citation view of the papers that most clearly represent my current work on coronary hemodynamics, wearable PPG inference, and clinically usable AI.
+              </p>
             </div>
 
             <div className="mt-10 border-b" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
@@ -632,9 +636,9 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Conference Activity and Patents</div>
-              <h2 className="section-title max-w-[12ch]">A public record of conference activity and translational outputs.</h2>
+              <h2 className="section-title max-w-[13ch]">Talks, patents, and translational outputs from the same research arc.</h2>
               <p className="body-copy max-w-3xl">
-                This section opens with a readable preview, while the full conference and patent record can be expanded on demand without shrinking the academic record.
+                Together, these records show how I have presented the work, discussed it with research communities, and translated it beyond journal publication—from conference talks to patent filings.
               </p>
             </div>
 
@@ -644,7 +648,7 @@ export default function Home() {
                   <div>
                     <div className="eyebrow">Talks</div>
                     <h3 className="font-display mt-2 text-[1.42rem] font-semibold leading-[1.1] tracking-[-0.04em] text-[var(--ink)] md:text-[1.72rem]">
-                      Conference presentations
+                      Selected conference presentations
                     </h3>
                   </div>
                   <span className="year-chip">{showAllTalks ? `${conferenceActivities.length} total` : `${visibleConferenceActivities.length} of ${conferenceActivities.length} shown`}</span>
@@ -678,7 +682,7 @@ export default function Home() {
                   <div>
                     <div className="eyebrow">Patents</div>
                     <h3 className="font-display mt-2 text-[1.42rem] font-semibold leading-[1.1] tracking-[-0.04em] text-[var(--ink)] md:text-[1.72rem]">
-                      Patent record
+                      Selected patent record
                     </h3>
                   </div>
                   <span className="year-chip">{showAllPatents ? `${patents.length} total` : `${visiblePatents.length} of ${patents.length} shown`}</span>
@@ -714,9 +718,9 @@ export default function Home() {
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
               <div className="space-y-5">
                 <div className="eyebrow">Contact and Links</div>
-                <h2 className="section-title max-w-[10ch]">Open to academic, translational, and clinical collaboration.</h2>
+                <h2 className="section-title max-w-[14ch]">Open to collaboration on coronary hemodynamics, medical AI, and translational biosignal research.</h2>
                 <p className="body-copy max-w-2xl">
-                  The site now foregrounds papers, talks, field moments, and translational outputs together. The next update can expand this structure with additional projects, products, and institutional materials.
+                  If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss possible collaboration.
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
