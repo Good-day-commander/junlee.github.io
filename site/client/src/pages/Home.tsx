@@ -138,7 +138,7 @@ const conferenceActivities = [
     title: "Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators",
     venue: "The 18th Asian Congress of Fluid Mechanics (ACFM)",
     location: "Seoul, Korea",
-    format: "Oral",
+    format: "Oral · not finalized",
   },
   {
     year: "2024",
@@ -157,12 +157,52 @@ const conferenceActivities = [
     format: "Oral",
   },
   {
+    year: "2023",
+    category: "Domestic",
+    title: "Modeling Coronary Artery Hemodynamics: Exploring DCNN Surrogate Models in Preliminary Research",
+    venue: "Biomedical Engineering Society for Circulation (2023 BESCO summer meeting)",
+    location: "Daegu, Korea",
+    format: "Oral",
+  },
+  {
+    year: "2022",
+    category: "International",
+    title: "Optimization of Artificial Intelligence Algorithms for FFR Prediction in Gray Zone",
+    venue: "2022 ICTME",
+    location: "Gyeonggi-do, Korea",
+    format: "Oral",
+  },
+  {
     year: "2022",
     category: "Domestic",
     title: "Artificial Intelligence Algorithms for FFR Prediction in Gray Zone by Single-view Angiography",
-    venue: "2022 BESCO winter meeting",
+    venue: "Biomedical Engineering Society for Circulation (2022 BESCO winter meeting)",
     location: "Seoul, Korea",
-    format: "Short oral & poster",
+    format: "Short oral & poster · Best Paper Award nominee",
+  },
+  {
+    year: "2022",
+    category: "Domestic",
+    title: "Artificial intelligence-based automatic cardiovascular lesion prediction diagnostic device",
+    venue: "Biomedical Engineering Society for Circulation (2022 BESCO summer meeting)",
+    location: "Jeju, Korea",
+    format: "Poster",
+  },
+  {
+    year: "2021",
+    category: "International",
+    title: "Estimating CFD-based CT FFR using lattice Boltzmann method – 3D geometry auto segmentation and novel patient specific computation",
+    venue: "ESCHM-ISCH-ISB 2021 FUKUOKA",
+    location: "Fukuoka, Japan",
+    format: "Oral",
+  },
+  {
+    year: "2021",
+    category: "Domestic",
+    title: "Optimization of Artificial Intelligence Algorithms for FFR Prediction in Gray Zone",
+    venue: "Biomedical Engineering Society for Circulation (2021 BESCO winter meeting)",
+    location: "Gangwon, Korea",
+    format: "Oral",
   },
 ];
 
@@ -181,9 +221,27 @@ const patents = [
   },
   {
     year: "2023",
+    title: "Glucose and diabetes prediction algorithm using wearable device-based PPG and biometric information",
+    jurisdiction: "Korea",
+    application: "10-2023-0144347",
+  },
+  {
+    year: "2023",
+    title: "A wearable device for monitoring glaucoma suspect and a method for monitoring glaucoma suspect",
+    jurisdiction: "Korea",
+    application: "10-2023-0144347",
+  },
+  {
+    year: "2023",
     title: "Glaucoma Diagnosis Method and System Based on Contactless Biosignals",
     jurisdiction: "Korea",
     application: "10-2023-0078883",
+  },
+  {
+    year: "2022",
+    title: "Noninvasive Urodynamics Test Method and Apparatus Based on Artificial Intelligence",
+    jurisdiction: "Korea",
+    application: "10-2022-0085583",
   },
   {
     year: "2022",
@@ -480,7 +538,7 @@ export default function Home() {
               <div className="eyebrow">Conference Activity and Patents</div>
               <h2 className="section-title max-w-[12ch]">A public record of conference activity and translational outputs.</h2>
               <p className="body-copy max-w-3xl">
-                This section keeps the homepage aligned with conference presentations and patent applications without making the academic record look narrower than it is.
+                This section opens with a readable preview, while the full conference and patent record can be expanded on demand without shrinking the academic record.
               </p>
             </div>
 
@@ -493,7 +551,7 @@ export default function Home() {
                       Conference presentations
                     </h3>
                   </div>
-                  <span className="year-chip">{conferenceActivities.length} total</span>
+                  <span className="year-chip">{showAllTalks ? `${conferenceActivities.length} total` : `${visibleConferenceActivities.length} of ${conferenceActivities.length} shown`}</span>
                 </div>
                 <div className="achievement-list">
                   {visibleConferenceActivities.map((item) => (
@@ -513,7 +571,7 @@ export default function Home() {
                 {conferenceActivities.length > ACHIEVEMENT_PREVIEW_COUNT ? (
                   <div className="mt-5">
                     <button className="capsule-link" type="button" onClick={() => setShowAllTalks((value) => !value)}>
-                      {showAllTalks ? "Show fewer talks" : `View all ${conferenceActivities.length} talks`}
+                      {showAllTalks ? "Show fewer talks" : `View full conference record (${conferenceActivities.length})`}
                     </button>
                   </div>
                 ) : null}
@@ -527,7 +585,7 @@ export default function Home() {
                       Patent record
                     </h3>
                   </div>
-                  <span className="year-chip">{patents.length} total</span>
+                  <span className="year-chip">{showAllPatents ? `${patents.length} total` : `${visiblePatents.length} of ${patents.length} shown`}</span>
                 </div>
                 <div className="achievement-list">
                   {visiblePatents.map((patent) => (
@@ -546,7 +604,7 @@ export default function Home() {
                 {patents.length > ACHIEVEMENT_PREVIEW_COUNT ? (
                   <div className="mt-5">
                     <button className="capsule-link" type="button" onClick={() => setShowAllPatents((value) => !value)}>
-                      {showAllPatents ? "Show fewer patents" : `View all ${patents.length} patents`}
+                      {showAllPatents ? "Show fewer patents" : `View full patent record (${patents.length})`}
                     </button>
                   </div>
                 ) : null}
