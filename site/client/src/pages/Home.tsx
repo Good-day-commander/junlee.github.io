@@ -382,7 +382,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="container py-8 md:py-12">
+        <section className="container py-10 md:py-14">
           <div className="section-rule mb-8" />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {snapshots.map((item) => (
@@ -395,7 +395,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="research" className="container py-16 md:py-24">
+        <section id="research" className="section-layer section-layer-research">
+          <div className="container py-16 md:py-24">
           <div className="max-w-4xl space-y-5">
             <div className="eyebrow">Research Briefs</div>
             <h2 className="section-title max-w-[12ch]">A closer reading of the studies shaping the research agenda.</h2>
@@ -414,10 +415,10 @@ export default function Home() {
                   <div className="flex flex-col gap-5 p-1 md:p-3">
                     <div className="micro-label w-fit">{brief.status}</div>
                     <div className="space-y-4">
-                      <h3 className="font-display text-[1.95rem] font-semibold leading-[0.98] tracking-[-0.06em] text-[var(--ink)] md:text-[2.4rem]">
+                      <h3 className="font-display text-[1.8rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[2.2rem]">
                         {brief.title}
                       </h3>
-                      <p className="text-base leading-8 text-[color:var(--ink-soft)]">{brief.focus}</p>
+                      <p className="text-[1.02rem] leading-[1.95] text-[color:var(--ink-soft)]">{brief.focus}</p>
                     </div>
                     <ul className="bullet-list">
                       {brief.points.map((point) => (
@@ -437,9 +438,11 @@ export default function Home() {
               </article>
             ))}
           </div>
+          </div>
         </section>
 
-        <section id="ongoing" className="container py-16 md:py-24">
+        <section id="ongoing" className="section-layer section-layer-ongoing">
+          <div className="container py-16 md:py-24">
           <div className="grid gap-8 border-y py-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
             <div className="space-y-4">
               <div className="eyebrow">Ongoing Clinical AI</div>
@@ -447,7 +450,7 @@ export default function Home() {
             </div>
             <div className="space-y-6">
               <div className="micro-label w-fit">In Submission</div>
-              <h3 className="font-display text-[1.9rem] font-semibold leading-[0.98] tracking-[-0.06em] text-[var(--ink)] md:text-[2.6rem]">
+              <h3 className="font-display text-[1.75rem] font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--ink)] md:text-[2.35rem]">
                 Multi-Model Deep-Learning Ensemble for Predicting 24 h Fluid Bolus Administration from Continuous PPG Spectrograms
               </h3>
               <p className="body-copy">
@@ -469,9 +472,10 @@ export default function Home() {
               </div>
             </div>
           </div>
+          </div>
         </section>
 
-        <section id="gallery" className="section-band">
+        <section id="gallery" className="section-band section-band-gallery">
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Field Notes</div>
@@ -492,7 +496,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-3 p-5 md:p-6">
                     <div className="eyebrow">{moment.label}</div>
-                    <h3 className="font-display text-[1.5rem] font-semibold leading-[1.02] tracking-[-0.05em] text-[var(--ink)] md:text-[1.9rem]">
+                    <h3 className="font-display text-[1.42rem] font-semibold leading-[1.08] tracking-[-0.04em] text-[var(--ink)] md:text-[1.75rem]">
                       {moment.title}
                     </h3>
                     <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{moment.note}</p>
@@ -503,7 +507,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="publication-list" className="container py-16 md:py-24">
+        <section id="publication-list" className="section-layer section-layer-publications">
+          <div className="container py-16 md:py-24">
           <div className="max-w-4xl space-y-5">
             <div className="eyebrow">Publication Index</div>
             <h2 className="section-title max-w-[12ch]">A concise record of the publications currently foregrounded on the site.</h2>
@@ -516,7 +521,7 @@ export default function Home() {
                   <span className="year-chip">{paper.year}</span>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-display text-[1.35rem] font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--ink)] md:text-[1.7rem]">
+                  <h3 className="font-display text-[1.28rem] font-semibold leading-[1.12] tracking-[-0.04em] text-[var(--ink)] md:text-[1.56rem]">
                     {paper.title}
                   </h3>
                   <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--blue)]">{paper.venue}</p>
@@ -530,9 +535,10 @@ export default function Home() {
               </article>
             ))}
           </div>
+          </div>
         </section>
 
-        <section id="achievements" className="section-band">
+        <section id="achievements" className="section-band section-band-achievements">
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Conference Activity and Patents</div>
@@ -547,7 +553,7 @@ export default function Home() {
                 <div className="achievement-column-head">
                   <div>
                     <div className="eyebrow">Talks</div>
-                    <h3 className="font-display mt-2 text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[1.9rem]">
+                    <h3 className="font-display mt-2 text-[1.42rem] font-semibold leading-[1.1] tracking-[-0.04em] text-[var(--ink)] md:text-[1.72rem]">
                       Conference presentations
                     </h3>
                   </div>
@@ -560,7 +566,7 @@ export default function Home() {
                         <span className="year-chip">{item.year}</span>
                         <span className="achievement-tag">{item.category}</span>
                       </div>
-                      <h3 className="font-display text-[1.2rem] font-semibold leading-[1.08] tracking-[-0.04em] text-[var(--ink)] md:text-[1.38rem]">
+                      <h3 className="font-display text-[1.08rem] font-semibold leading-[1.18] tracking-[-0.03em] text-[var(--ink)] md:text-[1.26rem]">
                         {item.title}
                       </h3>
                       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--blue)]">{item.venue}</p>
@@ -570,7 +576,7 @@ export default function Home() {
                 </div>
                 {conferenceActivities.length > ACHIEVEMENT_PREVIEW_COUNT ? (
                   <div className="mt-5">
-                    <button className="capsule-link" type="button" onClick={() => setShowAllTalks((value) => !value)}>
+                    <button className="capsule-link capsule-link-quiet" type="button" onClick={() => setShowAllTalks((value) => !value)}>
                       {showAllTalks ? "Show fewer talks" : `View full conference record (${conferenceActivities.length})`}
                     </button>
                   </div>
@@ -581,7 +587,7 @@ export default function Home() {
                 <div className="achievement-column-head">
                   <div>
                     <div className="eyebrow">Patents</div>
-                    <h3 className="font-display mt-2 text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[1.9rem]">
+                    <h3 className="font-display mt-2 text-[1.42rem] font-semibold leading-[1.1] tracking-[-0.04em] text-[var(--ink)] md:text-[1.72rem]">
                       Patent record
                     </h3>
                   </div>
@@ -594,7 +600,7 @@ export default function Home() {
                         <span className="year-chip">{patent.year}</span>
                         <span className="achievement-tag">{patent.jurisdiction}</span>
                       </div>
-                      <h3 className="font-display text-[1.2rem] font-semibold leading-[1.08] tracking-[-0.04em] text-[var(--ink)] md:text-[1.38rem]">
+                      <h3 className="font-display text-[1.08rem] font-semibold leading-[1.18] tracking-[-0.03em] text-[var(--ink)] md:text-[1.26rem]">
                         {patent.title}
                       </h3>
                       <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Application No. {patent.application}</p>
@@ -603,7 +609,7 @@ export default function Home() {
                 </div>
                 {patents.length > ACHIEVEMENT_PREVIEW_COUNT ? (
                   <div className="mt-5">
-                    <button className="capsule-link" type="button" onClick={() => setShowAllPatents((value) => !value)}>
+                    <button className="capsule-link capsule-link-quiet" type="button" onClick={() => setShowAllPatents((value) => !value)}>
                       {showAllPatents ? "Show fewer patents" : `View full patent record (${patents.length})`}
                     </button>
                   </div>

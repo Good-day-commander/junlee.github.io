@@ -189,42 +189,42 @@
 
   .eyebrow {
     font-family: var(--font-sans);
-    font-size: 0.74rem;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: 0.24em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--blue);
   }
 
   .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(3.75rem, 8vw, 6rem);
-    font-weight: 700;
-    line-height: 0.92;
-    letter-spacing: -0.07em;
+    font-size: clamp(3.45rem, 7.2vw, 5.5rem);
+    font-weight: 650;
+    line-height: 0.98;
+    letter-spacing: -0.06em;
     color: var(--blue);
   }
 
   .section-title {
     font-family: var(--font-display);
-    font-size: clamp(2.1rem, 4vw, 3.75rem);
-    font-weight: 700;
-    line-height: 0.94;
-    letter-spacing: -0.06em;
+    font-size: clamp(2rem, 3.8vw, 3.35rem);
+    font-weight: 650;
+    line-height: 1.02;
+    letter-spacing: -0.05em;
     color: var(--ink);
   }
 
   .lede {
-    font-size: clamp(1.1rem, 1.8vw, 1.375rem);
-    line-height: 1.7;
-    color: color-mix(in srgb, var(--ink) 78%, white);
+    font-size: clamp(1.06rem, 1.55vw, 1.28rem);
+    line-height: 1.88;
+    color: color-mix(in srgb, var(--ink) 76%, white);
   }
 
   .body-copy {
-    font-size: 1.02rem;
-    line-height: 1.9;
-    color: color-mix(in srgb, var(--ink) 76%, white);
+    font-size: 1rem;
+    line-height: 1.95;
+    color: color-mix(in srgb, var(--ink) 74%, white);
   }
 
   .site-frame {
@@ -264,7 +264,7 @@
     border-bottom: 1px solid rgba(16, 24, 40, 0.08);
     background:
       radial-gradient(circle at 84% 18%, rgba(0,95,163,0.08), transparent 22%),
-      linear-gradient(180deg, rgba(242,247,250,0.9), rgba(246,243,238,0.78));
+      linear-gradient(180deg, rgba(242,247,250,0.92), rgba(246,243,238,0.82));
   }
 
   .hero-grid {
@@ -391,9 +391,9 @@
 
   .metric-card {
     @apply border p-6 md:p-7;
-    background: rgba(255,255,255,0.62);
+    background: rgba(255,255,255,0.58);
     border-color: rgba(16, 24, 40, 0.08);
-    box-shadow: 0 18px 36px rgba(20, 31, 54, 0.04);
+    box-shadow: 0 18px 36px rgba(20, 31, 54, 0.035);
   }
 
   .metric-value {
@@ -407,10 +407,10 @@
 
   .research-card {
     @apply border p-4 md:p-5;
-    background: rgba(255,255,255,0.74);
+    background: rgba(255,255,255,0.76);
     border-color: rgba(16, 24, 40, 0.08);
     transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-    box-shadow: 0 20px 50px rgba(20, 31, 54, 0.05);
+    box-shadow: 0 18px 44px rgba(20, 31, 54, 0.045);
   }
 
   .research-card:hover {
@@ -432,15 +432,20 @@
   }
 
   .research-figure {
-    @apply h-full min-h-[260px] overflow-hidden border;
+    @apply h-full min-h-[280px] overflow-hidden border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
     border-color: rgba(16, 24, 40, 0.08);
-    background: linear-gradient(180deg, rgba(248,249,252,.92), rgba(233,239,246,.72));
+    background: linear-gradient(180deg, rgba(248,249,252,.96), rgba(233,239,246,.78));
   }
 
   .research-figure img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
   }
 
   .micro-label {
@@ -456,8 +461,8 @@
 
   .bullet-list li {
     @apply relative pl-5;
-    color: color-mix(in srgb, var(--ink) 78%, white);
-    line-height: 1.75;
+    color: color-mix(in srgb, var(--ink) 76%, white);
+    line-height: 1.88;
   }
 
   .bullet-list li::before {
@@ -471,7 +476,7 @@
   }
 
   .capsule-link {
-    @apply inline-flex items-center gap-2 border px-4 py-2 text-sm font-bold transition-all;
+    @apply inline-flex items-center gap-2 border px-4 py-2 text-sm font-semibold transition-all;
     border-color: rgba(16,24,40,0.12);
     color: var(--ink);
     background: rgba(255,255,255,0.74);
@@ -484,7 +489,7 @@
   }
 
   .publication-row {
-    @apply grid gap-4 border-t py-6 md:grid-cols-[150px_minmax(0,1fr)_auto] md:items-start;
+    @apply grid gap-4 border-t py-7 md:grid-cols-[150px_minmax(0,1fr)_auto] md:items-start;
     border-color: rgba(16,24,40,0.1);
   }
 
@@ -551,6 +556,32 @@
     background: linear-gradient(180deg, rgba(236,242,248,0.48), rgba(245,243,238,0.92));
   }
 
+  .section-layer {
+    position: relative;
+  }
+
+  .section-layer-research {
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+  }
+
+  .section-layer-ongoing {
+    border-top: 1px solid rgba(16,24,40,0.06);
+    border-bottom: 1px solid rgba(16,24,40,0.06);
+    background: linear-gradient(180deg, rgba(241,245,250,0.72), rgba(248,245,239,0.68));
+  }
+
+  .section-layer-publications {
+    background: linear-gradient(180deg, rgba(251,249,244,0.86), rgba(244,240,232,0.98));
+  }
+
+  .section-band-gallery {
+    background: linear-gradient(180deg, rgba(232,240,247,0.58), rgba(246,243,238,0.94));
+  }
+
+  .section-band-achievements {
+    background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(238,242,247,0.9));
+  }
+
   .gallery-grid {
     display: grid;
     gap: 1.25rem;
@@ -569,9 +600,9 @@
 
   .gallery-card {
     @apply overflow-hidden border;
-    background: rgba(255,255,255,0.78);
+    background: rgba(255,255,255,0.8);
     border-color: rgba(16,24,40,0.08);
-    box-shadow: 0 18px 42px rgba(20, 31, 54, 0.05);
+    box-shadow: 0 16px 36px rgba(20, 31, 54, 0.045);
   }
 
   .gallery-media {
@@ -590,6 +621,10 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
+  }
+
+  .capsule-link-quiet {
+    background: rgba(255,255,255,0.58);
   }
 
   .footer-panel {
