@@ -96,10 +96,10 @@ const galleryMoments = [
     image: "/media/profile/gallery-acfm-2025.jpg",
   },
   {
-    label: "Translation · 2025",
-    title: "Translational research and startup context",
+    label: "Product & Startup · 2025",
+    title: "Startup and product development context",
     note:
-      "A translational setting that shows how the same research moves from academic work into product and collaboration contexts.",
+      "A setting that shows how the same research is discussed across startup, product, and collaboration contexts.",
     image: "/media/profile/gallery-translation-summit.jpg",
   },
 ];
@@ -111,7 +111,7 @@ const translationalProducts = [
     summary:
       "A CT-based coronary decision-support system that combines coronary anatomy, AI, and hemodynamic reasoning to estimate the functional significance of coronary artery disease without invasive measurement.",
     detail:
-      "Within my portfolio, CARDIOS shows how my CT-FFR, coronary flow modeling, and clinical decision-support research can move toward product form.",
+      "Within my portfolio, CARDIOS shows how my CT-FFR, coronary flow modeling, and clinical decision-support work connect to software development and product design.",
     support: "CTA × AI × CFD",
   },
   {
@@ -126,7 +126,7 @@ const translationalProducts = [
 ];
 
 const translationalMedia = {
-  label: "External product intro",
+  label: "External overview",
   title: "CARDIOS product overview on YouTube",
   note:
     "A short external overview for visitors who want product context without interrupting the reading flow of the portfolio.",
@@ -327,7 +327,7 @@ export default function Home() {
               Gallery
             </a>
             <a className="nav-link" href="#translation">
-              Translation
+              Applied Work
             </a>
             <a className="nav-link" href="#publication-list">
               Publications
@@ -353,16 +353,16 @@ export default function Home() {
                 <div className="space-y-4">
                     <div className="eyebrow">Coronary Hemodynamics · Clinical AI · Wearable Biosignals</div>
 
-                  <h1 className="hero-title max-w-[11ch]">Translating flow physics into clinically useful intelligence.</h1>
+                  <h1 className="hero-title max-w-[11ch]">Building clinically interpretable intelligence from flow physics.</h1>
                 </div>
                 <div className="hero-meta-rule max-w-5xl" />
                 <div className="hero-narrative-grid">
                   <div className="space-y-6">
                     <p className="lede max-w-3xl">
-                      I am a PhD candidate at Yonsei University&apos;s MFDL BIOS Lab, building patient-specific models and
-                      learning systems for <strong>coronary hemodynamics</strong>, <strong>CT-derived FFR</strong>,
-                      <strong> PINO-based flow prediction</strong>, and <strong>wearable PPG analysis</strong>. My research turns
-                      flow physics into clinically interpretable tools for diagnosis, monitoring, and translational medical AI.
+                      I am a PhD candidate in Yonsei University&apos;s <strong>Multi-scale Fluid Dynamics Lab</strong>, building
+                      patient-specific models and learning systems for <strong>coronary hemodynamics</strong>, <strong>CT-derived FFR</strong>,
+                      <strong> PINO-based flow prediction</strong>, and <strong>wearable PPG analysis</strong>. My work focuses on making
+                      fluid mechanics and physiological signals more interpretable for diagnosis, risk assessment, and clinical decision support.
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <a className="capsule-link" href="#research">
@@ -383,7 +383,7 @@ export default function Home() {
                         </h2>
                       </div>
                       <p className="body-copy">
-                        This homepage is structured as a compact research report showing what I study, how I build the models, and where the work is moving clinically and translationally.
+                        This homepage is structured as a compact research report showing what problems I work on, how I build the models, and how those methods connect to clinically meaningful questions.
                       </p>
                     </div>
                   </aside>
@@ -399,7 +399,7 @@ export default function Home() {
                   <div className="hero-profile-meta mt-5 text-sm text-[color:var(--ink-soft)]">
                     <div>
                       <div className="eyebrow mb-2">Affiliation</div>
-                      <p>MFDL, Yonsei University</p>
+                      <p>Multi-scale Fluid Dynamics Lab, Yonsei University</p>
                     </div>
                     <div>
                       <div className="eyebrow mb-2">Role</div>
@@ -513,9 +513,9 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Field Notes</div>
-              <h2 className="section-title max-w-[12ch]">Research rooms, conference stages, and translational settings.</h2>
+              <h2 className="section-title max-w-[12ch]">Research rooms, conference stages, and product-facing collaborations.</h2>
               <p className="body-copy max-w-3xl">
-                These images show how I present and position the work across lab meetings, conferences, and translational collaborations.
+                These images show where I develop, present, and discuss the work across lab meetings, conferences, and startup-related collaborations.
               </p>
             </div>
 
@@ -545,21 +545,21 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">The M.E.N.D. BioSimulator</div>
-              <h2 className="section-title max-w-[12ch]">Where research moves into product-facing clinical tools.</h2>
+              <h2 className="section-title max-w-[12ch]">Research connected to software and product development.</h2>
               <p className="body-copy max-w-3xl">
-                Part of my work also continues into <strong>The M.E.N.D. BioSimulator</strong>, where coronary CT analysis, computational hemodynamics, and wearable biosignals are turned into diagnostic and monitoring products.
+                Part of my work also connects to <strong>The M.E.N.D. BioSimulator</strong>, where coronary CT analysis, computational hemodynamics, and wearable biosignal modeling are organized into product concepts and clinical software.
               </p>
             </div>
 
             <div className="translation-grid mt-10">
               <article className="translation-overview-panel">
                 <div className="space-y-4">
-                  <div className="micro-label w-fit">Translational context</div>
-                  <h3 className="translation-panel-title">This section shows where the research goes after publication.</h3>
+                  <div className="micro-label w-fit">Applied research context</div>
+                  <h3 className="translation-panel-title">This section shows where the research connects beyond papers.</h3>
                 </div>
                 <div className="space-y-5">
                   <p className="body-copy">
-                    I include this layer because the models and biosignal pipelines do not stop at papers. They continue into software, product concepts, and clinical workflows intended for real use.
+                    I include this layer because some of the modeling and biosignal pipelines are also relevant to software design, product planning, and clinical workflow integration.
                   </p>
                   <p className="body-copy">
                     The product video stays as a compact external link so visitors can open it when needed without breaking the reading flow of the portfolio.
@@ -636,9 +636,9 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Conference Activity and Patents</div>
-              <h2 className="section-title max-w-[13ch]">Talks, patents, and translational outputs from the same research arc.</h2>
+              <h2 className="section-title max-w-[13ch]">Talks, patents, and applied outputs across the same research arc.</h2>
               <p className="body-copy max-w-3xl">
-                Together, these records show how I have presented the work, discussed it with research communities, and translated it beyond journal publication—from conference talks to patent filings.
+                Together, these records show how I have presented the work, discussed it with research communities, and extended it beyond journal publication—from conference talks to patent filings and applied projects.
               </p>
             </div>
 
@@ -718,9 +718,9 @@ export default function Home() {
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
               <div className="space-y-5">
                 <div className="eyebrow">Contact and Links</div>
-                <h2 className="section-title max-w-[14ch]">Open to collaboration on coronary hemodynamics, medical AI, and translational biosignal research.</h2>
+                <h2 className="section-title max-w-[14ch]">Open to collaboration on coronary hemodynamics, medical AI, and wearable biosignal analysis.</h2>
                 <p className="body-copy max-w-2xl">
-                  If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss possible collaboration.
+                  If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss research or development collaboration.
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
