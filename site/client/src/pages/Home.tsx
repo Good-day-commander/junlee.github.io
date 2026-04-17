@@ -33,6 +33,7 @@ const snapshots = [
 
 const briefs = [
   {
+    layout: "lead",
     status: "Featured Paper · 2025",
     title:
       "A Physics-Integrated Deep Learning Approach for Patient-Specific Non-Newtonian Blood Viscosity Assessment using PPG",
@@ -49,6 +50,7 @@ const briefs = [
     doi: "https://doi.org/10.1016/j.cmpb.2025.108740",
   },
   {
+    layout: "text-first",
     status: "Published · 2022",
     title: "Optimization of FFR Prediction in the Gray Zone",
     journal: "Computer Methods and Programs in Biomedicine",
@@ -64,6 +66,7 @@ const briefs = [
     doi: "https://doi.org/10.1016/j.cmpb.2022.106827",
   },
   {
+    layout: "figure-first",
     status: "Published · 2022",
     title: "Optimization of Tricuspid Membrane Mechanism through Hemodynamic Analysis",
     journal: "Engineering Applications of Computational Fluid Mechanics",
@@ -281,6 +284,7 @@ export default function Home() {
     ? conferenceActivities
     : conferenceActivities.slice(0, ACHIEVEMENT_PREVIEW_COUNT);
   const visiblePatents = showAllPatents ? patents : patents.slice(0, ACHIEVEMENT_PREVIEW_COUNT);
+  const [leadBrief, ...secondaryBriefs] = briefs;
 
   return (
     <div className="editorial-shell site-frame">
@@ -397,47 +401,83 @@ export default function Home() {
 
         <section id="research" className="section-layer section-layer-research">
           <div className="container py-16 md:py-24">
-          <div className="max-w-4xl space-y-5">
-            <div className="eyebrow">Research Briefs</div>
-            <h2 className="section-title max-w-[12ch]">A closer reading of the studies shaping the research agenda.</h2>
-            <p className="body-copy max-w-3xl">
-              The papers below are presented as research briefs rather than a conventional publication list. Each brief identifies the clinical problem, the computational logic, and the translational value that emerged from the work.
-            </p>
-          </div>
+            <div className="max-w-4xl space-y-5">
+              <div className="eyebrow">Research Briefs</div>
+              <h2 className="section-title max-w-[12ch]">A closer reading of the studies shaping the research agenda.</h2>
+              <p className="body-copy max-w-3xl">
+                The papers below are presented as research briefs rather than a conventional publication list. Each brief identifies the clinical problem, the computational logic, and the translational value that emerged from the work.
+              </p>
+            </div>
 
-          <div className="mt-10 space-y-6">
-            {briefs.map((brief) => (
-              <article key={brief.title} className="research-card">
-                <div className="research-grid">
-                  <div className="research-figure">
-                    <img src={brief.image} alt={brief.title} />
+            <div className="mt-10 space-y-6">
+              <article className="research-card research-card-lead">
+                <div className="research-lead-media">
+                  <div className="research-figure research-figure-lead">
+                    <img src={leadBrief.image} alt={leadBrief.title} />
                   </div>
-                  <div className="flex flex-col gap-5 p-1 md:p-3">
-                    <div className="micro-label w-fit">{brief.status}</div>
-                    <div className="space-y-4">
-                      <h3 className="font-display text-[1.8rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[2.2rem]">
-                        {brief.title}
-                      </h3>
-                      <p className="text-[1.02rem] leading-[1.95] text-[color:var(--ink-soft)]">{brief.focus}</p>
-                    </div>
-                    <ul className="bullet-list">
-                      {brief.points.map((point) => (
+                </div>
+                <div className="research-lead-content">
+                  <div className="space-y-4">
+                    <div className="micro-label w-fit">{leadBrief.status}</div>
+                    <h3 className="research-title-lead">{leadBrief.title}</h3>
+                    <p className="research-focus-lead max-w-3xl">{leadBrief.focus}</p>
+                  </div>
+                  <div className="research-lead-body">
+                    <ul className="bullet-list research-bullet-columns">
+                      {leadBrief.points.map((point) => (
                         <li key={point}>{point}</li>
                       ))}
                     </ul>
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <div className="research-meta-panel">
                       <span className="year-chip">
-                        {brief.journal} · {brief.year}
+                        {leadBrief.journal} · {leadBrief.year}
                       </span>
-                      <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
+                      <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
+                        Physics-informed wearable sensing framed as a lead paper for the current homepage narrative.
+                      </p>
+                      <a className="capsule-link w-fit" href={leadBrief.doi} target="_blank" rel="noreferrer">
                         View DOI <ArrowUpRight className="size-4" />
                       </a>
                     </div>
                   </div>
                 </div>
               </article>
-            ))}
-          </div>
+
+              <div className="research-secondary-grid">
+                {secondaryBriefs.map((brief) => (
+                  <article
+                    key={brief.title}
+                    className={`research-card research-card-variation ${brief.layout === "text-first" ? "research-card-text-first" : "research-card-figure-first"}`}
+                  >
+                    <div className="research-card-shell">
+                      <div className="research-card-copy">
+                        <div className="micro-label w-fit">{brief.status}</div>
+                        <div className="space-y-4">
+                          <h3 className="research-title-secondary">{brief.title}</h3>
+                          <p className="research-focus-secondary">{brief.focus}</p>
+                        </div>
+                        <ul className="bullet-list">
+                          {brief.points.map((point) => (
+                            <li key={point}>{point}</li>
+                          ))}
+                        </ul>
+                        <div className="flex flex-wrap items-center gap-3 pt-2">
+                          <span className="year-chip">
+                            {brief.journal} · {brief.year}
+                          </span>
+                          <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
+                            View DOI <ArrowUpRight className="size-4" />
+                          </a>
+                        </div>
+                      </div>
+                      <div className="research-figure research-figure-secondary">
+                        <img src={brief.image} alt={brief.title} />
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -509,32 +549,31 @@ export default function Home() {
 
         <section id="publication-list" className="section-layer section-layer-publications">
           <div className="container py-16 md:py-24">
-          <div className="max-w-4xl space-y-5">
-            <div className="eyebrow">Publication Index</div>
-            <h2 className="section-title max-w-[12ch]">A concise record of the publications currently foregrounded on the site.</h2>
-          </div>
+            <div className="max-w-4xl space-y-5">
+              <div className="eyebrow">Publication Index</div>
+              <h2 className="section-title max-w-[12ch]">A concise record of the publications currently foregrounded on the site.</h2>
+            </div>
 
-          <div className="mt-10 border-b" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
-            {publications.map((paper) => (
-              <article key={paper.title} className="publication-row">
-                <div>
-                  <span className="year-chip">{paper.year}</span>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-display text-[1.28rem] font-semibold leading-[1.12] tracking-[-0.04em] text-[var(--ink)] md:text-[1.56rem]">
-                    {paper.title}
-                  </h3>
-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--blue)]">{paper.venue}</p>
-                  <p className="text-base leading-8 text-[color:var(--ink-soft)]">{paper.note}</p>
-                </div>
-                <div>
-                  <a className="capsule-link" href={paper.doi} target="_blank" rel="noreferrer">
-                    DOI <ArrowUpRight className="size-4" />
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
+            <div className="publication-index-grid mt-10">
+              {publications.map((paper, index) => (
+                <article
+                  key={paper.title}
+                  className={`publication-card ${index === 0 ? "publication-card-featured" : "publication-card-compact"}`}
+                >
+                  <div className="publication-card-head">
+                    <span className="year-chip">{paper.year}</span>
+                    <a className="capsule-link" href={paper.doi} target="_blank" rel="noreferrer">
+                      DOI <ArrowUpRight className="size-4" />
+                    </a>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="publication-venue">{paper.venue}</p>
+                    <h3 className="publication-title">{paper.title}</h3>
+                    <p className="publication-note">{paper.note}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
