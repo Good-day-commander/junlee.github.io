@@ -420,17 +420,15 @@ export default function Home() {
                         </span>
                       </div>
                       <div className="space-y-4">
-                        <h3 className="font-display text-[1.8rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[2.12rem]">
-                          {brief.title}
-                        </h3>
-                        <p className="text-[1.01rem] leading-[1.9] text-[color:var(--ink-soft)]">{brief.focus}</p>
+                        <h3 className="research-title">{brief.title}</h3>
+                        <p className="research-focus">{brief.focus}</p>
                       </div>
-                      <ul className="bullet-list">
+                      <ul className="bullet-list research-bullet-list">
                         {brief.points.map((point) => (
                           <li key={point}>{point}</li>
                         ))}
                       </ul>
-                      <div className="pt-1">
+                      <div className="research-card-footer">
                         <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
                           View DOI <ArrowUpRight className="size-4" />
                         </a>
@@ -523,11 +521,9 @@ export default function Home() {
                     <span className="year-chip">{paper.year}</span>
                   </div>
                   <div className="publication-copy">
-                    <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--blue)]">{paper.venue}</p>
-                    <h3 className="font-display text-[1.28rem] font-semibold leading-[1.12] tracking-[-0.04em] text-[var(--ink)] md:text-[1.56rem]">
-                      {paper.title}
-                    </h3>
-                    <p className="text-base leading-8 text-[color:var(--ink-soft)]">{paper.note}</p>
+                    <p className="publication-venue">{paper.venue}</p>
+                    <h3 className="publication-title">{paper.title}</h3>
+                    <p className="publication-note">{paper.note}</p>
                   </div>
                   <div className="publication-row-action">
                     <a className="capsule-link" href={paper.doi} target="_blank" rel="noreferrer">
