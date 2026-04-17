@@ -178,69 +178,71 @@ export default function Home() {
       </header>
 
       <main id="top">
-        <section className="container">
-          <div className="hero-grid">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="eyebrow">Fluid Dynamics · Clinical AI · Wearable Hemodynamics</div>
-                <h1 className="hero-title max-w-[11ch]">Translating flow physics into clinically useful intelligence.</h1>
-              </div>
-              <div className="hero-meta-rule max-w-4xl" />
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.78fr)] lg:items-start">
-                <div className="space-y-6">
-                  <p className="lede max-w-3xl">
-                    I build patient-specific computational and learning systems that connect
-                    <strong> hemodynamic structure</strong>, <strong> wearable physiological signals</strong>, and
-                    <strong> clinical decision-making</strong>. My work sits at the intersection of computational fluid dynamics,
-                    physics-informed modeling, and translational medical AI.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <a className="capsule-link" href="#research">
-                      Explore selected research <MoveRight className="size-4" />
-                    </a>
-                    <a className="capsule-link" href="/uploads/resume.pdf" target="_blank" rel="noreferrer">
-                      View resume <ArrowUpRight className="size-4" />
-                    </a>
-                  </div>
+        <section className="hero-band">
+          <div className="container">
+            <div className="hero-grid">
+              <div className="hero-main space-y-8">
+                <div className="space-y-4">
+                  <div className="eyebrow">Fluid Dynamics · Clinical AI · Wearable Hemodynamics</div>
+                  <h1 className="hero-title max-w-[11ch]">Translating flow physics into clinically useful intelligence.</h1>
                 </div>
-
-                <div className="hero-side-column">
-                  <aside className="portrait-card lg:ml-auto">
-                    <div className="micro-label w-fit">Profile</div>
-                    <div className="portrait-frame mt-4">
-                      <img src="/media/profile/profile-main.jpg" alt="Portrait of Hyeong Jun Lee" />
+                <div className="hero-meta-rule max-w-5xl" />
+                <div className="hero-narrative-grid">
+                  <div className="space-y-6">
+                    <p className="lede max-w-3xl">
+                      I build patient-specific computational and learning systems that connect
+                      <strong> hemodynamic structure</strong>, <strong> wearable physiological signals</strong>, and
+                      <strong> clinical decision-making</strong>. My work sits at the intersection of computational fluid dynamics,
+                      physics-informed modeling, and translational medical AI.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <a className="capsule-link" href="#research">
+                        Explore selected research <MoveRight className="size-4" />
+                      </a>
+                      <a className="capsule-link" href="/uploads/resume.pdf" target="_blank" rel="noreferrer">
+                        View resume <ArrowUpRight className="size-4" />
+                      </a>
                     </div>
-                    <div className="mt-4 grid gap-4 text-sm text-[color:var(--ink-soft)] sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                      <div>
-                        <div className="eyebrow mb-2">Affiliation</div>
-                        <p>MFDL, Yonsei University</p>
-                      </div>
-                      <div>
-                        <div className="eyebrow mb-2">Role</div>
-                        <p>PhD Candidate in Mechanical Engineering</p>
-                      </div>
-                    </div>
-                  </aside>
+                  </div>
 
-                  <aside className="hero-panel p-6 md:p-8">
-                    <div className="space-y-5">
+                  <aside className="hero-panel hero-framing-panel p-6 md:p-7">
+                    <div className="space-y-4">
                       <div>
                         <div className="eyebrow">Current framing</div>
-                        <h2 className="font-display mt-3 text-[2rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[var(--ink)] md:text-[2.35rem]">
+                        <h2 className="font-display mt-3 text-[1.95rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[var(--ink)] md:text-[2.2rem]">
                           Research as brief, not archive.
                         </h2>
                       </div>
                       <p className="body-copy">
                         The homepage reads as a compact report on how fluid-mechanical understanding becomes actionable diagnostic insight.
                       </p>
-                      <div className="section-rule" />
-                      <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
-                        The portrait stays restrained in scale while the surrounding sections carry the fuller story through papers, talks, and field moments.
-                      </p>
                     </div>
                   </aside>
                 </div>
               </div>
+
+              <aside className="hero-profile-wrap">
+                <div className="portrait-card">
+                  <div className="micro-label w-fit">Profile</div>
+                  <div className="portrait-frame hero-portrait-frame mt-4">
+                    <img src="/media/profile/profile-main.jpg" alt="Portrait of Hyeong Jun Lee" />
+                  </div>
+                  <div className="hero-profile-meta mt-5 text-sm text-[color:var(--ink-soft)]">
+                    <div>
+                      <div className="eyebrow mb-2">Affiliation</div>
+                      <p>MFDL, Yonsei University</p>
+                    </div>
+                    <div>
+                      <div className="eyebrow mb-2">Role</div>
+                      <p>PhD Candidate in Mechanical Engineering</p>
+                    </div>
+                    <div>
+                      <div className="eyebrow mb-2">Current scope</div>
+                      <p>PINO, clinical AI, and wearable hemodynamics</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </section>

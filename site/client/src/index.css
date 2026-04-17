@@ -259,20 +259,50 @@
     color: var(--blue);
   }
 
+  .hero-band {
+    position: relative;
+    border-bottom: 1px solid rgba(16, 24, 40, 0.08);
+    background:
+      radial-gradient(circle at 84% 18%, rgba(0,95,163,0.08), transparent 22%),
+      linear-gradient(180deg, rgba(242,247,250,0.9), rgba(246,243,238,0.78));
+  }
+
   .hero-grid {
     display: grid;
     gap: 2rem;
     grid-template-columns: 1fr;
-    padding-top: 3.5rem;
-    padding-bottom: 3rem;
+    padding-top: 3.25rem;
+    padding-bottom: 3.25rem;
   }
 
   @media (min-width: 1100px) {
     .hero-grid {
-      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
-      gap: 3rem;
-      padding-top: 5.5rem;
-      padding-bottom: 4rem;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 2rem;
+      padding-top: 4.75rem;
+      padding-bottom: 4.25rem;
+      align-items: start;
+    }
+
+    .hero-main {
+      grid-column: 1 / span 8;
+    }
+
+    .hero-profile-wrap {
+      grid-column: 9 / -1;
+      align-self: start;
+    }
+  }
+
+  .hero-narrative-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 1280px) {
+    .hero-narrative-grid {
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.9fr);
+      align-items: start;
     }
   }
 
@@ -288,12 +318,18 @@
     align-content: start;
   }
 
+  .hero-profile-wrap {
+    width: 100%;
+  }
+
   .portrait-card {
     @apply border p-5 md:p-6;
-    background: rgba(255,255,255,0.82);
+    width: 100%;
+    max-width: 23rem;
+    margin-left: auto;
+    background: rgba(255,255,255,0.86);
     border-color: rgba(16, 24, 40, 0.08);
     box-shadow: 0 24px 70px rgba(20, 31, 54, 0.07);
-    max-width: 22rem;
   }
 
   .portrait-frame {
@@ -307,7 +343,29 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 18%;
+    object-position: center 16%;
+  }
+
+  .hero-portrait-frame {
+    aspect-ratio: 4 / 4.7;
+  }
+
+  .hero-profile-meta {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1100px) {
+    .hero-profile-meta {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 1360px) {
+    .hero-profile-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .hero-panel {
@@ -325,6 +383,10 @@
     height: 240px;
     border-radius: 999px;
     background: radial-gradient(circle, rgba(156,242,242,.45), transparent 68%);
+  }
+
+  .hero-framing-panel {
+    min-height: 100%;
   }
 
   .metric-card {
