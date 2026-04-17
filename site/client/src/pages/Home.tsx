@@ -3,6 +3,7 @@
   Institutional Editorial Modernism.
   카드형 포트폴리오보다 연구 리포트 첫 페이지처럼 보이게 만들고,
   큰 헤드라인과 긴 문단, 연구 브리프 중심 구성을 유지한다.
+  사진은 인물 브랜딩을 보조하는 밀도 있는 편집 요소처럼 다룬다.
 */
 import { ArrowUpRight, FileText, FlaskConical, Mail, MoveRight } from "lucide-react";
 
@@ -78,6 +79,30 @@ const briefs = [
   },
 ];
 
+const galleryMoments = [
+  {
+    label: "Research Talk · 2024",
+    title: "Department symposium presentation at Yonsei University",
+    note:
+      "A close in-room presentation image that gives the homepage a sense of the researcher in action without overpowering the editorial layout.",
+    image: "/media/profile/gallery-talk-yonsei.jpg",
+  },
+  {
+    label: "Conference Talk · 2025",
+    title: "18th Asian Congress of Fluid Mechanics",
+    note:
+      "A conference-facing moment that connects the publication record to active participation in the broader fluid mechanics community.",
+    image: "/media/profile/gallery-acfm-2025.jpg",
+  },
+  {
+    label: "Translation · 2025",
+    title: "Startup-facing and translational research context",
+    note:
+      "A more translational scene showing how academic work is also extending toward products, collaboration, and early innovation settings.",
+    image: "/media/profile/gallery-translation-summit.jpg",
+  },
+];
+
 const publications = [
   {
     year: "2025",
@@ -136,6 +161,9 @@ export default function Home() {
             <a className="nav-link" href="#research">
               Research
             </a>
+            <a className="nav-link" href="#gallery">
+              Gallery
+            </a>
             <a className="nav-link" href="#publication-list">
               Publications
             </a>
@@ -155,12 +183,10 @@ export default function Home() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className="eyebrow">Fluid Dynamics · Clinical AI · Wearable Hemodynamics</div>
-                <h1 className="hero-title max-w-[11ch]">
-                  Translating flow physics into clinically useful intelligence.
-                </h1>
+                <h1 className="hero-title max-w-[11ch]">Translating flow physics into clinically useful intelligence.</h1>
               </div>
               <div className="hero-meta-rule max-w-4xl" />
-              <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.72fr)]">
+              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.78fr)] lg:items-start">
                 <div className="space-y-6">
                   <p className="lede max-w-3xl">
                     I build patient-specific computational and learning systems that connect
@@ -177,19 +203,14 @@ export default function Home() {
                     </a>
                   </div>
                 </div>
-                <aside className="hero-panel p-6 md:p-8">
-                  <div className="space-y-5">
-                    <div>
-                      <div className="eyebrow">Current framing</div>
-                      <h2 className="font-display mt-3 text-[2rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[var(--ink)] md:text-[2.5rem]">
-                        Research as editorial brief, not archive.
-                      </h2>
+
+                <div className="hero-side-column">
+                  <aside className="portrait-card lg:ml-auto">
+                    <div className="micro-label w-fit">Profile</div>
+                    <div className="portrait-frame mt-4">
+                      <img src="/media/profile/profile-main.jpg" alt="Portrait of Hyeong Jun Lee" />
                     </div>
-                    <p className="body-copy">
-                      Rather than presenting isolated outputs, this homepage is organized as a compact report on the broader arc of my research: how fluid-mechanical understanding can become actionable diagnostic insight.
-                    </p>
-                    <div className="section-rule" />
-                    <div className="grid gap-4 text-sm text-[color:var(--ink-soft)] sm:grid-cols-2">
+                    <div className="mt-4 grid gap-4 text-sm text-[color:var(--ink-soft)] sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                       <div>
                         <div className="eyebrow mb-2">Affiliation</div>
                         <p>MFDL, Yonsei University</p>
@@ -199,8 +220,26 @@ export default function Home() {
                         <p>PhD Candidate in Mechanical Engineering</p>
                       </div>
                     </div>
-                  </div>
-                </aside>
+                  </aside>
+
+                  <aside className="hero-panel p-6 md:p-8">
+                    <div className="space-y-5">
+                      <div>
+                        <div className="eyebrow">Current framing</div>
+                        <h2 className="font-display mt-3 text-[2rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[var(--ink)] md:text-[2.35rem]">
+                          Research as brief, not archive.
+                        </h2>
+                      </div>
+                      <p className="body-copy">
+                        The homepage reads as a compact report on how fluid-mechanical understanding becomes actionable diagnostic insight.
+                      </p>
+                      <div className="section-rule" />
+                      <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
+                        The portrait stays restrained in scale while the surrounding sections carry the fuller story through papers, talks, and field moments.
+                      </p>
+                    </div>
+                  </aside>
+                </div>
               </div>
             </div>
           </div>
@@ -222,9 +261,7 @@ export default function Home() {
         <section id="research" className="container py-16 md:py-24">
           <div className="max-w-4xl space-y-5">
             <div className="eyebrow">Selected Research Briefs</div>
-            <h2 className="section-title max-w-[12ch]">
-              A closer reading of the studies shaping the research agenda.
-            </h2>
+            <h2 className="section-title max-w-[12ch]">A closer reading of the studies shaping the research agenda.</h2>
             <p className="body-copy max-w-3xl">
               The selected papers below are presented as research briefs rather than a conventional publication list. Each brief identifies the clinical problem, the computational logic, and the translational value that emerged from the work.
             </p>
@@ -251,7 +288,9 @@ export default function Home() {
                       ))}
                     </ul>
                     <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <span className="year-chip">{brief.journal} · {brief.year}</span>
+                      <span className="year-chip">
+                        {brief.journal} · {brief.year}
+                      </span>
                       <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
                         View DOI <ArrowUpRight className="size-4" />
                       </a>
@@ -295,6 +334,38 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="gallery" className="section-band">
+          <div className="container py-16 md:py-24">
+            <div className="max-w-4xl space-y-5">
+              <div className="eyebrow">Field Notes</div>
+              <h2 className="section-title max-w-[12ch]">A compact gallery of talks, conference rooms, and translational moments.</h2>
+              <p className="body-copy max-w-3xl">
+                Instead of building a separate photo gallery page, the site keeps a restrained visual record of how the research is presented in rooms, conferences, and adjacent translational settings.
+              </p>
+            </div>
+
+            <div className="gallery-grid mt-10">
+              {galleryMoments.map((moment, index) => (
+                <article
+                  key={moment.title}
+                  className={index === 0 ? "gallery-card gallery-card-featured" : "gallery-card"}
+                >
+                  <div className="gallery-media">
+                    <img src={moment.image} alt={moment.title} />
+                  </div>
+                  <div className="space-y-3 p-5 md:p-6">
+                    <div className="eyebrow">{moment.label}</div>
+                    <h3 className="font-display text-[1.5rem] font-semibold leading-[1.02] tracking-[-0.05em] text-[var(--ink)] md:text-[1.9rem]">
+                      {moment.title}
+                    </h3>
+                    <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{moment.note}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="publication-list" className="container py-16 md:py-24">
           <div className="max-w-4xl space-y-5">
             <div className="eyebrow">Publication Index</div>
@@ -331,7 +402,7 @@ export default function Home() {
                 <div className="eyebrow">Contact and Links</div>
                 <h2 className="section-title max-w-[10ch]">Open to academic, translational, and clinical collaboration.</h2>
                 <p className="body-copy max-w-2xl">
-                  The site will next expand with a broader project layer. For now, it concentrates on the papers and research direction most essential to understanding the current trajectory of the work.
+                  The site will next expand with a broader project layer. For now, it concentrates on the papers, activity moments, and research direction most essential to understanding the current trajectory of the work.
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">

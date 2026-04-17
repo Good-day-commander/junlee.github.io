@@ -282,6 +282,34 @@
     background: linear-gradient(90deg, rgba(0,95,163,.28), rgba(16,24,40,.06));
   }
 
+  .hero-side-column {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .portrait-card {
+    @apply border p-5 md:p-6;
+    background: rgba(255,255,255,0.82);
+    border-color: rgba(16, 24, 40, 0.08);
+    box-shadow: 0 24px 70px rgba(20, 31, 54, 0.07);
+    max-width: 22rem;
+  }
+
+  .portrait-frame {
+    @apply overflow-hidden border;
+    aspect-ratio: 4 / 5;
+    border-color: rgba(16, 24, 40, 0.08);
+    background: linear-gradient(180deg, rgba(248,249,252,.95), rgba(235,239,244,.88));
+  }
+
+  .portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+  }
+
   .hero-panel {
     @apply relative overflow-hidden border;
     background: linear-gradient(145deg, rgba(255,255,255,.8), rgba(239,233,223,.8));
@@ -402,6 +430,53 @@
     @apply inline-flex w-fit items-center border px-3 py-1 text-xs font-extrabold uppercase tracking-[0.2em];
     border-color: rgba(16,24,40,0.12);
     color: var(--ink-soft);
+  }
+
+  .section-band {
+    border-top: 1px solid rgba(16,24,40,0.08);
+    border-bottom: 1px solid rgba(16,24,40,0.08);
+    background: linear-gradient(180deg, rgba(236,242,248,0.48), rgba(245,243,238,0.92));
+  }
+
+  .gallery-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 980px) {
+    .gallery-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gallery-card-featured {
+      grid-column: span 2;
+    }
+  }
+
+  .gallery-card {
+    @apply overflow-hidden border;
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(16,24,40,0.08);
+    box-shadow: 0 18px 42px rgba(20, 31, 54, 0.05);
+  }
+
+  .gallery-media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(16,24,40,0.08);
+    background: rgba(228,235,243,0.7);
+  }
+
+  .gallery-card-featured .gallery-media {
+    aspect-ratio: 16 / 9;
+  }
+
+  .gallery-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
   .footer-panel {
