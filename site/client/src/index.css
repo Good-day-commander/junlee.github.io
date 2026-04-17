@@ -531,6 +531,122 @@
     transform: translateY(-2px);
   }
 
+  .translation-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 1100px) {
+    .translation-grid {
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      align-items: stretch;
+    }
+  }
+
+  .translation-overview-panel,
+  .translation-product-card,
+  .translation-media-card {
+    @apply border;
+    background: rgba(255,255,255,0.72);
+    border-color: rgba(16, 24, 40, 0.08);
+    box-shadow: 0 18px 40px rgba(20, 31, 54, 0.045);
+  }
+
+  .translation-overview-panel {
+    display: grid;
+    gap: 1.45rem;
+    align-content: start;
+    padding: 1.45rem;
+  }
+
+  @media (min-width: 768px) {
+    .translation-overview-panel {
+      padding: 1.75rem;
+    }
+  }
+
+  .translation-panel-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 2vw, 1.95rem);
+    font-weight: 650;
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    max-width: 20ch;
+  }
+
+  .translation-media-card {
+    display: grid;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+
+  .translation-media-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0,95,163,0.22);
+    box-shadow: 0 24px 54px rgba(20, 31, 54, 0.075);
+  }
+
+  .translation-media-thumb {
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(180deg, rgba(226,233,243,0.96), rgba(208,219,235,0.82));
+  }
+
+  .translation-media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .translation-media-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 1.8vw, 1.7rem);
+    font-weight: 650;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+
+  .translation-product-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 880px) {
+    .translation-product-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .translation-product-card {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    padding: 1.45rem;
+  }
+
+  .translation-product-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 1.9vw, 1.85rem);
+    font-weight: 650;
+    line-height: 1.06;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+  }
+
+  .translation-product-summary {
+    max-width: 50ch;
+    font-size: 1rem;
+    line-height: 1.82;
+    color: color-mix(in srgb, var(--ink) 80%, white);
+  }
+
   .publication-row {
     @apply grid gap-4 border-t py-8 md:grid-cols-[112px_minmax(0,1fr)_auto] md:items-start;
     border-color: rgba(16,24,40,0.1);

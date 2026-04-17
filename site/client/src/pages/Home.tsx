@@ -104,6 +104,36 @@ const galleryMoments = [
   },
 ];
 
+const translationalProducts = [
+  {
+    name: "CARDIOS",
+    label: "Coronary CT diagnostics",
+    summary:
+      "A non-invasive cardiovascular diagnostic support system that combines coronary CT images, AI, and computational flow logic to estimate the functional significance of coronary artery disease.",
+    detail:
+      "Within the portfolio narrative, CARDIOS shows how CT-FFR research and hemodynamic modeling are being translated into a product-facing clinical workflow rather than remaining only as academic computation.",
+    support: "CTA × AI × CFD",
+  },
+  {
+    name: "EASYCHECK",
+    label: "Wearable hydration monitoring",
+    summary:
+      "A wearable wellness application that interprets real-time biometric signals to monitor hydration-related status and support everyday physiological tracking.",
+    detail:
+      "It extends the PPG-centered branch of the research toward longitudinal monitoring, making the move from laboratory signal modeling to user-facing biosignal products more explicit.",
+    support: "Wearable PPG × real-time biometrics",
+  },
+];
+
+const translationalMedia = {
+  label: "External product intro",
+  title: "2025 CARDIOS Intro in Eng",
+  note:
+    "Kept as an external YouTube reference rather than a full embedded player so the page stays readable while still pointing to the product-facing explanation.",
+  href: "https://www.youtube.com/watch?v=oSsvH7LRp7E",
+  thumbnail: "https://i.ytimg.com/vi/oSsvH7LRp7E/hqdefault.jpg",
+};
+
 const publications = [
   {
     year: "2025",
@@ -295,6 +325,9 @@ export default function Home() {
             </a>
             <a className="nav-link" href="#gallery">
               Gallery
+            </a>
+            <a className="nav-link" href="#translation">
+              Translation
             </a>
             <a className="nav-link" href="#publication-list">
               Publications
@@ -500,6 +533,65 @@ export default function Home() {
                       {moment.title}
                     </h3>
                     <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{moment.note}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="translation" className="section-band section-band-gallery">
+          <div className="container py-16 md:py-24">
+            <div className="max-w-4xl space-y-5">
+              <div className="eyebrow">The M.E.N.D. BioSimulator</div>
+              <h2 className="section-title max-w-[12ch]">A translational layer where research logic is reframed as product-facing systems.</h2>
+              <p className="body-copy max-w-3xl">
+                Beyond papers and talks, part of the work is also connected to <strong>The M.E.N.D. BioSimulator</strong>, where computational hemodynamics, coronary CT analysis, and wearable biosignals are shaped into diagnostic and monitoring products.
+              </p>
+            </div>
+
+            <div className="translation-grid mt-10">
+              <article className="translation-overview-panel">
+                <div className="space-y-4">
+                  <div className="micro-label w-fit">Translational context</div>
+                  <h3 className="translation-panel-title">The section is written as a research-to-product bridge, not as a separate startup pitch.</h3>
+                </div>
+                <div className="space-y-5">
+                  <p className="body-copy">
+                    The value of this layer is that it makes the homepage legible as more than a paper archive. It shows how model development, signal interpretation, and clinical framing continue into deployable software narratives.
+                  </p>
+                  <p className="body-copy">
+                    For that reason, the product introduction video is treated as a compact external reference rather than a full embedded player. The page keeps its editorial rhythm, while the visitor can still open the CARDIOS overview when needed.
+                  </p>
+                </div>
+              </article>
+
+              <a className="translation-media-card" href={translationalMedia.href} target="_blank" rel="noreferrer">
+                <div className="translation-media-thumb">
+                  <img src={translationalMedia.thumbnail} alt={translationalMedia.title} />
+                </div>
+                <div className="space-y-3 p-5 md:p-6">
+                  <div className="eyebrow">{translationalMedia.label}</div>
+                  <h3 className="translation-media-title">{translationalMedia.title}</h3>
+                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{translationalMedia.note}</p>
+                  <span className="capsule-link">
+                    Watch on YouTube <ArrowUpRight className="size-4" />
+                  </span>
+                </div>
+              </a>
+            </div>
+
+            <div className="translation-product-grid mt-6">
+              {translationalProducts.map((product) => (
+                <article key={product.name} className="translation-product-card">
+                  <div className="space-y-3">
+                    <div className="eyebrow">{product.label}</div>
+                    <h3 className="translation-product-title">{product.name}</h3>
+                  </div>
+                  <p className="translation-product-summary">{product.summary}</p>
+                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{product.detail}</p>
+                  <div>
+                    <span className="year-chip">{product.support}</span>
                   </div>
                 </article>
               ))}
