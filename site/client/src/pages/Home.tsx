@@ -6,12 +6,13 @@
   사진은 인물 브랜딩을 보조하는 밀도 있는 편집 요소처럼 다룬다.
 */
 import { ArrowUpRight, FileText, FlaskConical, Mail, MoveRight } from "lucide-react";
+import { useState } from "react";
 
 const snapshots = [
   {
     label: "Published Papers",
     value: "3",
-    copy: "Selected publications currently foregrounded in the homepage narrative.",
+    copy: "Publications currently foregrounded in the homepage narrative.",
   },
   {
     label: "Clinical Direction",
@@ -192,7 +193,10 @@ const patents = [
   },
 ];
 
+const ACHIEVEMENT_PREVIEW_COUNT = 4;
+
 const contactLinks = [
+
   {
     label: "Email",
     href: "mailto:kochujam369@gmail.com",
@@ -212,6 +216,14 @@ const contactLinks = [
 ];
 
 export default function Home() {
+  const [showAllTalks, setShowAllTalks] = useState(false);
+  const [showAllPatents, setShowAllPatents] = useState(false);
+
+  const visibleConferenceActivities = showAllTalks
+    ? conferenceActivities
+    : conferenceActivities.slice(0, ACHIEVEMENT_PREVIEW_COUNT);
+  const visiblePatents = showAllPatents ? patents : patents.slice(0, ACHIEVEMENT_PREVIEW_COUNT);
+
   return (
     <div className="editorial-shell site-frame">
       <header className="editorial-nav">
@@ -262,7 +274,7 @@ export default function Home() {
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <a className="capsule-link" href="#research">
-                        Explore selected research <MoveRight className="size-4" />
+                        Explore research briefs <MoveRight className="size-4" />
                       </a>
                       <a className="capsule-link" href="/uploads/resume.pdf" target="_blank" rel="noreferrer">
                         View resume <ArrowUpRight className="size-4" />
@@ -327,10 +339,10 @@ export default function Home() {
 
         <section id="research" className="container py-16 md:py-24">
           <div className="max-w-4xl space-y-5">
-            <div className="eyebrow">Selected Research Briefs</div>
+            <div className="eyebrow">Research Briefs</div>
             <h2 className="section-title max-w-[12ch]">A closer reading of the studies shaping the research agenda.</h2>
             <p className="body-copy max-w-3xl">
-              The selected papers below are presented as research briefs rather than a conventional publication list. Each brief identifies the clinical problem, the computational logic, and the translational value that emerged from the work.
+              The papers below are presented as research briefs rather than a conventional publication list. Each brief identifies the clinical problem, the computational logic, and the translational value that emerged from the work.
             </p>
           </div>
 
@@ -465,10 +477,10 @@ export default function Home() {
         <section id="achievements" className="section-band">
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
-              <div className="eyebrow">Selected Talks and Patents</div>
-              <h2 className="section-title max-w-[12ch]">A cleaner record of conference activity and translational outputs.</h2>
+              <div className="eyebrow">Conference Activity and Patents</div>
+              <h2 className="section-title max-w-[12ch]">A public record of conference activity and translational outputs.</h2>
               <p className="body-copy max-w-3xl">
-                Instead of reproducing the CV verbatim, this section keeps only the conference and patent entries that best support the current narrative of the site.
+                This section keeps the homepage aligned with conference presentations and patent applications without making the academic record look narrower than it is.
               </p>
             </div>
 
@@ -478,13 +490,13 @@ export default function Home() {
                   <div>
                     <div className="eyebrow">Talks</div>
                     <h3 className="font-display mt-2 text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[1.9rem]">
-                      Selected conference presentations
+                      Conference presentations
                     </h3>
                   </div>
-                  <span className="year-chip">{conferenceActivities.length} selected</span>
+                  <span className="year-chip">{conferenceActivities.length} total</span>
                 </div>
                 <div className="achievement-list">
-                  {conferenceActivities.map((item) => (
+                  {visibleConferenceActivities.map((item) => (
                     <article key={`${item.year}-${item.title}`} className="achievement-row">
                       <div className="achievement-meta">
                         <span className="year-chip">{item.year}</span>
@@ -498,6 +510,13 @@ export default function Home() {
                     </article>
                   ))}
                 </div>
+                {conferenceActivities.length > ACHIEVEMENT_PREVIEW_COUNT ? (
+                  <div className="mt-5">
+                    <button className="capsule-link" type="button" onClick={() => setShowAllTalks((value) => !value)}>
+                      {showAllTalks ? "Show fewer talks" : `View all ${conferenceActivities.length} talks`}
+                    </button>
+                  </div>
+                ) : null}
               </div>
 
               <div className="achievement-column">
@@ -505,13 +524,13 @@ export default function Home() {
                   <div>
                     <div className="eyebrow">Patents</div>
                     <h3 className="font-display mt-2 text-[1.55rem] font-semibold leading-[1.04] tracking-[-0.05em] text-[var(--ink)] md:text-[1.9rem]">
-                      Selected patent applications
+                      Patent record
                     </h3>
                   </div>
-                  <span className="year-chip">{patents.length} selected</span>
+                  <span className="year-chip">{patents.length} total</span>
                 </div>
                 <div className="achievement-list">
-                  {patents.map((patent) => (
+                  {visiblePatents.map((patent) => (
                     <article key={`${patent.application}-${patent.title}`} className="achievement-row">
                       <div className="achievement-meta">
                         <span className="year-chip">{patent.year}</span>
@@ -524,6 +543,13 @@ export default function Home() {
                     </article>
                   ))}
                 </div>
+                {patents.length > ACHIEVEMENT_PREVIEW_COUNT ? (
+                  <div className="mt-5">
+                    <button className="capsule-link" type="button" onClick={() => setShowAllPatents((value) => !value)}>
+                      {showAllPatents ? "Show fewer patents" : `View all ${patents.length} patents`}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
