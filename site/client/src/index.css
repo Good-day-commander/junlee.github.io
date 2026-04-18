@@ -208,10 +208,11 @@
 
   .section-title {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 3.8vw, 3.35rem);
+    font-size: clamp(1.9rem, 3.25vw, 3.05rem);
     font-weight: 650;
-    line-height: 1.02;
-    letter-spacing: -0.05em;
+    line-height: 1.05;
+    letter-spacing: -0.048em;
+    text-wrap: balance;
     color: var(--ink);
   }
 

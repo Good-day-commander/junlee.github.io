@@ -451,9 +451,9 @@ export default function Home() {
 
         <section id="research" className="section-layer section-layer-research">
           <div className="container py-16 md:py-24">
-            <div className="max-w-4xl space-y-5">
+            <div className="max-w-5xl space-y-5">
               <div className="eyebrow">Research Briefs</div>
-              <h2 className="section-title max-w-[13ch]">Studies that define my current research agenda.</h2>
+              <h2 className="section-title max-w-[15.5ch]">Studies that define my current research agenda.</h2>
               <p className="body-copy max-w-3xl">
                 These briefs summarize the questions I have worked on, the models I built, and the clinical value each study was designed to unlock.
               </p>
@@ -498,9 +498,9 @@ export default function Home() {
         <section id="ongoing" className="section-layer section-layer-ongoing">
           <div className="container py-16 md:py-24">
             <div className="border-y py-10" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
-              <div className="max-w-4xl space-y-4">
+              <div className="max-w-5xl space-y-4">
                 <div className="eyebrow">Ongoing Research</div>
-                <h2 className="section-title max-w-[12ch]">Current studies organized as one working pipeline.</h2>
+                <h2 className="section-title max-w-[15.5ch]">Current studies organized as one working pipeline.</h2>
                 <p className="body-copy max-w-3xl">
                   To avoid giving one project too much visual priority, the ongoing section now treats the current manuscript, coronary PINO, 4D CT analysis, and wearable biomarkers as connected studies within the same broader research agenda.
                 </p>
@@ -520,9 +520,9 @@ export default function Home() {
 
         <section id="gallery" className="section-band section-band-gallery">
           <div className="container py-16 md:py-24">
-            <div className="max-w-4xl space-y-5">
+            <div className="max-w-5xl space-y-5">
               <div className="eyebrow">Field Notes</div>
-              <h2 className="section-title max-w-[12ch]">Where the work gets presented, discussed, and translated.</h2>
+              <h2 className="section-title max-w-[15.5ch]">Where the work gets presented, discussed, and translated.</h2>
               <p className="body-copy max-w-3xl">
                 A short visual record of lab presentations, conference talks, and product-facing discussion around the same research line.
               </p>
@@ -550,9 +550,9 @@ export default function Home() {
 
         <section id="translation" className="section-band section-band-gallery">
           <div className="container py-16 md:py-24">
-            <div className="max-w-4xl space-y-5">
+            <div className="max-w-5xl space-y-5">
               <div className="eyebrow">The M.E.N.D. BioSimulator</div>
-              <h2 className="section-title max-w-[12ch]">Research connected to software and product development.</h2>
+              <h2 className="section-title max-w-[15ch]">Research connected to software and product development.</h2>
               <p className="body-copy max-w-3xl">
                 Part of my work also connects to <strong>The M.E.N.D. BioSimulator</strong>, where coronary CT analysis, computational hemodynamics, and wearable biosignal modeling are organized into product concepts and clinical software.
               </p>
@@ -609,9 +609,9 @@ export default function Home() {
 
         <section id="publication-list" className="section-layer section-layer-publications">
           <div className="container py-16 md:py-24">
-            <div className="max-w-4xl space-y-5">
+            <div className="max-w-5xl space-y-5">
               <div className="eyebrow">Publication Index</div>
-              <h2 className="section-title max-w-[12ch]">Selected papers that map my current research direction.</h2>
+              <h2 className="section-title max-w-[15ch]">Selected papers that map my current research direction.</h2>
               <p className="body-copy max-w-3xl">
                 This index gives a quick citation view of the papers that most clearly represent my current work on coronary hemodynamics, wearable PPG inference, and clinically usable AI.
               </p>
@@ -641,9 +641,9 @@ export default function Home() {
 
         <section id="achievements" className="section-band section-band-achievements">
           <div className="container py-16 md:py-24">
-            <div className="max-w-4xl space-y-5">
+            <div className="max-w-5xl space-y-5">
               <div className="eyebrow">Conference Activity and Patents</div>
-              <h2 className="section-title max-w-[13ch]">Talks, patents, and applied outputs across the same research arc.</h2>
+              <h2 className="section-title max-w-[16ch]">Talks, patents, and applied outputs across the same research arc.</h2>
               <p className="body-copy max-w-3xl">
                 Together, these records show how I have presented the work, discussed it with research communities, and extended it beyond journal publication—from conference talks to patent filings and applied projects.
               </p>
@@ -722,9 +722,9 @@ export default function Home() {
 
         <section id="contact" className="footer-panel mt-10">
           <div className="container py-16 md:py-20">
-            <div className="max-w-4xl space-y-5">
+            <div className="max-w-5xl space-y-5">
               <div className="eyebrow">Contact and Links</div>
-              <h2 className="section-title max-w-[14ch]">Open to collaboration on coronary hemodynamics, medical AI, and wearable biosignal analysis.</h2>
+              <h2 className="section-title max-w-[17.5ch]">Open to collaboration on coronary hemodynamics, medical AI, and wearable biosignal analysis.</h2>
               <p className="body-copy max-w-2xl">
                 If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss research or development collaboration.
               </p>
