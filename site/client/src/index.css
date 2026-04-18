@@ -862,40 +862,21 @@
     box-shadow: 0 16px 36px rgba(20, 31, 54, 0.045);
   }
 
-  .field-notes-grid {
+  .contact-grid {
     display: grid;
     gap: 1rem;
     grid-template-columns: 1fr;
   }
 
   @media (min-width: 760px) {
-    .field-notes-grid {
+    .contact-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
-  .field-note-card {
-    @apply border;
-    background: rgba(255,255,255,0.74);
-    border-color: rgba(16,24,40,0.08);
-    box-shadow: 0 16px 36px rgba(20, 31, 54, 0.04);
-    padding: 1.3rem;
-  }
-
-  .field-note-title {
-    font-family: var(--font-display);
-    font-size: clamp(1.18rem, 1.6vw, 1.45rem);
-    font-weight: 650;
-    line-height: 1.16;
-    letter-spacing: -0.03em;
-    color: var(--ink);
-    text-wrap: balance;
-  }
-
-  .field-note-copy {
-    font-size: 0.96rem;
-    line-height: 1.68;
-    color: var(--ink-soft);
+  .contact-card {
+    min-height: 100%;
+    background: rgba(255,255,255,0.72);
   }
 
   .gallery-media {

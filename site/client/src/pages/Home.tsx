@@ -5,7 +5,7 @@
   큰 헤드라인과 긴 문단, 연구 브리프 중심 구성을 유지한다.
   사진은 인물 브랜딩을 보조하는 밀도 있는 편집 요소처럼 다룬다.
 */
-import { ArrowUpRight, FileText, FlaskConical, Mail, MoveRight } from "lucide-react";
+import { ArrowUpRight, FileText, Linkedin, Mail, MoveRight } from "lucide-react";
 import { useState } from "react";
 
 const snapshots = [
@@ -110,45 +110,21 @@ const ongoingProjects = [
 const galleryMoments = [
   {
     label: "Research Talk · 2024",
-    title: "Department symposium presentation at Yonsei University",
-    note:
-      "A departmental research setting that shows how I present ongoing work within the lab and university community.",
+    title: "Yonsei department symposium",
+    note: "Lab presentation on ongoing cardiovascular AI work.",
     image: "/media/profile/gallery-talk-yonsei.jpg",
   },
   {
     label: "Conference Talk · 2025",
     title: "18th Asian Congress of Fluid Mechanics",
-    note:
-      "A conference-facing scene that ties the publication record to active presentation of my work in the broader fluid mechanics community.",
+    note: "Conference talk connecting coronary flow modeling and PINO research.",
     image: "/media/profile/gallery-acfm-2025.jpg",
   },
   {
     label: "Product & Startup · 2025",
-    title: "Startup and product development context",
-    note:
-      "A setting that shows how the same research is discussed across startup, product, and collaboration contexts.",
+    title: "CARDIOS and product discussion",
+    note: "A product-facing meeting scene around translation and collaboration.",
     image: "/media/profile/gallery-translation-summit.jpg",
-  },
-];
-
-const fieldNotePanels = [
-  {
-    label: "Lab context",
-    title: "Where hypotheses are translated into model design.",
-    note:
-      "This part of the work includes internal presentations, advisor feedback, and iterative discussion about how to connect computational hemodynamics to clinically meaningful questions.",
-  },
-  {
-    label: "Conference context",
-    title: "Where the work is tested against a broader research audience.",
-    note:
-      "Poster sessions and conference talks are where I refine how PINO, CT-based physiology, and wearable biosignal modeling are explained to researchers outside the immediate lab context.",
-  },
-  {
-    label: "Translation context",
-    title: "Where research is reframed for products and collaborators.",
-    note:
-      "A part of the portfolio also traces how the same technical work moves into startup conversations, clinical collaboration, and product-facing communication.",
   },
 ];
 
@@ -340,10 +316,6 @@ const contactLinks = [
   {
     label: "Google Scholar",
     href: "https://scholar.google.com/citations?user=1NxM3T0AAAAJ&hl=ko",
-  },
-  {
-    label: "GitHub",
-    href: "https://github.com/Good-day-commander",
   },
   {
     label: "LinkedIn",
@@ -550,18 +522,15 @@ export default function Home() {
           <div className="container py-16 md:py-24">
             <div className="max-w-4xl space-y-5">
               <div className="eyebrow">Field Notes</div>
-              <h2 className="section-title max-w-[12ch]">Research rooms, conference stages, and product-facing collaborations.</h2>
+              <h2 className="section-title max-w-[12ch]">Where the work gets presented, discussed, and translated.</h2>
               <p className="body-copy max-w-3xl">
-                These images show where I develop, present, and discuss the work across lab meetings, conferences, and startup-related collaborations.
+                A short visual record of lab presentations, conference talks, and product-facing discussion around the same research line.
               </p>
             </div>
 
             <div className="gallery-grid mt-10">
-              {galleryMoments.map((moment, index) => (
-                <article
-                  key={moment.title}
-                  className={index === 0 ? "gallery-card gallery-card-featured" : "gallery-card"}
-                >
+              {galleryMoments.map((moment) => (
+                <article key={moment.title} className="gallery-card">
                   <div className="gallery-media">
                     <img src={moment.image} alt={moment.title} />
                   </div>
@@ -576,15 +545,6 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="field-notes-grid mt-10">
-              {fieldNotePanels.map((panel) => (
-                <article key={panel.title} className="field-note-card">
-                  <div className="eyebrow mb-3">{panel.label}</div>
-                  <h3 className="field-note-title">{panel.title}</h3>
-                  <p className="field-note-copy mt-3">{panel.note}</p>
-                </article>
-              ))}
-            </div>
           </div>
         </section>
 
@@ -762,37 +722,35 @@ export default function Home() {
 
         <section id="contact" className="footer-panel mt-10">
           <div className="container py-16 md:py-20">
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
-              <div className="space-y-5">
-                <div className="eyebrow">Contact and Links</div>
-                <h2 className="section-title max-w-[14ch]">Open to collaboration on coronary hemodynamics, medical AI, and wearable biosignal analysis.</h2>
-                <p className="body-copy max-w-2xl">
-                  If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss research or development collaboration.
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {contactLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    className="metric-card flex items-center justify-between gap-3 p-5"
-                    href={link.href}
-                    target={link.href.startsWith("http") ? "_blank" : undefined}
-                    rel={link.href.startsWith("http") ? "noreferrer" : undefined}
-                  >
-                    <div className="flex items-center gap-3">
-                      {link.label === "Email" ? (
-                        <Mail className="size-5 text-[var(--blue)]" />
-                      ) : link.label === "Google Scholar" ? (
-                        <FileText className="size-5 text-[var(--blue)]" />
-                      ) : (
-                        <FlaskConical className="size-5 text-[var(--blue)]" />
-                      )}
-                      <span className="font-semibold text-[var(--ink)]">{link.label}</span>
-                    </div>
-                    <ArrowUpRight className="size-4 text-[var(--blue)]" />
-                  </a>
-                ))}
-              </div>
+            <div className="max-w-4xl space-y-5">
+              <div className="eyebrow">Contact and Links</div>
+              <h2 className="section-title max-w-[14ch]">Open to collaboration on coronary hemodynamics, medical AI, and wearable biosignal analysis.</h2>
+              <p className="body-copy max-w-2xl">
+                If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss research or development collaboration.
+              </p>
+            </div>
+            <div className="contact-grid mt-10">
+              {contactLinks.map((link) => (
+                <a
+                  key={link.label}
+                  className="metric-card contact-card flex items-center justify-between gap-3 p-5"
+                  href={link.href}
+                  target={link.href.startsWith("http") ? "_blank" : undefined}
+                  rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+                >
+                  <div className="flex items-center gap-3">
+                    {link.label === "Email" ? (
+                      <Mail className="size-5 text-[var(--blue)]" />
+                    ) : link.label === "Google Scholar" ? (
+                      <FileText className="size-5 text-[var(--blue)]" />
+                    ) : (
+                      <Linkedin className="size-5 text-[var(--blue)]" />
+                    )}
+                    <span className="font-semibold text-[var(--ink)]">{link.label}</span>
+                  </div>
+                  <ArrowUpRight className="size-4 text-[var(--blue)]" />
+                </a>
+              ))}
             </div>
           </div>
         </section>
