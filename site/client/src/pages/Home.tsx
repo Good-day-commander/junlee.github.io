@@ -33,7 +33,8 @@ const snapshots = [
 
 const briefs = [
   {
-    status: "Featured Paper · 2025",
+    status: "Published · 2025",
+    authorStatus: "Author status · confirm",
     title:
       "A Physics-Integrated Deep Learning Approach for Patient-Specific Non-Newtonian Blood Viscosity Assessment Using PPG",
     journal: "Computer Methods and Programs in Biomedicine",
@@ -46,11 +47,13 @@ const briefs = [
       "Positions consumer-grade wearables as a credible entry point for circulatory assessment.",
     ],
     image: "/media/papers/extracted/viscosity-000.png",
+    alt: "Figure from the 2025 PPG-based blood viscosity paper showing the physics-integrated modeling workflow.",
     doi: "https://doi.org/10.1016/j.cmpb.2025.108740",
     doiLabel: "View DOI",
   },
   {
-    status: "Accepted · 2026",
+    status: "Featured · Accepted 2026",
+    authorStatus: "Author status · confirm",
     title: "A Diffusion Deformable Model for Coronary 4D CT Synthesis and Dynamic FFR Derivation",
     journal: "Computer Methods and Programs in Biomedicine",
     year: "accepted 2026",
@@ -62,11 +65,13 @@ const briefs = [
       "Moves dynamic FFR from research-only toward clinically realistic imaging workflows.",
     ],
     image: "/media/papers/extracted/4dct-000.png",
+    alt: "Representative frame from the 4D coronary CT diffusion study used for dynamic FFR derivation.",
     doi: "",
     doiLabel: "DOI pending — link upon publication",
   },
   {
     status: "Published · 2022",
+    authorStatus: "Author status · confirm",
     title: "Optimization of FFR Prediction Algorithm for the Coronary Gray Zone",
     journal: "Computer Methods and Programs in Biomedicine",
     year: "2022",
@@ -77,18 +82,24 @@ const briefs = [
       "Integrates synthetic vessel models with patient biometric data for robustness.",
     ],
     image: "/media/papers/extracted/ffr-000.png",
+    alt: "Visualization from the 2022 coronary gray-zone FFR prediction study.",
     doi: "https://doi.org/10.1016/j.cmpb.2022.106827",
     doiLabel: "View DOI",
   },
   {
     status: "Published · 2022",
+    authorStatus: "Author status · confirm",
     title: "Optimization of Tricuspid Membrane Mechanism Through Hemodynamic Analysis",
     journal: "Engineering Applications of Computational Fluid Mechanics",
     year: "2022",
     focus:
-      "A CFD study that examines how tricuspid membrane geometry changes the balance between regurgitation control and long-term leaflet durability, turning device and procedural design into a measurable flow optimization problem.",
-    points: [],
+      "From earlier CFD work on valvular hemodynamics — the methodological foundation that later extended into coronary flow modeling. This study examines how tricuspid membrane geometry changes the balance between regurgitation control and long-term leaflet durability, turning device and procedural design into a measurable flow optimization problem.",
+    points: [
+      "Quantifies how membrane geometry reshapes flow separation, regurgitation control, and mechanical burden in tandem.",
+      "Frames valvular intervention design as a hemodynamic optimization problem rather than a purely geometric one.",
+    ],
     image: "/media/papers/extracted/tricuspid-000.png",
+    alt: "Hemodynamic visualization from the 2022 tricuspid membrane optimization study.",
     doi: "https://doi.org/10.1080/19942060.2022.2104929",
     doiLabel: "View DOI",
   },
@@ -99,7 +110,7 @@ const ongoingProjects = [
     label: "Coronary PINO · in preparation",
     title: "Patient-Specific Coronary Flow Field Prediction with Physics-Informed Neural Operators",
     note:
-      "A PointNet++ branch with a Fourier-feature trunk composed as a DeepONet, trained on CFD flow fields and regularized by Navier–Stokes residuals. Predicts 3D pressure and velocity on unseen coronary geometries in seconds rather than hours. Presented at the 18th ACFM (2025); targeting Physics of Fluids.",
+      "A PointNet++ branch with a Fourier-feature trunk composed as a DeepONet, trained on CFD flow fields and regularized by Navier–Stokes residuals. Predicts 3D pressure and velocity on unseen coronary geometries in seconds rather than hours. Targeting Physics of Fluids.",
   },
   {
     label: "Fluid-loading AI · in preparation",
@@ -121,24 +132,28 @@ const galleryMoments = [
     title: "Yonsei department symposium",
     note: "Lab presentation on ongoing cardiovascular AI work.",
     image: "/media/profile/gallery-talk-yonsei.jpg",
+    alt: "Hyeong Jun Lee presenting cardiovascular AI research at a Yonsei department symposium.",
   },
   {
     label: "Conference Talk · 2025",
     title: "18th Asian Congress of Fluid Mechanics",
     note: "Oral presentation on patient-specific coronary flow field prediction using physics-informed neural operators at ACFM 2025, Seoul, Korea.",
     image: "/media/profile/gallery-acfm-2025.jpg",
+    alt: "Conference photograph from ACFM 2025 where the coronary PINO work was presented.",
   },
   {
     label: "Conference · 2026",
     title: "Design of Medical Devices Conference (DMD 2026) — University of Minnesota",
     note: "Two posters at DMD 2026 (April 20–22, 2026): PINO-based coronary flow field prediction, and a diffusion-based 4D CT synthesis pipeline for dynamic FFR.",
     image: "/media/profile/gallery-dmd-2026.jpg",
+    alt: "Conference image associated with DMD 2026 presentations on PINO and 4D CT diffusion research.",
   },
   {
     label: "Product & Startup · 2025",
     title: "CARDIOS and product discussion",
-    note: "Translation-facing discussion around CARDIOS, during preparation of the U.S. FDA Pre-Submission (Q253736) and the 510(k) strategy for a coronary CT-FFR device.",
+    note: "Translation-facing discussion around CARDIOS, connecting the coronary CT-FFR research pipeline to clinical workflow design.",
     image: "/media/profile/gallery-translation-summit.jpg",
+    alt: "Discussion scene around CARDIOS and its connection to clinical workflow design.",
   },
 ];
 
@@ -147,9 +162,9 @@ const translationalProducts = [
     name: "CARDIOS",
     label: "Coronary CT diagnostics",
     summary:
-      "A CT-based coronary decision-support system that estimates the functional significance of coronary artery disease non-invasively, combining coronary anatomy, CFD-informed hemodynamics, and deep learning. Currently in the U.S. FDA Pre-Submission process (Q253736), pursuing a 510(k) pathway under 21 CFR 870.1415 with DEEPVESSEL FFR (K213657) as predicate. Within my portfolio, CARDIOS is the translational outlet of my CT-FFR and coronary flow modeling work.",
+      "A CT-based coronary decision-support system that estimates whether a coronary lesion is functionally significant — without requiring invasive pressure-wire measurement. By combining coronary anatomy with CFD-informed hemodynamics and deep learning, it is designed to reduce unnecessary catheterization and support faster, more confident triage in ambiguous coronary disease. Within my portfolio, CARDIOS is the translational outlet of my CT-FFR and coronary flow modeling work.",
     detail: "",
-    support: "CTA × AI × CFD × regulatory translation",
+    support: "CTA × AI × CFD × clinical triage",
   },
   {
     name: "EASYCHECK",
@@ -164,38 +179,11 @@ const translationalProducts = [
 const translationalMedia = {
   label: "External overview",
   title: "CARDIOS product overview on YouTube",
-  note:
-    "A short external overview for visitors who want product context without interrupting the reading flow of the portfolio.",
+  note: "A short external overview for visitors who want product context without interrupting the reading flow of the portfolio.",
   href: "https://www.youtube.com/watch?v=oSsvH7LRp7E",
   thumbnail: "https://i.ytimg.com/vi/oSsvH7LRp7E/hqdefault.jpg",
+  alt: "YouTube thumbnail for the CARDIOS product overview video.",
 };
-
-const publications = [
-  {
-    year: "2025",
-    title:
-      "A Physics-Integrated Deep Learning Approach for Patient-Specific Non-Newtonian Blood Viscosity Assessment using PPG",
-    venue: "Computer Methods and Programs in Biomedicine",
-    note: "Physics-guided deep learning for patient-specific viscosity estimation from wearable PPG.",
-    doi: "https://doi.org/10.1016/j.cmpb.2025.108740",
-  },
-  {
-    year: "2022",
-    title:
-      "Optimization of Tricuspid Membrane Mechanism for Effectiveness and Leaflet Longevity through Hemodynamic Analysis",
-    venue: "Engineering Applications of Computational Fluid Mechanics",
-    note: "CFD analysis of tricuspid membrane design trade-offs between efficacy and leaflet longevity.",
-    doi: "https://doi.org/10.1080/19942060.2022.2104929",
-  },
-  {
-    year: "2022",
-    title:
-      "Optimization of FFR Prediction Algorithm for Gray Zone by Hemodynamic Features with Synthetic Model and Biometric Data",
-    venue: "Computer Methods and Programs in Biomedicine",
-    note: "Hemodynamics-informed FFR prediction for diagnostically ambiguous coronary gray-zone cases.",
-    doi: "https://doi.org/10.1016/j.cmpb.2022.106827",
-  },
-];
 
 const conferenceActivities = [
   {
@@ -328,7 +316,6 @@ const patents = [
 const ACHIEVEMENT_PREVIEW_COUNT = 4;
 
 const contactLinks = [
-
   {
     label: "Email",
     href: "mailto:kochujam369@gmail.com",
@@ -340,6 +327,10 @@ const contactLinks = [
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/hyeong-jun-lee-389435247/",
+  },
+  {
+    label: "ORCID",
+    href: "https://orcid.org/",
   },
 ];
 
@@ -369,9 +360,6 @@ export default function Home() {
             <a className="nav-link" href="#translation">
               Applied Work
             </a>
-            <a className="nav-link" href="#publication-list">
-              Publications
-            </a>
             <a className="nav-link" href="#achievements">
               Achievements
             </a>
@@ -391,43 +379,27 @@ export default function Home() {
             <div className="hero-grid">
               <div className="hero-main space-y-8">
                 <div className="space-y-4">
-                    <div className="eyebrow">Coronary Hemodynamics · Physics-Informed AI · Wearable Biosignals</div>
-
-                  <h1 className="hero-title max-w-[11ch]">Patient-specific cardiovascular modeling, through physics-informed AI.</h1>
+                  <div className="eyebrow">Coronary Hemodynamics · Physics-Informed AI · Wearable Biosignals</div>
+                  <h1 className="hero-title max-w-[13ch]">Modeling the heart — in flow, in imaging, and on the wrist.</h1>
                 </div>
                 <div className="hero-meta-rule max-w-5xl" />
-                <div className="hero-narrative-grid">
-                  <div className="space-y-6">
-                    <p className="lede max-w-3xl">
-                      I am a PhD candidate at the <strong>Multi-scale Fluid Dynamics Lab (MFDL BIOS Lab)</strong>, Department of
-                      Mechanical Engineering, <strong>Yonsei University</strong>, advised by <strong>Prof. Joon Sang Lee</strong>. My work
-                      spans three connected fronts: physics-informed neural operators for coronary flow, diffusion-based 4D CT synthesis for
-                      dynamic FFR, and wearable PPG analytics for non-invasive biomarkers. The goal is to make fluid mechanics and
-                      physiological signals interpretable enough for real clinical decisions.
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      <a className="capsule-link" href="#research">
-                        Explore research briefs <MoveRight className="size-4" />
-                      </a>
-                      <a className="capsule-link" href="/uploads/resume.pdf" target="_blank" rel="noreferrer">
-                        View resume <ArrowUpRight className="size-4" />
-                      </a>
-                    </div>
+                <div className="space-y-6">
+                  <p className="lede max-w-3xl">
+                    I am a PhD candidate at the <strong>Multi-scale Fluid Dynamics Lab (MFDL BIOS Lab)</strong>, Department of Mechanical
+                    Engineering, <strong>Yonsei University</strong>, advised by <strong>Prof. Joon Sang Lee</strong>. My work spans three connected
+                    fronts: physics-informed neural operators for coronary flow, diffusion-based 4D CT synthesis for dynamic FFR, and wearable
+                    PPG analytics for non-invasive biomarkers. The goal is to make fluid mechanics and physiological signals interpretable enough
+                    for real clinical decisions. I work on the point where fluid mechanics stops being an abstract model and starts carrying
+                    information a clinician can actually use.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <a className="capsule-link" href="#research">
+                      Explore research briefs <MoveRight className="size-4" />
+                    </a>
+                    <a className="capsule-link" href="/uploads/resume.pdf" target="_blank" rel="noreferrer">
+                      View resume <ArrowUpRight className="size-4" />
+                    </a>
                   </div>
-
-                  <aside className="hero-panel hero-framing-panel p-6 md:p-7">
-                    <div className="space-y-4">
-                      <div>
-                        <div className="eyebrow">Current framing</div>
-                        <h2 className="font-display mt-3 text-[1.95rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[var(--ink)] md:text-[2.2rem]">
-                          From hemodynamics to decision support.
-                        </h2>
-                      </div>
-                      <p className="body-copy">
-                        This homepage is organized as a compact research report. The three research fronts — coronary hemodynamics, dynamic CT imaging, and wearable PPG — are shown as one connected pipeline rather than isolated projects.
-                      </p>
-                    </div>
-                  </aside>
                 </div>
               </div>
 
@@ -435,7 +407,10 @@ export default function Home() {
                 <div className="portrait-card">
                   <div className="micro-label w-fit">Profile</div>
                   <div className="portrait-frame hero-portrait-frame mt-4">
-                    <img src="/media/profile/profile-main.jpg" alt="Portrait of Hyeong Jun Lee" />
+                    <img
+                      src="/media/profile/profile-main.jpg"
+                      alt="Portrait of Hyeong Jun Lee, PhD candidate in mechanical engineering at Yonsei University"
+                    />
                   </div>
                   <div className="hero-profile-meta mt-5 text-sm text-[color:var(--ink-soft)]">
                     <div className="hero-profile-item">
@@ -452,15 +427,7 @@ export default function Home() {
                     </div>
                     <div className="hero-profile-item">
                       <div className="eyebrow">Current scope</div>
-                      <p className="hero-profile-copy">PINO · 4D CT synthesis · Wearable PPG · CT-FFR</p>
-                    </div>
-                    <div className="hero-profile-item">
-                      <div className="eyebrow">Research domain</div>
-                      <p className="hero-profile-copy">Coronary flow · Wearable PPG · Clinical decision support</p>
-                    </div>
-                    <div className="hero-profile-item">
-                      <div className="eyebrow">Core methods</div>
-                      <p className="hero-profile-copy">CFD · Physics-informed operators · Diffusion models</p>
+                      <p className="hero-profile-copy">Coronary hemodynamics · 4D CT synthesis · Wearable PPG</p>
                     </div>
                   </div>
                 </div>
@@ -497,11 +464,12 @@ export default function Home() {
                 <article key={brief.title} className="research-card">
                   <div className="research-grid">
                     <div className="research-figure">
-                      <img src={brief.image} alt={brief.title} />
+                      <img src={brief.image} alt={brief.alt} />
                     </div>
                     <div className="research-card-copy">
                       <div className="research-meta-row">
                         <div className="micro-label w-fit">{brief.status}</div>
+                        <div className="micro-label w-fit">{brief.authorStatus}</div>
                         <span className="year-chip">
                           {brief.journal} · {brief.year}
                         </span>
@@ -510,13 +478,11 @@ export default function Home() {
                         <h3 className="research-title">{brief.title}</h3>
                         <p className="research-focus">{brief.focus}</p>
                       </div>
-                      {brief.points.length ? (
-                        <ul className="bullet-list research-bullet-list">
-                          {brief.points.map((point) => (
-                            <li key={point}>{point}</li>
-                          ))}
-                        </ul>
-                      ) : null}
+                      <ul className="bullet-list research-bullet-list">
+                        {brief.points.map((point) => (
+                          <li key={point}>{point}</li>
+                        ))}
+                      </ul>
                       <div className="research-card-footer">
                         {brief.doi ? (
                           <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
@@ -540,9 +506,9 @@ export default function Home() {
               <div className="max-w-5xl space-y-4">
                 <div className="eyebrow">Ongoing Research</div>
                 <h2 className="section-title max-w-[15.5ch]">Current studies organized as one working pipeline.</h2>
-              <p className="body-copy max-w-3xl">
-                These three active lines show what is currently moving toward papers and translational output. The accepted 4D CT study is now promoted above as a research brief rather than kept as a one-line ongoing item.
-              </p>
+                <p className="body-copy max-w-3xl">
+                  These three active lines show what is currently moving toward papers and translational output. The accepted 4D CT study is now promoted above as a research brief rather than kept as a one-line ongoing item.
+                </p>
               </div>
               <div className="ongoing-grid mt-10">
                 {ongoingProjects.map((project) => (
@@ -571,7 +537,7 @@ export default function Home() {
               {galleryMoments.map((moment) => (
                 <article key={moment.title} className="gallery-card">
                   <div className="gallery-media">
-                    <img src={moment.image} alt={moment.title} />
+                    <img src={moment.image} alt={moment.alt} />
                   </div>
                   <div className="space-y-3 p-5 md:p-6">
                     <div className="eyebrow">{moment.label}</div>
@@ -583,7 +549,6 @@ export default function Home() {
                 </article>
               ))}
             </div>
-
           </div>
         </section>
 
@@ -597,25 +562,10 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="translation-grid mt-10">
-              <article className="translation-overview-panel">
-                <div className="space-y-4">
-                  <div className="micro-label w-fit">Applied research context</div>
-                  <h3 className="translation-panel-title">This section shows where the research connects beyond papers.</h3>
-                </div>
-                <div className="space-y-5">
-                  <p className="body-copy">
-                    I include this layer because some of the modeling and biosignal pipelines are also relevant to software design, product planning, and clinical workflow integration.
-                  </p>
-                  <p className="body-copy">
-                    The product video stays as a compact external link so visitors can open it when needed without breaking the reading flow of the portfolio.
-                  </p>
-                </div>
-              </article>
-
+            <div className="mt-10 max-w-4xl">
               <a className="translation-media-card" href={translationalMedia.href} target="_blank" rel="noreferrer">
                 <div className="translation-media-thumb">
-                  <img src={translationalMedia.thumbnail} alt={translationalMedia.title} />
+                  <img src={translationalMedia.thumbnail} alt={translationalMedia.alt} />
                 </div>
                 <div className="space-y-3 p-5 md:p-6">
                   <div className="eyebrow">{translationalMedia.label}</div>
@@ -646,46 +596,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="publication-list" className="section-layer section-layer-publications">
-          <div className="container py-16 md:py-24">
-            <div className="max-w-5xl space-y-5">
-              <div className="eyebrow">Publication Index</div>
-              <h2 className="section-title max-w-[15ch]">Selected papers that map my current research direction.</h2>
-              <p className="body-copy max-w-3xl">
-                A compact citation view of the peer-reviewed papers that anchor my current work on coronary hemodynamics, wearable PPG inference, and physics-informed clinical AI.
-              </p>
-            </div>
-
-            <div className="mt-10 border-b" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
-              {publications.map((paper) => (
-                <article key={paper.title} className="publication-row">
-                  <div>
-                    <span className="year-chip">{paper.year}</span>
-                  </div>
-                  <div className="publication-copy">
-                    <p className="publication-venue">{paper.venue}</p>
-                    <h3 className="publication-title">{paper.title}</h3>
-                    <p className="publication-note">{paper.note}</p>
-                  </div>
-                  <div className="publication-row-action">
-                    <a className="capsule-link" href={paper.doi} target="_blank" rel="noreferrer">
-                      DOI <ArrowUpRight className="size-4" />
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section id="achievements" className="section-band section-band-achievements">
           <div className="container py-16 md:py-24">
             <div className="max-w-5xl space-y-5">
               <div className="eyebrow">Conference Activity and Patents</div>
-              <h2 className="section-title max-w-[16ch]">Talks, patents, and applied outputs across the same research arc.</h2>
-              <p className="body-copy max-w-3xl">
-                Together, these records show how I have presented the work, discussed it with research communities, and extended it beyond journal publication—from conference talks to patent filings and applied projects.
-              </p>
+              <h2 className="section-title max-w-[16ch]">Talks, patents, and applied outputs.</h2>
+              <p className="body-copy max-w-3xl">Talks, patents, and applied outputs.</p>
             </div>
 
             <div className="achievement-grid mt-10">
@@ -697,7 +613,9 @@ export default function Home() {
                       Selected conference presentations
                     </h3>
                   </div>
-                  <span className="year-chip">{showAllTalks ? `${conferenceActivities.length} total` : `${visibleConferenceActivities.length} of ${conferenceActivities.length} shown`}</span>
+                  <span className="year-chip">
+                    {showAllTalks ? `${conferenceActivities.length} total` : `${visibleConferenceActivities.length} of ${conferenceActivities.length} shown`}
+                  </span>
                 </div>
                 <div className="achievement-list">
                   {visibleConferenceActivities.map((item) => (
@@ -710,7 +628,9 @@ export default function Home() {
                         {item.title}
                       </h3>
                       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--blue)]">{item.venue}</p>
-                      <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{item.location} · {item.format}</p>
+                      <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
+                        {item.location} · {item.format}
+                      </p>
                     </article>
                   ))}
                 </div>
@@ -780,10 +700,10 @@ export default function Home() {
                   <div className="flex items-center gap-3">
                     {link.label === "Email" ? (
                       <Mail className="size-5 text-[var(--blue)]" />
-                    ) : link.label === "Google Scholar" ? (
-                      <FileText className="size-5 text-[var(--blue)]" />
-                    ) : (
+                    ) : link.label === "LinkedIn" ? (
                       <Linkedin className="size-5 text-[var(--blue)]" />
+                    ) : (
+                      <FileText className="size-5 text-[var(--blue)]" />
                     )}
                     <span className="font-semibold text-[var(--ink)]">{link.label}</span>
                   </div>
