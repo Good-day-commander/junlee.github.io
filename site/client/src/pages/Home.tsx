@@ -26,8 +26,8 @@ const snapshots = [
   },
   {
     label: "Current Work",
-    value: "Coronary PINO · 4DCT FFR · PPG Fluid Prediction",
-    copy: "I am currently developing PINO-based coronary flow prediction, diffusion-based 4DCT synthesis for dynamic FFR, and PPG-based fluid intervention models.",
+    value: "Coronary PINO · 4DCT FFR · PPG Biomarkers",
+    copy: "I am currently developing PINO-based coronary flow prediction, diffusion-based 4DCT synthesis for dynamic FFR, and wearable PPG biomarker models for fluid intervention and glaucoma-related screening.",
   },
 ];
 
@@ -77,6 +77,27 @@ const briefs = [
     ],
     image: "/media/papers/extracted/tricuspid-000.png",
     doi: "https://doi.org/10.1080/19942060.2022.2104929",
+  },
+];
+
+const ongoingTracks = [
+  {
+    label: "Coronary PINO",
+    title: "Patient-specific coronary flow field prediction without per-case retraining.",
+    note:
+      "This project uses physics-informed neural operators trained on CFD data to reconstruct 3D pressure and velocity fields from patient-specific coronary geometry, aiming for much faster hemodynamic assessment on unseen cases.",
+  },
+  {
+    label: "4DCT FFR",
+    title: "Diffusion-based 4D CT synthesis for dynamic coronary functional assessment.",
+    note:
+      "I am extending CT-based coronary analysis from static anatomy to time-varying hemodynamics by synthesizing physiologically consistent 4D CT and coupling it with CFD-based flow analysis.",
+  },
+  {
+    label: "Wearable biomarkers",
+    title: "PPG-based biomarker discovery for earlier intervention and glaucoma-related screening.",
+    note:
+      "Beyond fluid bolus prediction, I am also exploring how wearable PPG modeling can be extended toward additional biomarkers such as intraocular-pressure-related and glaucoma-relevant signals.",
   },
 ];
 
@@ -477,35 +498,49 @@ export default function Home() {
 
         <section id="ongoing" className="section-layer section-layer-ongoing">
           <div className="container py-16 md:py-24">
-          <div className="grid gap-8 border-y py-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
-            <div className="space-y-4">
-              <div className="eyebrow">Ongoing Clinical AI</div>
-              <h2 className="section-title max-w-[12ch]">Current manuscript on earlier fluid intervention from continuous wearable PPG.</h2>
-            </div>
-            <div className="space-y-6">
-              <div className="micro-label w-fit">In Submission</div>
-              <h3 className="font-display text-[1.75rem] font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--ink)] md:text-[2.35rem]">
-                Multi-Model Deep-Learning Ensemble for Predicting 24 h Fluid Bolus Administration from Continuous PPG Spectrograms
-              </h3>
-              <p className="body-copy">
-                I am currently developing a multi-model deep-learning ensemble that uses continuous smartwatch-derived PPG spectrograms to flag emergency department patients who may later require fluid bolus administration. The aim is to detect hemodynamic vulnerability earlier, before overt instability becomes obvious.
-              </p>
-              <div className="grid gap-4 md:grid-cols-3">
-                <article className="metric-card p-5">
-                  <div className="eyebrow mb-4">Setting</div>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Prospective emergency-department cohort with continuous wearable PPG acquisition.</p>
-                </article>
-                <article className="metric-card p-5">
-                  <div className="eyebrow mb-4">Method</div>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Weighted ensemble learning across STFT and CWT spectrogram views.</p>
-                </article>
-                <article className="metric-card p-5">
-                  <div className="eyebrow mb-4">Goal</div>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Earlier identification of patients who may need fluid bolus despite initially stable presentation.</p>
-                </article>
+            <div className="grid gap-8 border-y py-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
+              <div className="space-y-4">
+                <div className="eyebrow">Ongoing Research</div>
+                <h2 className="section-title max-w-[13ch]">Current projects spanning wearable PPG, coronary flow prediction, and dynamic CT-based hemodynamics.</h2>
+                <p className="body-copy max-w-md">
+                  The current pipeline is organized around one submission-stage wearable study and several adjacent projects that extend the same patient-specific hemodynamics framework across coronary imaging and wearable biomarker discovery.
+                </p>
+              </div>
+              <div className="space-y-6">
+                <div className="micro-label w-fit">Featured ongoing study</div>
+                <h3 className="font-display text-[1.75rem] font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--ink)] md:text-[2.35rem]">
+                  Multi-Model Deep-Learning Ensemble for Predicting 24 h Fluid Bolus Administration from Continuous PPG Spectrograms
+                </h3>
+                <p className="body-copy">
+                  I am currently developing a multi-model deep-learning ensemble that uses continuous smartwatch-derived PPG spectrograms to flag emergency-department patients who may later require fluid bolus administration. The aim is to detect hemodynamic vulnerability earlier, before overt instability becomes obvious, using longer-horizon signal patterns rather than single-beat estimates alone.
+                </p>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <article className="metric-card p-5">
+                    <div className="eyebrow mb-4">Setting</div>
+                    <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Prospective emergency-department cohort with continuous wearable PPG acquisition.</p>
+                  </article>
+                  <article className="metric-card p-5">
+                    <div className="eyebrow mb-4">Method</div>
+                    <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Weighted ensemble learning across STFT and CWT spectrogram views with multiple CNN backbones.</p>
+                  </article>
+                  <article className="metric-card p-5">
+                    <div className="eyebrow mb-4">Goal</div>
+                    <p className="text-sm leading-7 text-[color:var(--ink-soft)]">Earlier identification of patients who may need fluid bolus despite initially stable presentation.</p>
+                  </article>
+                </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {ongoingTracks.map((track) => (
+                    <article key={track.title} className="metric-card p-5">
+                      <div className="eyebrow mb-4">{track.label}</div>
+                      <h4 className="font-display text-[1.15rem] font-semibold leading-[1.15] tracking-[-0.03em] text-[var(--ink)]">
+                        {track.title}
+                      </h4>
+                      <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">{track.note}</p>
+                    </article>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </section>
 
