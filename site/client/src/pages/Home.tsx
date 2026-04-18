@@ -131,6 +131,27 @@ const galleryMoments = [
   },
 ];
 
+const fieldNotePanels = [
+  {
+    label: "Lab context",
+    title: "Where hypotheses are translated into model design.",
+    note:
+      "This part of the work includes internal presentations, advisor feedback, and iterative discussion about how to connect computational hemodynamics to clinically meaningful questions.",
+  },
+  {
+    label: "Conference context",
+    title: "Where the work is tested against a broader research audience.",
+    note:
+      "Poster sessions and conference talks are where I refine how PINO, CT-based physiology, and wearable biosignal modeling are explained to researchers outside the immediate lab context.",
+  },
+  {
+    label: "Translation context",
+    title: "Where research is reframed for products and collaborators.",
+    note:
+      "A part of the portfolio also traces how the same technical work moves into startup conversations, clinical collaboration, and product-facing communication.",
+  },
+];
+
 const translationalProducts = [
   {
     name: "CARDIOS",
@@ -424,17 +445,17 @@ export default function Home() {
                     <img src="/media/profile/profile-main.jpg" alt="Portrait of Hyeong Jun Lee" />
                   </div>
                   <div className="hero-profile-meta mt-5 text-sm text-[color:var(--ink-soft)]">
-                    <div>
-                      <div className="eyebrow mb-2">Affiliation</div>
-                      <p>Multi-scale Fluid Dynamics Lab, Yonsei University</p>
+                    <div className="hero-profile-item">
+                      <div className="eyebrow">Affiliation</div>
+                      <p className="hero-profile-copy">Multi-scale Fluid Dynamics Lab, Yonsei University</p>
                     </div>
-                    <div>
-                      <div className="eyebrow mb-2">Role</div>
-                      <p>PhD Candidate in Mechanical Engineering</p>
+                    <div className="hero-profile-item">
+                      <div className="eyebrow">Role</div>
+                      <p className="hero-profile-copy">PhD Candidate in Mechanical Engineering</p>
                     </div>
-                    <div>
-                      <div className="eyebrow mb-2">Current scope</div>
-                      <p>PINO, CT-FFR, and wearable PPG analytics</p>
+                    <div className="hero-profile-item">
+                      <div className="eyebrow">Current scope</div>
+                      <p className="hero-profile-copy">PINO, CT-FFR, and wearable PPG analytics</p>
                     </div>
                   </div>
                 </div>
@@ -445,7 +466,7 @@ export default function Home() {
 
         <section className="container py-10 md:py-14">
           <div className="section-rule mb-8" />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {snapshots.map((item) => (
               <article key={item.label} className="metric-card">
                 <p className="eyebrow mb-6">{item.label}</p>
@@ -504,26 +525,20 @@ export default function Home() {
 
         <section id="ongoing" className="section-layer section-layer-ongoing">
           <div className="container py-16 md:py-24">
-            <div className="grid gap-8 border-y py-10 md:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
-              <div className="space-y-4">
+            <div className="border-y py-10" style={{ borderColor: "rgba(16,24,40,0.1)" }}>
+              <div className="max-w-4xl space-y-4">
                 <div className="eyebrow">Ongoing Research</div>
-                <h2 className="section-title max-w-[11ch]">A concise list of the studies currently in progress.</h2>
-                <p className="body-copy max-w-md">
-                  Instead of separating one featured item from the rest, this section now lists the main ongoing studies in one reading flow so each project has a clearer and more equal position.
+                <h2 className="section-title max-w-[12ch]">Current studies organized as one working pipeline.</h2>
+                <p className="body-copy max-w-3xl">
+                  To avoid giving one project too much visual priority, the ongoing section now treats the current manuscript, coronary PINO, 4D CT analysis, and wearable biomarkers as connected studies within the same broader research agenda.
                 </p>
               </div>
-              <div className="space-y-0">
-                {ongoingProjects.map((project, index) => (
-                  <article
-                    key={project.title}
-                    className={`py-6 ${index !== 0 ? "border-t" : ""}`}
-                    style={index !== 0 ? { borderColor: "rgba(16,24,40,0.08)" } : undefined}
-                  >
+              <div className="ongoing-grid mt-10">
+                {ongoingProjects.map((project) => (
+                  <article key={project.title} className="ongoing-card">
                     <div className="eyebrow mb-3">{project.label}</div>
-                    <h3 className="font-display text-[1.45rem] font-semibold leading-[1.08] tracking-[-0.04em] text-[var(--ink)] md:text-[1.95rem]">
-                      {project.title}
-                    </h3>
-                    <p className="mt-3 max-w-3xl text-[0.98rem] leading-7 text-[color:var(--ink-soft)]">{project.note}</p>
+                    <h3 className="ongoing-title">{project.title}</h3>
+                    <p className="ongoing-copy mt-3">{project.note}</p>
                   </article>
                 ))}
               </div>
@@ -557,6 +572,16 @@ export default function Home() {
                     </h3>
                     <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{moment.note}</p>
                   </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="field-notes-grid mt-10">
+              {fieldNotePanels.map((panel) => (
+                <article key={panel.title} className="field-note-card">
+                  <div className="eyebrow mb-3">{panel.label}</div>
+                  <h3 className="field-note-title">{panel.title}</h3>
+                  <p className="field-note-copy mt-3">{panel.note}</p>
                 </article>
               ))}
             </div>
