@@ -26,8 +26,8 @@ const snapshots = [
   },
   {
     label: "Current Work",
-    value: "PINO · 4DCT · PPG",
-    copy: "Current studies in coronary flow prediction, dynamic FFR, and wearable biomarkers.",
+    value: "PINO · 4D CT · PPG",
+    copy: "Current studies in coronary flow prediction, dynamic CT-derived FFR, and wearable biomarkers.",
   },
 ];
 
@@ -35,75 +35,83 @@ const briefs = [
   {
     status: "Featured Paper · 2025",
     title:
-      "A Physics-Integrated Deep Learning Approach for Patient-Specific Non-Newtonian Blood Viscosity Assessment using PPG",
+      "A Physics-Integrated Deep Learning Approach for Patient-Specific Non-Newtonian Blood Viscosity Assessment Using PPG",
     journal: "Computer Methods and Programs in Biomedicine",
     year: "2025",
     focus:
-      "In this study, I combined wearable PPG with rheological priors to estimate patient-specific blood viscosity through a non-invasive, physics-integrated deep-learning pipeline.",
+      "A non-invasive pipeline that estimates patient-specific, shear-rate-dependent blood viscosity from wearable PPG. The network is constrained by the Carreau–Yasuda rheological model, keeping its predictions physically admissible across varying flow conditions.",
     points: [
-      "Builds a patient-specific viscosity estimation workflow instead of treating PPG as a generic screening signal.",
-      "Integrates Carreau–Yasuda rheology with a 1D CNN-LSTM model to keep the inference physically grounded.",
-      "Positions wearable sensing as a route toward broader non-invasive circulatory assessment.",
+      "Reframes viscosity estimation as a patient-specific inverse problem rather than population-level screening.",
+      "Couples a 1D CNN-LSTM backbone with Carreau–Yasuda priors so the output respects non-Newtonian physics.",
+      "Positions consumer-grade wearables as a credible entry point for circulatory assessment.",
     ],
     image: "/media/papers/extracted/viscosity-000.png",
     doi: "https://doi.org/10.1016/j.cmpb.2025.108740",
+    doiLabel: "View DOI",
+  },
+  {
+    status: "Accepted · 2026",
+    title: "A Diffusion Deformable Model for Coronary 4D CT Synthesis and Dynamic FFR Derivation",
+    journal: "Computer Methods and Programs in Biomedicine",
+    year: "accepted 2026",
+    focus:
+      "A diffusion-based generative pipeline that synthesizes physiologically consistent 4D coronary CT from limited-phase acquisitions, enabling dynamic FFR analysis across the cardiac cycle. Developed on a dataset approved under Severance Hospital IRB (4-2024-0685).",
+    points: [
+      "Couples a deformable diffusion model with downstream CFD to recover time-resolved coronary physiology.",
+      "Bridges static coronary CTA and invasive pressure-wire measurement in a single workflow.",
+      "Moves dynamic FFR from research-only toward clinically realistic imaging workflows.",
+    ],
+    image: "/media/papers/extracted/4dct-000.png",
+    doi: "",
+    doiLabel: "DOI pending — link upon publication",
   },
   {
     status: "Published · 2022",
-    title: "Optimization of FFR Prediction in the Gray Zone",
+    title: "Optimization of FFR Prediction Algorithm for the Coronary Gray Zone",
     journal: "Computer Methods and Programs in Biomedicine",
     year: "2022",
     focus:
-      "In this study, I addressed the coronary gray zone by combining CTA morphology, hemodynamic descriptors, and biometric variables for more reliable FFR prediction in diagnostically ambiguous cases.",
+      "Coronary \"gray-zone\" lesions (FFR ≈ 0.75–0.80) are where diagnostic decisions are hardest. Combining CTA-derived morphology, CFD-derived hemodynamic descriptors, and patient biometrics improves prediction stability precisely in this ambiguous band.",
     points: [
-      "Treats gray-zone diagnosis as a physics-informed feature design problem rather than a purely black-box classification task.",
-      "Brings together synthetic vessel models and patient biomarker data to improve robustness.",
-      "Shows how CFD-derived variables can support clinically useful coronary decision support.",
+      "Treats gray-zone classification as physics-informed feature design rather than pure black-box learning.",
+      "Integrates synthetic vessel models with patient biometric data for robustness.",
     ],
     image: "/media/papers/extracted/ffr-000.png",
     doi: "https://doi.org/10.1016/j.cmpb.2022.106827",
+    doiLabel: "View DOI",
   },
   {
     status: "Published · 2022",
-    title: "Optimization of Tricuspid Membrane Mechanism through Hemodynamic Analysis",
+    title: "Optimization of Tricuspid Membrane Mechanism Through Hemodynamic Analysis",
     journal: "Engineering Applications of Computational Fluid Mechanics",
     year: "2022",
     focus:
-      "In this CFD study, I examined how tricuspid membrane geometry changes the balance between regurgitation control and long-term leaflet durability.",
-    points: [
-      "Turns valve intervention design into a measurable flow optimization problem.",
-      "Maps the trade-off between treatment effectiveness and leaflet preservation.",
-      "Demonstrates how simulation can directly inform procedural design choices.",
-    ],
+      "A CFD study that examines how tricuspid membrane geometry changes the balance between regurgitation control and long-term leaflet durability, turning device and procedural design into a measurable flow optimization problem.",
+    points: [],
     image: "/media/papers/extracted/tricuspid-000.png",
     doi: "https://doi.org/10.1080/19942060.2022.2104929",
+    doiLabel: "View DOI",
   },
 ];
 
 const ongoingProjects = [
   {
-    label: "Manuscript",
-    title: "Fluid bolus prediction from continuous PPG spectrograms",
+    label: "Coronary PINO · in preparation",
+    title: "Patient-Specific Coronary Flow Field Prediction with Physics-Informed Neural Operators",
     note:
-      "A multi-model ensemble study for identifying emergency-department patients who may later require fluid bolus despite initially stable presentation.",
+      "A PointNet++ branch with a Fourier-feature trunk composed as a DeepONet, trained on CFD flow fields and regularized by Navier–Stokes residuals. Predicts 3D pressure and velocity on unseen coronary geometries in seconds rather than hours. Presented at the 18th ACFM (2025); targeting Physics of Fluids.",
   },
   {
-    label: "Coronary PINO",
-    title: "Patient-specific coronary flow field prediction",
+    label: "Fluid-loading AI · in preparation",
+    title: "Fluid-Bolus Prediction from Continuous PPG Spectrograms",
     note:
-      "Physics-informed neural operators trained on CFD data for faster pressure and velocity field prediction on unseen coronary geometries.",
+      "A multi-model ensemble for identifying emergency-department patients who may later require fluid bolus despite initially stable presentation. Uses Galaxy Watch PPG spectrograms and GroupKFold validation with bias-corrected ensemble aggregation.",
   },
   {
-    label: "4DCT FFR",
-    title: "4D CT synthesis for dynamic FFR analysis",
+    label: "Wearable biomarkers · multi-study program",
+    title: "PPG-Derived Biomarkers: Blood Pressure, Viscosity, Hydration, and Glaucoma-Relevant Signals",
     note:
-      "A dynamic coronary imaging pipeline that synthesizes physiologically consistent 4D CT and links it to CFD-based hemodynamic analysis.",
-  },
-  {
-    label: "Wearable biomarkers",
-    title: "PPG biomarkers for fluid intervention and glaucoma-related screening",
-    note:
-      "An extension of wearable PPG modeling toward broader biomarker discovery, including hemodynamic vulnerability and glaucoma-relevant screening signals.",
+      "Extends wearable PPG modeling into a broader biomarker program: blood pressure, non-Newtonian viscosity, hydration index, and glaucoma-relevant ocular perfusion markers. Multi-institutional collaborations across Severance, Korea University Ansan, and Gangnam Severance. Deployed as EASYCHECK.",
   },
 ];
 
@@ -117,13 +125,19 @@ const galleryMoments = [
   {
     label: "Conference Talk · 2025",
     title: "18th Asian Congress of Fluid Mechanics",
-    note: "Conference talk connecting coronary flow modeling and PINO research.",
+    note: "Oral presentation on patient-specific coronary flow field prediction using physics-informed neural operators at ACFM 2025, Seoul, Korea.",
     image: "/media/profile/gallery-acfm-2025.jpg",
+  },
+  {
+    label: "Conference · 2026",
+    title: "Design of Medical Devices Conference (DMD 2026) — University of Minnesota",
+    note: "Two posters at DMD 2026 (April 20–22, 2026): PINO-based coronary flow field prediction, and a diffusion-based 4D CT synthesis pipeline for dynamic FFR.",
+    image: "/media/profile/gallery-dmd-2026.jpg",
   },
   {
     label: "Product & Startup · 2025",
     title: "CARDIOS and product discussion",
-    note: "A product-facing meeting scene around translation and collaboration.",
+    note: "Translation-facing discussion around CARDIOS, during preparation of the U.S. FDA Pre-Submission (Q253736) and the 510(k) strategy for a coronary CT-FFR device.",
     image: "/media/profile/gallery-translation-summit.jpg",
   },
 ];
@@ -133,19 +147,17 @@ const translationalProducts = [
     name: "CARDIOS",
     label: "Coronary CT diagnostics",
     summary:
-      "A CT-based coronary decision-support system that combines coronary anatomy, AI, and hemodynamic reasoning to estimate the functional significance of coronary artery disease without invasive measurement.",
-    detail:
-      "Within my portfolio, CARDIOS shows how my CT-FFR, coronary flow modeling, and clinical decision-support work connect to software development and product design.",
-    support: "CTA × AI × CFD",
+      "A CT-based coronary decision-support system that estimates the functional significance of coronary artery disease non-invasively, combining coronary anatomy, CFD-informed hemodynamics, and deep learning. Currently in the U.S. FDA Pre-Submission process (Q253736), pursuing a 510(k) pathway under 21 CFR 870.1415 with DEEPVESSEL FFR (K213657) as predicate. Within my portfolio, CARDIOS is the translational outlet of my CT-FFR and coronary flow modeling work.",
+    detail: "",
+    support: "CTA × AI × CFD × regulatory translation",
   },
   {
     name: "EASYCHECK",
-    label: "Wearable hydration monitoring",
+    label: "Wearable biomarker monitoring",
     summary:
-      "A wearable biosignal monitoring product that interprets real-time biosignals to track hydration-related physiology in everyday settings.",
-    detail:
-      "It extends my wearable PPG research from model development into continuous monitoring and user-facing physiological assessment.",
-    support: "Wearable PPG × real-time biometrics",
+      "A smartwatch-based biomarker app that interprets PPG and derived biosignals in real time to estimate blood pressure, non-Newtonian blood viscosity, hydration status, and early hemodynamic vulnerability indicators. EASYCHECK is the productized extension of the same PPG research line used in the CMPB 2025 viscosity paper.",
+    detail: "",
+    support: "Wearable PPG × biomarkers × real-time monitoring",
   },
 ];
 
@@ -187,12 +199,28 @@ const publications = [
 
 const conferenceActivities = [
   {
+    year: "2026",
+    category: "International",
+    title: "PINO-Based Patient-Specific Coronary Flow Field Prediction",
+    venue: "DMD 2026",
+    location: "Minneapolis, MN",
+    format: "Poster",
+  },
+  {
+    year: "2026",
+    category: "International",
+    title: "Diffusion-Based 4D CT Synthesis for Dynamic Coronary FFR",
+    venue: "DMD 2026",
+    location: "Minneapolis, MN",
+    format: "Poster",
+  },
+  {
     year: "2025",
     category: "International",
     title: "Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators",
     venue: "The 18th Asian Congress of Fluid Mechanics (ACFM)",
     location: "Seoul, Korea",
-    format: "Oral · not finalized",
+    format: "Oral",
   },
   {
     year: "2024",
@@ -235,14 +263,6 @@ const conferenceActivities = [
     format: "Short oral & poster · Best Paper Award nominee",
   },
   {
-    year: "2022",
-    category: "Domestic",
-    title: "Artificial intelligence-based automatic cardiovascular lesion prediction diagnostic device",
-    venue: "Biomedical Engineering Society for Circulation (2022 BESCO summer meeting)",
-    location: "Jeju, Korea",
-    format: "Poster",
-  },
-  {
     year: "2021",
     category: "International",
     title: "Estimating CFD-based CT FFR using lattice Boltzmann method – 3D geometry auto segmentation and novel patient specific computation",
@@ -283,7 +303,7 @@ const patents = [
     year: "2023",
     title: "A wearable device for monitoring glaucoma suspect and a method for monitoring glaucoma suspect",
     jurisdiction: "Korea",
-    application: "10-2023-0144347",
+    application: "Application No. to be confirmed",
   },
   {
     year: "2023",
@@ -371,18 +391,19 @@ export default function Home() {
             <div className="hero-grid">
               <div className="hero-main space-y-8">
                 <div className="space-y-4">
-                    <div className="eyebrow">Coronary Hemodynamics · Clinical AI · Wearable Biosignals</div>
+                    <div className="eyebrow">Coronary Hemodynamics · Physics-Informed AI · Wearable Biosignals</div>
 
-                  <h1 className="hero-title max-w-[11ch]">Building clinically interpretable intelligence from flow physics.</h1>
+                  <h1 className="hero-title max-w-[11ch]">Patient-specific cardiovascular modeling, through physics-informed AI.</h1>
                 </div>
                 <div className="hero-meta-rule max-w-5xl" />
                 <div className="hero-narrative-grid">
                   <div className="space-y-6">
                     <p className="lede max-w-3xl">
-                      I am a PhD candidate in Yonsei University&apos;s <strong>Multi-scale Fluid Dynamics Lab</strong>, building
-                      patient-specific models and learning systems for <strong>coronary hemodynamics</strong>, <strong>CT-derived FFR</strong>,
-                      <strong> PINO-based flow prediction</strong>, and <strong>wearable PPG analysis</strong>. My work focuses on making
-                      fluid mechanics and physiological signals more interpretable for diagnosis, risk assessment, and clinical decision support.
+                      I am a PhD candidate at the <strong>Multi-scale Fluid Dynamics Lab (MFDL BIOS Lab)</strong>, Department of
+                      Mechanical Engineering, <strong>Yonsei University</strong>, advised by <strong>Prof. Joon Sang Lee</strong>. My work
+                      spans three connected fronts: physics-informed neural operators for coronary flow, diffusion-based 4D CT synthesis for
+                      dynamic FFR, and wearable PPG analytics for non-invasive biomarkers. The goal is to make fluid mechanics and
+                      physiological signals interpretable enough for real clinical decisions.
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <a className="capsule-link" href="#research">
@@ -403,7 +424,7 @@ export default function Home() {
                         </h2>
                       </div>
                       <p className="body-copy">
-                        This homepage is structured as a compact research report showing what problems I work on, how I build the models, and how those methods connect to clinically meaningful questions.
+                        This homepage is organized as a compact research report. The three research fronts — coronary hemodynamics, dynamic CT imaging, and wearable PPG — are shown as one connected pipeline rather than isolated projects.
                       </p>
                     </div>
                   </aside>
@@ -419,15 +440,27 @@ export default function Home() {
                   <div className="hero-profile-meta mt-5 text-sm text-[color:var(--ink-soft)]">
                     <div className="hero-profile-item">
                       <div className="eyebrow">Affiliation</div>
-                      <p className="hero-profile-copy">Multi-scale Fluid Dynamics Lab, Yonsei University</p>
+                      <p className="hero-profile-copy">MFDL BIOS Lab, Dept. of Mechanical Engineering, Yonsei University</p>
+                    </div>
+                    <div className="hero-profile-item">
+                      <div className="eyebrow">Advisor</div>
+                      <p className="hero-profile-copy">Prof. Joon Sang Lee (이준상)</p>
                     </div>
                     <div className="hero-profile-item">
                       <div className="eyebrow">Role</div>
-                      <p className="hero-profile-copy">PhD Candidate in Mechanical Engineering</p>
+                      <p className="hero-profile-copy">PhD Candidate (Mechanical Engineering)</p>
                     </div>
                     <div className="hero-profile-item">
                       <div className="eyebrow">Current scope</div>
-                      <p className="hero-profile-copy">PINO, CT-FFR, and wearable PPG analytics</p>
+                      <p className="hero-profile-copy">PINO · 4D CT synthesis · Wearable PPG · CT-FFR</p>
+                    </div>
+                    <div className="hero-profile-item">
+                      <div className="eyebrow">Research domain</div>
+                      <p className="hero-profile-copy">Coronary flow · Wearable PPG · Clinical decision support</p>
+                    </div>
+                    <div className="hero-profile-item">
+                      <div className="eyebrow">Core methods</div>
+                      <p className="hero-profile-copy">CFD · Physics-informed operators · Diffusion models</p>
                     </div>
                   </div>
                 </div>
@@ -477,15 +510,21 @@ export default function Home() {
                         <h3 className="research-title">{brief.title}</h3>
                         <p className="research-focus">{brief.focus}</p>
                       </div>
-                      <ul className="bullet-list research-bullet-list">
-                        {brief.points.map((point) => (
-                          <li key={point}>{point}</li>
-                        ))}
-                      </ul>
+                      {brief.points.length ? (
+                        <ul className="bullet-list research-bullet-list">
+                          {brief.points.map((point) => (
+                            <li key={point}>{point}</li>
+                          ))}
+                        </ul>
+                      ) : null}
                       <div className="research-card-footer">
-                        <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
-                          View DOI <ArrowUpRight className="size-4" />
-                        </a>
+                        {brief.doi ? (
+                          <a className="capsule-link" href={brief.doi} target="_blank" rel="noreferrer">
+                            {brief.doiLabel} <ArrowUpRight className="size-4" />
+                          </a>
+                        ) : (
+                          <span className="capsule-link capsule-link-quiet">{brief.doiLabel}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -501,9 +540,9 @@ export default function Home() {
               <div className="max-w-5xl space-y-4">
                 <div className="eyebrow">Ongoing Research</div>
                 <h2 className="section-title max-w-[15.5ch]">Current studies organized as one working pipeline.</h2>
-                <p className="body-copy max-w-3xl">
-                  To avoid giving one project too much visual priority, the ongoing section now treats the current manuscript, coronary PINO, 4D CT analysis, and wearable biomarkers as connected studies within the same broader research agenda.
-                </p>
+              <p className="body-copy max-w-3xl">
+                These three active lines show what is currently moving toward papers and translational output. The accepted 4D CT study is now promoted above as a research brief rather than kept as a one-line ongoing item.
+              </p>
               </div>
               <div className="ongoing-grid mt-10">
                 {ongoingProjects.map((project) => (
@@ -554,7 +593,7 @@ export default function Home() {
               <div className="eyebrow">The M.E.N.D. BioSimulator</div>
               <h2 className="section-title max-w-[15ch]">Research connected to software and product development.</h2>
               <p className="body-copy max-w-3xl">
-                Part of my work also connects to <strong>The M.E.N.D. BioSimulator</strong>, where coronary CT analysis, computational hemodynamics, and wearable biosignal modeling are organized into product concepts and clinical software.
+                Part of my work is translated into clinical software through <strong>The M.E.N.D. BioSimulator (더멘드바이오시뮬레이터)</strong>, a startup building SaMD products grounded in the same coronary CFD, CT-FFR, and wearable PPG research shown above.
               </p>
             </div>
 
@@ -597,7 +636,7 @@ export default function Home() {
                     <h3 className="translation-product-title">{product.name}</h3>
                   </div>
                   <p className="translation-product-summary">{product.summary}</p>
-                  <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{product.detail}</p>
+                  {product.detail ? <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{product.detail}</p> : null}
                   <div>
                     <span className="year-chip">{product.support}</span>
                   </div>
@@ -613,7 +652,7 @@ export default function Home() {
               <div className="eyebrow">Publication Index</div>
               <h2 className="section-title max-w-[15ch]">Selected papers that map my current research direction.</h2>
               <p className="body-copy max-w-3xl">
-                This index gives a quick citation view of the papers that most clearly represent my current work on coronary hemodynamics, wearable PPG inference, and clinically usable AI.
+                A compact citation view of the peer-reviewed papers that anchor my current work on coronary hemodynamics, wearable PPG inference, and physics-informed clinical AI.
               </p>
             </div>
 
@@ -726,7 +765,7 @@ export default function Home() {
               <div className="eyebrow">Contact and Links</div>
               <h2 className="section-title max-w-[17.5ch]">Open to collaboration on coronary hemodynamics, medical AI, and wearable biosignal analysis.</h2>
               <p className="body-copy max-w-2xl">
-                If you are working on patient-specific modeling, CT-FFR, wearable physiology, or clinical decision support, I would be glad to connect and discuss research or development collaboration.
+                Open to discussion around patient-specific cardiovascular modeling, CT-FFR pipelines, physics-informed learning for biomedical problems, wearable PPG analytics, and clinical translation of SaMD products.
               </p>
             </div>
             <div className="contact-grid mt-10">
