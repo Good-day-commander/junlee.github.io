@@ -16,18 +16,18 @@ const snapshots = [
   },
   {
     label: "Research Domain",
-    value: "Coronary & PPG",
-    copy: "Coronary diagnosis, wearable biosignal interpretation, and earlier intervention support.",
+    value: "Coronary Flow · Wearable Biosignals",
+    copy: "I work on coronary hemodynamics, CT-derived functional assessment, and wearable PPG interpretation for cardiovascular decision making.",
   },
   {
     label: "Core Method",
-    value: "PINO · CFD · AI",
-    copy: "Physics-guided modeling that links PINO and CFD to clinical inference.",
+    value: "CFD · PINO · Deep Learning",
+    copy: "My research combines fluid simulation, physics-informed learning, and data-driven models to build interpretable prediction pipelines.",
   },
   {
     label: "Current Work",
-    value: "PINO · 4DCT · PPG",
-    copy: "Ongoing studies on PINO-based coronary flow prediction, diffusion-based 4DCT synthesis for dynamic FFR, and wearable PPG modeling.",
+    value: "Coronary PINO · 4DCT FFR · PPG Fluid Prediction",
+    copy: "I am currently developing PINO-based coronary flow prediction, diffusion-based 4DCT synthesis for dynamic FFR, and PPG-based fluid intervention models.",
   },
 ];
 
