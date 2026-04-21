@@ -64,8 +64,8 @@ const briefs = [
       "Bridges static coronary CTA and invasive pressure-wire measurement in a single workflow.",
       "Moves dynamic FFR from research-only toward clinically realistic imaging workflows.",
     ],
-    image: "/media/papers/extracted/4dct-000.png",
-    alt: "Representative frame from the 4D coronary CT diffusion study used for dynamic FFR derivation.",
+    image: "/media/papers/extracted/4dct-figure1.png",
+    alt: "Figure 1 from the 4D coronary CT diffusion paper, showing the diffusion-deformation framework for dynamic FFR derivation.",
     doi: "",
     doiLabel: "DOI pending — link upon publication",
   },
@@ -330,7 +330,7 @@ const contactLinks = [
   },
   {
     label: "ORCID",
-    href: "https://orcid.org/",
+    href: "https://orcid.org/0009-0001-5691-3787",
   },
 ];
 
