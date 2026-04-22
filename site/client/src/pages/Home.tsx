@@ -11,7 +11,7 @@ import { useState } from "react";
 const snapshots = [
   {
     label: "Published Papers",
-    value: "3",
+    value: "4",
     copy: "Peer-reviewed papers that best represent my current research direction.",
   },
   {
@@ -52,11 +52,11 @@ const briefs = [
     doiLabel: "View DOI",
   },
   {
-    status: "Featured · Accepted 2026",
+    status: "Featured · Published 2026",
     authorStatus: "Author status · confirm",
     title: "A Diffusion Deformable Model for Coronary 4D CT Synthesis and Dynamic FFR Derivation",
     journal: "Computer Methods and Programs in Biomedicine",
-    year: "accepted 2026",
+    year: "2026",
     focus:
       "A diffusion-based generative pipeline that synthesizes physiologically consistent 4D coronary CT from limited-phase acquisitions, enabling dynamic FFR analysis across the cardiac cycle. Developed on a dataset approved under Severance Hospital IRB (4-2024-0685).",
     points: [
@@ -463,7 +463,13 @@ export default function Home() {
               {briefs.map((brief) => (
                 <article key={brief.title} className="research-card">
                   <div className="research-grid">
-                    <div className="research-figure">
+                    <div
+                      className={
+                        brief.image === "/media/papers/extracted/4dct-figure1.png"
+                          ? "research-figure research-figure--white"
+                          : "research-figure"
+                      }
+                    >
                       <img src={brief.image} alt={brief.alt} />
                     </div>
                     <div className="research-card-copy">
