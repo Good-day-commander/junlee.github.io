@@ -53,7 +53,7 @@ const briefs = [
   },
   {
     status: "Featured · Published 2026",
-    authorStatus: "Author status · confirm",
+    authorStatus: "",
     title: "A Diffusion Deformable Model for Coronary 4D CT Synthesis and Dynamic FFR Derivation",
     journal: "Computer Methods and Programs in Biomedicine",
     year: "2026",
@@ -464,10 +464,14 @@ export default function Home() {
                 <article key={brief.title} className="research-card">
                   <div className="research-grid">
                     <div
-                      className={
+                      className="research-figure"
+                      style={
                         brief.image === "/media/papers/extracted/4dct-figure1.png"
-                          ? "research-figure research-figure--white"
-                          : "research-figure"
+                          ? {
+                              background: "rgba(255, 255, 255, 0.98)",
+                              boxShadow: "inset 0 0 0 1px rgba(16, 24, 40, 0.03)",
+                            }
+                          : undefined
                       }
                     >
                       <img src={brief.image} alt={brief.alt} />
@@ -475,7 +479,7 @@ export default function Home() {
                     <div className="research-card-copy">
                       <div className="research-meta-row">
                         <div className="micro-label w-fit">{brief.status}</div>
-                        <div className="micro-label w-fit">{brief.authorStatus}</div>
+                        {brief.authorStatus ? <div className="micro-label w-fit">{brief.authorStatus}</div> : null}
                         <span className="year-chip">
                           {brief.journal} · {brief.year}
                         </span>
