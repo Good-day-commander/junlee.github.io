@@ -5,11 +5,11 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+      content="width=device-width, initial-scale=1.0" />
     <title>Hyeong Jun Lee | Coronary Hemodynamics · Physics-Informed AI · Wearable PPG</title>
     <meta
       name="description"
-      content="PhD candidate at Yonsei MFDL BIOS Lab. Patient-specific coronary hemodynamics, CT-FFR, physics-informed neural operators, 4D CT synthesis, wearable PPG analytics." />
+      content="Postdoctoral researcher at Yonsei MFDL. Patient-specific coronary hemodynamics, CT-FFR, physics-informed neural operators, 4D CT synthesis, wearable PPG analytics." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -20,10 +20,25 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!--
+      Optional umami analytics. Vite substitutes the VITE_ANALYTICS_ENDPOINT and
+      VITE_ANALYTICS_WEBSITE_ID env vars into the two string literals below at
+      build time; when either is unset the percent-wrapped placeholder is left
+      verbatim, so the loader checks for a leading "%" and injects nothing
+      instead of shipping a broken script tag.
+    -->
+    <script>
+      (function () {
+        var endpoint = "%VITE_ANALYTICS_ENDPOINT%";
+        var websiteId = "%VITE_ANALYTICS_WEBSITE_ID%";
+        if (!endpoint || endpoint.charAt(0) === "%" || !websiteId || websiteId.charAt(0) === "%") return;
+        var script = document.createElement("script");
+        script.defer = true;
+        script.src = endpoint.replace(/\/$/, "") + "/umami";
+        script.setAttribute("data-website-id", websiteId);
+        document.body.appendChild(script);
+      })();
+    </script>
   </body>
 
 </html>
