@@ -333,7 +333,7 @@ const briefSpecs: BriefSpec[] = [
   {
     id: "J1",
     focus:
-      "A denoising diffusion pipeline that synthesizes physiologically consistent, full-cycle 4D coronary CT from two acquired CT phases, enabling time-resolved FFR analysis across the cardiac cycle. First-authored by T.H. Han; I contributed to the diffusion deformable model that generates the 4D sequence used for the time-resolved FFR analysis.",
+      "A denoising diffusion pipeline that synthesizes physiologically consistent, full-cycle 4D coronary CT from two acquired CT phases, enabling time-resolved FFR analysis across the cardiac cycle. First-authored by T.H. Han; my part was the hemodynamic side: the CFD and FFR analysis that turns the synthesized 4D sequence into time-resolved coronary physiology.",
     points: [
       "Couples a diffusion deformable model with downstream CFD to recover time-resolved coronary physiology.",
       "Bridges static coronary CTA and invasive pressure-wire measurement in a single workflow.",

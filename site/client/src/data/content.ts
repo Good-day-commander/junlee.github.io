@@ -15,7 +15,7 @@
 // - Role: site hero and profile card said "PhD candidate"; CV says Ph.D. completed Aug. 2026 and Postdoctoral Researcher since Sep. 2026 (Technical Research Personnel through Aug. 2027), plus concurrent Project Researcher at Yonsei University Health System (PI: Prof. Jung-Sun Kim).
 // - Portrait alt text and profile-card Affiliation line previously carried the old role/lab/department strings; CV: "Postdoctoral Researcher", "Multiscale Fluid Dynamics Lab", "School of Mechanical Engineering, Yonsei University".
 // - Department wording: site said "Department of Mechanical Engineering"; CV uses "School of Mechanical Engineering, Yonsei University".
-// - LinkedIn URL: CV prints linkedin.com/in/hyeongjunlee; the live site's contact card has used https://www.linkedin.com/in/hyeong-jun-lee-389435247/. Neither slug can be verified automatically (LinkedIn answers scripted requests with HTTP 999 whether or not a profile exists), so profile.links.linkedin keeps the URL the live site has been serving rather than risk a dead contact link. Owner action: open linkedin.com/in/hyeongjunlee in a browser; if it is your profile, switch profile.links.linkedin to it, otherwise correct the CV.
+// - LinkedIn URL: owner confirmed on 2026-10-12 that https://www.linkedin.com/in/hyeongjunlee/ (the CV slug) is the live profile; the old site slug hyeong-jun-lee-389435247 is retired.
 // - Google Scholar and ORCID URLs are not printed in the CV (only link labels); taken from the site's contact links. The Scholar URL used hl=ko; it now uses hl=en because the site is English-only and its audience is overseas.
 // - CV header also lists a phone number; deliberately omitted because the site is public.
 // - CV RESEARCH INTERESTS (4 bullets) has no schema field: (1) Patient-specific computational hemodynamics: image-based coronary CFD (incl. lattice Boltzmann method) and FFR assessment; (2) Physics-informed machine learning: neural operators and physics-informed surrogates for real-time cardiovascular flow prediction; (3) Image-based cardiovascular physiology: CT-FFR and diffusion-based 4D coronary CT synthesis for dynamic FFR; (4) Wearable hemodynamic diagnostics: PPG-based estimation of non-Newtonian blood viscosity, blood pressure and fluid status.
@@ -47,7 +47,7 @@
 // - R5 program: CV gives only funder + grant number, so program is left empty.
 // - Education, research experience, skills, research projects, awards, fellowships and teaching are now rendered (Background and Achievements sections). Fellowships and projects are kept in CV order here; Home.tsx sorts them by end date.
 // - Resume link points to /uploads/resume.pdf; md5-identical to CV_HyeongJunLee.pdf (4 pages) as of this revision. Re-copy it whenever the CV changes.
-// - D9 (BESCO Winter Meeting, Seoul, 2022) is printed in the CV as "short oral & poster; Best Paper Award nominee", while AWARDS AND HONORS lists "Best Paper Award, BESCO, 2022". Both lines are reproduced as the CV prints them. If that award was given for D9, change D9.format to "short oral & poster; Best Paper Award" so the talk row does not understate it.
+// - D9 (BESCO Winter Meeting, Seoul, 2022): the CV prints "Best Paper Award nominee" in the talk list but "Best Paper Award, BESCO, 2022" under AWARDS AND HONORS. Owner confirmed on 2026-10-12 that it was an award, so D9.format says "Best Paper Award"; the CV talk line should be corrected to match.
 
 /** A research appointment split into the parts the page composes prose from. */
 export type Appointment = {
@@ -212,8 +212,7 @@ export const profile: Profile = {
   email: "kochujam369@gmail.com",
   links: {
     scholar: "https://scholar.google.com/citations?user=1NxM3T0AAAAJ&hl=en",
-    // The live site's slug; read the LinkedIn maintainer note above before switching to the CV's linkedin.com/in/hyeongjunlee.
-    linkedin: "https://www.linkedin.com/in/hyeong-jun-lee-389435247/",
+    linkedin: "https://www.linkedin.com/in/hyeongjunlee/",
     orcid: "https://orcid.org/0009-0001-5691-3787",
     site: "https://hyeongjunlee.me",
   },
@@ -265,7 +264,7 @@ export const experience: Experience[] = [
     bullets: [
       "Coronary CT-FFR: built image-based, patient-specific CFD pipelines (incl. lattice Boltzmann method) and a gray-zone FFR prediction algorithm combining hemodynamic features, synthetic vessel models and biometric data [J4].",
       "Physics-informed neural operators: developed a PINO surrogate (PointNet++ branch, Fourier-feature trunk, Navier–Stokes residual regularization) that predicts 3D coronary pressure and velocity fields on unseen geometries in seconds [C1].",
-      "Dynamic 4D CT-FFR: contributed to a diffusion deformable model that synthesizes full-cycle 4D coronary CT from two CT phases for time-resolved FFR analysis [J1, C2].",
+      "Dynamic 4D CT-FFR: CFD and FFR analysis on diffusion-synthesized full-cycle 4D coronary CT (from two acquired phases), turning the synthesized sequence into time-resolved FFR [J1, C2].",
       "Wearable hemodynamics: designed a physics-constrained CNN-LSTM with a Carreau–Yasuda prior to estimate patient-specific non-Newtonian blood viscosity from smartwatch PPG [J2].",
       "Cardiac device hemodynamics: CFD-based optimization of a tricuspid regurgitation membrane device [J3].",
     ],
@@ -538,7 +537,7 @@ export const talks: Talk[] = [
     title: "Artificial Intelligence Algorithms for FFR Prediction in Gray Zone by Single-view Angiography",
     venue: "Biomedical Engineering Society for Circulation (BESCO) Winter Meeting",
     location: "Seoul",
-    format: "short oral & poster; Best Paper Award nominee",
+    format: "short oral & poster; Best Paper Award",
     role: "presenter",
     note: "H.J. Lee et al.",
   },
