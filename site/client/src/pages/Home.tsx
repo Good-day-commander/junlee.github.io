@@ -421,7 +421,7 @@ const ongoingProjects: OngoingCard[] = [
         {
           label: `Fluid-loading AI · ${STATUS_LABEL[M1.type].toLowerCase()} (${M1.venueShort ?? M1.venue})`,
           title: M1.title,
-          note: `A multi-model deep-learning ensemble that predicts fluid-bolus needs over the following 24 hours from continuous smartwatch (Galaxy Watch) PPG spectrograms, flagging emergency-department patients who may later require a fluid bolus despite an initially stable presentation. Validated with GroupKFold splits and bias-corrected ensemble aggregation. ${M1.status} at ${M1.venue}.`,
+          note: `A multi-model deep-learning ensemble that predicts fluid-bolus needs over the following 24 hours from continuous smartwatch (Galaxy Watch) PPG spectrograms, flagging emergency-department patients who may later require a fluid bolus despite an initially stable presentation. An ensemble of 30 CNN checkpoints over STFT and CWT spectrograms, validated with five-fold stratified cross-validation and rank-normalized weighted aggregation. ${M1.status} at ${M1.venue}.`,
         },
       ]
     : []),

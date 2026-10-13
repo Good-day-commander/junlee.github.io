@@ -69,3 +69,7 @@ Desktop.ini
 
 *.log
 npm-debug.log*
+
+# Raw website source data (meshes, recordings); never publish
+website_assets/
+assets-raw/
