@@ -1,0 +1,277 @@
+---
+/*
+  "Three fronts": Flow / Image / Pulse as frames whose size carries rank.
+  Flow, the front he leads and the one with live data, takes the full
+  width as a wide cine frame; Image and Pulse sit beneath it as a pair of
+  half-width frames. Each frame carries the fixed three-tier stack (what,
+  result, consequence) and links into the matching chapter on /research.
+  Numbers come from the two manifests and content.ts.
+
+  Flow uses a second VesselViewer in chapter mode (client:visible) rather
+  than a static still. Two WebGL contexts are within budget here: the
+  viewer contract pauses rendering when offscreen and on document.hidden,
+  so the hero and this frame never draw at the same time for more than a
+  scroll; the vessel buffers are ~0.5 MB and come from the same URL, so the
+  second mount hits the HTTP cache; and the chapter mode's field toggle
+  (pressure | error | speed) is the Flow front's own evidence, which a
+  still could not show.
+
+  Pulse mounts the SpectrogramDevelop island `bare` inside its Frame: the
+  Frame draws the border and the top-left label, the island draws the clock,
+  axes, colorbar legend, method line and Replay, and sets the body's height
+  itself so none of that is clipped.
+*/
+import Frame from '@/components/Frame.astro';
+import RoleMark from '@/components/RoleMark.astro';
+import VesselViewer from '@/islands/VesselViewer';
+import SpectrogramDevelop from '@/islands/SpectrogramDevelop';
+import { publications } from '@/data/content';
+import { formatDecimal, formatInt, formatSeconds } from '@/lib/format';
+import { cohortN, shortGpu, type PinoManifest, type PulseManifest } from './manifests';
+import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
+
+export interface Props {
+  pino: PinoManifest;
+  pulse: PulseManifest;
+}
+
+const { pino, pulse } = Astro.props;
+
+const pub = (id: string) => {
+  const p = publications.find((x) => x.id === id);
+  if (!p) throw new Error(`Fronts: publication ${id} missing from content.ts`);
+  return p;
+};
+const J1 = pub('J1');
+
+// Flow
+const inference = formatSeconds(pino.timing.pino.inference_ms_median / 1000);
+const gpu = shortGpu(pino.timing.pino.gpu);
+const r2Case = formatDecimal(pino.metrics.case.pressure_Pa.R2, 3);
+const r2Median = formatDecimal(pino.metrics.cohort.pressure_R2.median, 3);
+const nCases = formatInt(pino.metrics.cohort.n_cases);
+const flowResult = `inference ${inference} · ${gpu} · pressure R² ${r2Case} this case, ${r2Median} cohort median (${nCases} cases, 10-fold CV)`;
+
+// Image
+const imageResult = `${J1.venue} ${J1.volume}, ${J1.article} (${J1.year}) · doi ${J1.doi}`;
+
+// Pulse
+const dev = pulse.pipeline.metrics.development_oof;
+const temporal = pulse.pipeline.metrics.additional_same_center_temporal;
+const nDev = cohortN(dev.cohort);
+const nTemporal = cohortN(temporal.cohort);
+const crop = pulse.stft.recommended_crop_hz;
+const pulseResult = `smartwatch PPG ${formatInt(pulse.stft.method.fs_hz)} Hz · STFT ${formatInt(crop[0])}–${formatInt(crop[1])} Hz · fluid-bolus AUC ${formatDecimal(dev.AUC, 3)} development${nDev ? ` (n ${formatInt(nDev)})` : ''}, ${formatDecimal(temporal.AUC, 3)} temporal validation${nTemporal ? ` (n ${formatInt(nTemporal)})` : ''}`;
+
+/*
+  Corner chrome: the two islands draw their own top-right chrome (field
+  toggle, clock), so only the Image plate carries a tr label; Flow and Pulse
+  keep the tl label and leave the rest of the frame to the island.
+*/
+const fronts = [
+  {
+    id: 'flow',
+    label: 'Flow',
+    tr: undefined,
+    what: 'Flow: image-based coronary CFD and physics-informed neural operators',
+    result: flowResult,
+    consequence: 'A CFD-grade pressure field on a new patient geometry in under two seconds.',
+  },
+  {
+    id: 'image',
+    label: 'Image',
+    tr: `${J1.id} · ${J1.year}`,
+    what: 'Image: diffusion-synthesized 4D coronary CT and dynamic CT-FFR',
+    result: imageResult,
+    consequence: 'Full-cycle 4D CT from two acquired phases, turned into time-resolved FFR.',
+  },
+  {
+    id: 'pulse',
+    label: 'Pulse',
+    tr: undefined,
+    what: 'Pulse: wearable PPG biomarkers',
+    result: pulseResult,
+    consequence: 'Viscosity, blood pressure and fluid status read from a watch.',
+  },
+] as const;
+---
+
+<ol class="strip">
+  {
+    fronts.map((f) => (
+      <li class={`strip__${f.id}`}>
+        <Frame
+          as="article"
+          class={`front front--${f.id}`}
+          tl={f.label}
+          tr={f.tr}
+          aspect={f.id === 'image' ? '4 / 3' : undefined}
+          id={`front-${f.id}`}
+        >
+          {f.id === 'flow' && (
+            <div class="front__media">
+              <VesselViewer client:visible manifestUrl="/data/pino/manifest.json" mode="chapter" />
+            </div>
+          )}
+          {f.id === 'image' && (
+            <div class="front__media front__plate">
+              <img
+                src="/media/papers/extracted/4dct-figure1.png"
+                width="1499"
+                height="967"
+                alt="Figure 1 of the 4D coronary CT diffusion paper: the diffusion deformable model that synthesizes the full cardiac cycle from two acquired CT phases, and the CFD step that derives dynamic FFR from it."
+                loading="lazy"
+                decoding="async"
+              />
+              <p class="front__caption t-caption">
+                Figure 1, <cite>{J1.title}</cite>, {J1.venue} {J1.year}. <RoleMark role={J1.myRole} />
+              </p>
+            </div>
+          )}
+          {f.id === 'pulse' && (
+            <SpectrogramDevelop client:visible manifestUrl="/data/pulse/manifest.json" variant="stft" bare />
+          )}
+          <Fragment slot="what">
+            <a class="front__link" href={`/research#${f.id}`}>
+              <span>{f.what}</span>
+              <span class="front__arrow" aria-hidden="true" set:html={arrowRight} />
+            </a>
+          </Fragment>
+          <Fragment slot="result">{f.result}</Fragment>
+          <Fragment slot="consequence">{f.consequence}</Fragment>
+        </Frame>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  /* Flow spans the full width on its own row; Image and Pulse share the row beneath. */
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .strip__flow {
+    grid-column: 1 / -1;
+  }
+  /* Frame roots are child components; their class is unscoped, hence :global under .strip. */
+  .strip :global(.front) {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .strip :global(.front > .frame__body) {
+    flex: none;
+    overflow: hidden;
+  }
+  .strip :global(.front > .frame__stack) {
+    flex: 1 0 auto;
+  }
+  /* The wide cine frame: a 21:9 stage for the chapter viewer. */
+  .strip :global(.front--flow > .frame__body) {
+    aspect-ratio: 21 / 9;
+  }
+  /* Flow's stack is one line of three columns on the wide frame. */
+  .strip :global(.front--flow > .frame__stack) {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-4);
+    align-items: start;
+  }
+  .front__media {
+    position: absolute;
+    inset: 0;
+    display: grid;
+  }
+  /*
+    client:visible wraps the island in <astro-island> (display: contents),
+    so the viewer root is reached by its data-island attribute, not as a
+    direct child. It fills the body; the chapter mode's own 16/10 aspect
+    would otherwise overflow the 21:9 stage and clip the field toggle.
+  */
+  .front__media :global([data-island='VesselViewer']),
+  .front__media > :global(*) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+  /* The 4D CT figure is a white-ground paper plate; it reads as a light-box plate on film. */
+  .front__plate {
+    grid-template-rows: minmax(0, 1fr) auto;
+    background: var(--box);
+    color: var(--box-ink-2);
+    padding: calc(var(--corner-inset, 0.5rem) + 1.25rem) var(--space-2) var(--space-2);
+    gap: var(--space-1);
+  }
+  .front__plate img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .front__caption {
+    color: var(--box-ink-2);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+  .front__caption :global(.rolemark) {
+    color: var(--box-ink);
+    border-color: var(--box-line);
+    margin-left: 0.25rem;
+  }
+  .front__link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .front__link span:first-child {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color var(--duration-quick) var(--ease-out);
+  }
+  .front__link:hover span:first-child {
+    text-decoration-color: var(--signal);
+  }
+  .front__arrow {
+    display: inline-flex;
+    width: 0.9em;
+    height: 0.9em;
+    align-self: center;
+    color: var(--ink-3);
+    transition:
+      color var(--duration-quick) var(--ease-out),
+      transform var(--duration-quick) var(--ease-out);
+  }
+  .front__arrow :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .front__link:hover .front__arrow {
+    color: var(--signal);
+    transform: translateX(0.15em);
+  }
+  @media (max-width: 1023px) {
+    .strip {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+    .strip :global(.front--flow > .frame__body) {
+      aspect-ratio: 4 / 3;
+    }
+    .strip :global(.front--flow > .frame__stack) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .front__arrow {
+      transition: color var(--duration-quick) var(--ease-out);
+    }
+    .front__link:hover .front__arrow {
+      transform: none;
+    }
+  }
+</style>

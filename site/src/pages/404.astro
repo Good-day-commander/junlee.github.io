@@ -1,0 +1,71 @@
+---
+/*
+  /404 on film: one frame, one line, a link home. GitHub Pages serves this
+  file for every unknown address, so nothing here depends on the request.
+*/
+import Base from '@/layouts/Base.astro';
+import Frame from '@/components/Frame.astro';
+import { profile } from '@/data/content';
+
+const host = profile.links.site.replace(/^https?:\/\//, '');
+---
+
+<Base title="Page not found" description="This address has no page on hyeongjunlee.me." surface="film">
+  <section class="lost wrap">
+    <Frame as="div" tl="404" tr="No page" bl={host} br="No signal" padded class="lost__frame">
+      <div class="lost__body">
+        <h1 class="lost__line">No page at this address.</h1>
+        <a class="lost__home" href="/">Back to the home frame</a>
+      </div>
+    </Frame>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    min-height: calc(100dvh - var(--nav-h) - 1px);
+    display: grid;
+    place-items: center;
+    padding-block: var(--space-6);
+  }
+  .lost :global(.lost__frame) {
+    width: min(100%, 48rem);
+    aspect-ratio: 16 / 9;
+    display: grid;
+  }
+  .lost :global(.lost__frame .frame__body) {
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+  .lost__body {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: center;
+  }
+  .lost__line {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 92;
+    font-weight: 600;
+    font-size: clamp(1.75rem, 1.2rem + 2.4vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 16ch;
+  }
+  .lost__home {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    color: var(--ink-2);
+    text-decoration-color: var(--line);
+    padding-block: 0.5rem;
+  }
+  .lost__home:hover {
+    color: var(--ink);
+  }
+  @media (max-width: 480px) {
+    .lost :global(.lost__frame) {
+      aspect-ratio: 3 / 4;
+    }
+  }
+</style>

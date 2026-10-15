@@ -1,0 +1,105 @@
+---
+/*
+  Site footer: email, Google Scholar, LinkedIn, ORCID (all from content.ts),
+  then a one-line colophon. External links carry the Phosphor arrow-up-right
+  glyph inline; this is the icon pattern for the rest of the site
+  (import the SVG with ?raw, inline it with set:html, size it with CSS).
+*/
+import { profile } from '@/data/content';
+import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
+import envelope from '@phosphor-icons/core/assets/regular/envelope.svg?raw';
+
+const external = [
+  { label: 'Google Scholar', href: profile.links.scholar },
+  { label: 'LinkedIn', href: profile.links.linkedin },
+  { label: 'ORCID', href: profile.links.orcid },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap footer__row">
+    <ul class="footer__links">
+      <li>
+        <a class="footer__link footer__email" href={`mailto:${profile.email}`}>
+          <span class="icon" aria-hidden="true" set:html={envelope} />
+          <span class="t-mono">{profile.email}</span>
+        </a>
+      </li>
+      {
+        external.map((link) => (
+          <li>
+            <a class="footer__link" href={link.href} rel="me noopener">
+              <span>{link.label}</span>
+              <span class="icon" aria-hidden="true" set:html={arrowUpRight} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="footer__colophon">
+      {profile.name}, {profile.lab}, {profile.university}. Set in Archivo, STIX Two Text and JetBrains Mono;
+      built with Astro. <span class="num">{year}</span>.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    padding-block: var(--space-5) var(--space-4);
+    color: var(--ink-2);
+  }
+  .footer__row {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+  .footer__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    line-height: 1.2;
+    color: var(--ink);
+    text-decoration: none;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-quick) var(--ease-out);
+  }
+  .footer__link:hover {
+    border-bottom-color: var(--signal);
+  }
+  .footer__email .t-mono {
+    font-size: var(--size-ui);
+  }
+  .icon {
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
+    color: var(--ink-3);
+    transition: color var(--duration-quick) var(--ease-out);
+  }
+  .icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .footer__link:hover .icon {
+    color: var(--signal);
+  }
+  .footer__colophon {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--ink-3);
+    max-width: 72ch;
+    text-wrap: pretty;
+  }
+</style>

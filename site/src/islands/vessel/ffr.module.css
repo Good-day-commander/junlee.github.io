@@ -1,0 +1,115 @@
+/* FfrCurve: SVG chart chrome. Reads only the semantic tokens. */
+
+.root {
+  position: relative;
+  width: 100%;
+  color: var(--ink);
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.grid {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.axis {
+  stroke: var(--line);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.tick {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink-3);
+}
+.axisLabel {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  fill: var(--ink-3);
+}
+.axisLabel .unit,
+.axisLabel.ratio {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.cfd {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.pino {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.probe {
+  stroke: var(--ink-3);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  shape-rendering: crispEdges;
+}
+.probeLabel {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink-3);
+}
+.ffrValue {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink);
+}
+.ffrValue.isPino {
+  fill: var(--signal);
+}
+.wipeLine {
+  stroke: var(--signal);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.wipeDotCfd {
+  fill: var(--bg);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.wipeDotPino {
+  fill: var(--bg);
+  stroke: var(--signal);
+  stroke-width: 1.5;
+}
+.wipeText {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink-2);
+}
+.legend {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  fill: var(--ink-2);
+}
+.status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--size-mono);
+  color: var(--ink-3);
+  text-align: center;
+  padding: 1rem;
+}

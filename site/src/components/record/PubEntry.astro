@@ -1,0 +1,296 @@
+---
+/*
+  One publication. Rank is carried by size: first and co-first authored
+  work gets the larger frame (with its figure plate where one exists),
+  co-authored work a compact ruled row. Every string comes from content.ts;
+  the BibTeX is generated from the same record at build time.
+
+  Copy BibTeX: the entry itself sits in a <details> so it is readable and
+  selectable without JavaScript; the button copies that text and confirms
+  inline for two seconds.
+*/
+import type { Publication } from '@/data/content';
+import Frame from '@/components/Frame.astro';
+import RoleMark from '@/components/RoleMark.astro';
+import Button from '@/components/Button.astro';
+import Authors from './Authors.astro';
+import { bibtex } from './bibtex';
+import { citationLine, doiUrl, leads, PLATES } from './records';
+
+export interface Props {
+  pub: Publication;
+}
+const { pub } = Astro.props;
+const lead = leads(pub);
+const plate = PLATES[pub.id];
+const doi = doiUrl(pub);
+const bib = bibtex(pub);
+const cite = citationLine(pub);
+const published = pub.year !== '';
+const corner = published ? pub.year : pub.status;
+---
+
+{
+  lead ? (
+    <Frame as="article" id={pub.id} tl={pub.id} tr={corner} class="pub pub--lead" padded>
+      <div class:list={['pub__grid', { 'pub__grid--plate': Boolean(plate) }]}>
+        {plate && (
+          <figure class="pub__plate">
+            <img src={plate.src} alt={plate.alt} width={plate.width} height={plate.height} loading="lazy" decoding="async" />
+          </figure>
+        )}
+        <div class="pub__text">
+          <h3 class="pub__title pub__title--lead">{pub.title}</h3>
+          <Authors authors={pub.authors} />
+          <p class="pub__cite t-mono">{cite}</p>
+          {!published && <p class="pub__status t-caption">{pub.status}</p>}
+          <div class="pub__actions">
+            <RoleMark role={pub.myRole} />
+            {doi && (
+              <a class="pub__doi t-mono" href={doi} rel="noopener">
+                doi.org/{pub.doi}
+              </a>
+            )}
+            <div class="pub__bib" aria-live="polite">
+              <Button variant="ghost" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
+                Copy BibTeX
+              </Button>
+            </div>
+          </div>
+          <details class="pub__details" id={`bib-${pub.id}`}>
+            <summary>BibTeX</summary>
+            <pre class="t-mono" tabindex="0">{bib}</pre>
+          </details>
+        </div>
+      </div>
+    </Frame>
+  ) : (
+    <article id={pub.id} class="pub pub--row">
+      <span class="pub__id t-mono" aria-hidden="true">
+        {pub.id}
+      </span>
+      <div class="pub__text">
+        <h3 class="pub__title">{pub.title}</h3>
+        <Authors authors={pub.authors} />
+        <p class="pub__cite t-mono">{cite}</p>
+        <div class="pub__actions">
+          <RoleMark role={pub.myRole} />
+          {doi && (
+            <a class="pub__doi t-mono" href={doi} rel="noopener">
+              doi.org/{pub.doi}
+            </a>
+          )}
+          <div class="pub__bib" aria-live="polite">
+            <Button variant="ghost" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
+              Copy BibTeX
+            </Button>
+          </div>
+        </div>
+        <details class="pub__details" id={`bib-${pub.id}`}>
+          <summary>BibTeX</summary>
+          <pre class="t-mono" tabindex="0">{bib}</pre>
+        </details>
+      </div>
+    </article>
+  )
+}
+
+<style>
+  .pub {
+    scroll-margin-top: calc(var(--nav-h) + var(--space-2));
+  }
+  .pub--lead {
+    --corner-inset: 0.6rem;
+  }
+  .pub__grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .pub__grid--plate {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+  .pub__plate {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: white;
+    padding: var(--space-1);
+  }
+  .pub__plate img {
+    width: 100%;
+    height: auto;
+    max-height: 26rem;
+    object-fit: contain;
+  }
+  .pub__text {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .pub__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    max-width: 40ch;
+  }
+  .pub__title--lead {
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+  .pub__cite {
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .pub__status {
+    color: var(--ink-2);
+  }
+  .pub__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    margin-top: var(--space-1);
+  }
+  .pub__doi {
+    color: var(--ink);
+    text-decoration-color: var(--line);
+    overflow-wrap: anywhere;
+  }
+  .pub__bib {
+    display: inline-flex;
+  }
+  .pub__bib[data-state='copied'] :global(.btn) {
+    border-color: var(--signal);
+  }
+  .pub__bib[data-state='failed'] :global(.btn) {
+    border-color: var(--ink-3);
+    color: var(--ink-2);
+  }
+  .pub :global(.pub__copy) {
+    min-height: 2rem;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.85rem;
+    min-width: 7.5rem;
+  }
+  .pub__details {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--ink-2);
+  }
+  .pub__details summary {
+    display: inline-block;
+    cursor: pointer;
+    padding-block: 0.25rem;
+    color: var(--ink-3);
+    list-style: none;
+  }
+  .pub__details summary::-webkit-details-marker {
+    display: none;
+  }
+  .pub__details summary::before {
+    content: '';
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-right: 0.5rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-0.15rem) rotate(-45deg);
+    transition: transform var(--duration-quick) var(--ease-out);
+  }
+  .pub__details[open] summary::before {
+    transform: translateY(-0.2rem) rotate(45deg);
+  }
+  .pub__details summary:hover {
+    color: var(--ink);
+  }
+  .pub__details pre {
+    margin-top: var(--space-1);
+    padding: var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-1);
+    color: var(--ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    -webkit-user-select: all;
+    user-select: all;
+  }
+
+  /* Compact row for co-authored work */
+  .pub--row {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+  .pub--row .pub__text {
+    gap: 0.6rem;
+  }
+  .pub__id {
+    color: var(--ink-3);
+    padding-top: 0.3rem;
+  }
+
+  @media (max-width: 760px) {
+    .pub__grid--plate {
+      grid-template-columns: 1fr;
+    }
+    .pub__plate img {
+      max-height: 18rem;
+    }
+    .pub--row {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+    .pub__id {
+      padding-top: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pub__details summary::before {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const COPIED_MS = 2000;
+
+  /* Clipboard API only; when it is unavailable the label points at the
+     <details> below, whose <pre> selects as one block for a manual copy. */
+  async function copyText(text: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.pub__bib').forEach((wrap) => {
+    const button = wrap.querySelector<HTMLButtonElement>('button');
+    const label = button?.querySelector<HTMLElement>('.btn__label');
+    const sourceId = button?.getAttribute('aria-controls');
+    const source = sourceId ? document.getElementById(sourceId)?.querySelector('pre') : null;
+    if (!button || !label || !source) return;
+    const idle = label.textContent ?? 'Copy BibTeX';
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    button.addEventListener('click', async () => {
+      const ok = await copyText(source.textContent ?? '');
+      label.textContent = ok ? 'Copied' : 'Copy failed, open BibTeX below';
+      wrap.dataset.state = ok ? 'copied' : 'failed';
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        label.textContent = idle;
+        delete wrap.dataset.state;
+      }, COPIED_MS);
+    });
+  });
+</script>

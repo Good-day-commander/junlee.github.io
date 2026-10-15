@@ -1,0 +1,201 @@
+---
+/*
+  First viewport: a full-viewport cine frame on film. The vessel (WebGL,
+  pressure-painted) fills the frame; mono readouts sit in the corners; the
+  headline block is the bottom-left corner. On narrow screens the frame goes
+  portrait and the headline moves below it.
+
+  Corner readouts are rendered here rather than through Frame's tl/tr props
+  because two of them run to two lines (Frame corners are single-line
+  strings). They reuse the global .frame__corner classes.
+
+  Every number comes from the PINO manifest or content.ts.
+*/
+import Frame from '@/components/Frame.astro';
+import Button from '@/components/Button.astro';
+import HeroViewer from './HeroViewer';
+import { profile } from '@/data/content';
+import { formatDecimal, formatInt, formatPaRange } from '@/lib/format';
+import { shortGpu, type PinoManifest } from './manifests';
+import envelope from '@phosphor-icons/core/assets/regular/envelope.svg?raw';
+import filePdf from '@phosphor-icons/core/assets/regular/file-pdf.svg?raw';
+
+export interface Props {
+  pino: PinoManifest;
+}
+
+const { pino } = Astro.props;
+
+const headline = 'Coronary physics, fast enough for the clinic.';
+const fronts = ['Coronary hemodynamics', 'Physics-informed AI', 'Wearable PPG'];
+
+const caseLine = `${pino.case_id} · ${formatInt(pino.vertexCount)} nodes · ${formatPaRange(pino.ranges.p[0], pino.ranges.p[1])}`;
+const ffrLine = `FFR Pd/Pa ${formatDecimal(pino.metrics.case.ffr.cfd, 2)} CFD · ${formatDecimal(pino.metrics.case.ffr.pino, 2)} PINO`;
+const inferenceSeconds = pino.timing.pino.inference_ms_median / 1000;
+const gpu = shortGpu(pino.timing.pino.gpu);
+
+const roleLine = `${profile.role} at the ${profile.lab} (MFDL), ${profile.university}, and ${profile.concurrent.role} on the ${profile.concurrent.org} ${profile.concurrent.project}.`;
+
+/*
+  The hairline starts at 56 % of the frame: on the vessel, right of the
+  headline column (which ends near 49 % at 1440 wide), so the signature
+  control reads as part of the image and never overprints the display type.
+*/
+const initialWipe = 0.56;
+---
+
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="wrap hero__grid">
+    <Frame class="hero__frame">
+      <HeroViewer
+        client:load
+        manifestUrl="/data/pino/manifest.json"
+        inferenceSeconds={inferenceSeconds}
+        ffrLine={ffrLine}
+        gpu={gpu}
+        initialWipe={initialWipe}
+      />
+      <p class="frame__corner frame__corner--tl hero__corner">
+        <span class="hero__corner-line frame__corner--caps">{profile.name}</span>
+        <span class="hero__corner-line">{fronts.join(' · ')}</span>
+      </p>
+      <p class="frame__corner frame__corner--tr hero__corner">
+        <span class="hero__corner-line">{caseLine}</span>
+      </p>
+    </Frame>
+
+    <div class="hero__head">
+      <h1 id="hero-heading" class="t-display hero__title">{headline}</h1>
+      <p class="hero__role">{roleLine}</p>
+      <div class="hero__actions">
+        <Button href={`mailto:${profile.email}`}>
+          Email
+          <span slot="icon" aria-hidden="true" set:html={envelope} />
+        </Button>
+        <Button variant="ghost" href="/uploads/resume.pdf" external>
+          CV (PDF)
+          <span slot="icon" aria-hidden="true" set:html={filePdf} />
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: var(--space-2) 0;
+  }
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /*
+    Desktop: frame and headline share one cell; the headline is the bottom-left corner.
+    Frame is a child component, so a class passed to it is not scoped by Astro:
+    its rules are written through :global under .hero__grid.
+  */
+  .hero__grid > :global(.hero__frame) {
+    grid-area: 1 / 1;
+    min-height: calc(100dvh - var(--nav-h) - var(--space-2) * 2);
+    overflow: hidden;
+    isolation: isolate;
+    /* The full-viewport frame gives its corner chrome a wider inset than a card-sized frame. */
+    --corner-inset: 0.875rem;
+  }
+  /* The viewer fills the frame instead of setting the frame's height. */
+  .hero__grid > :global(.hero__frame > .frame__body) {
+    position: absolute;
+    inset: 0;
+  }
+  :global(.hero__viewer) {
+    position: absolute;
+    inset: 0;
+  }
+  :global(.hero__viewer > *) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Corner readouts: two-line variants of the frame corner chrome. */
+  :global(.hero__corner) {
+    display: grid;
+    gap: 0.2rem;
+    max-width: 46%;
+    white-space: normal;
+    color: var(--ink-2);
+  }
+  :global(.hero__corner.frame__corner--tr),
+  :global(.hero__corner.frame__corner--br) {
+    justify-items: end;
+  }
+  :global(.hero__corner-line),
+  :global(.hero__readout-line) {
+    display: block;
+    text-wrap: balance;
+  }
+  :global(.hero__readout) {
+    color: var(--ink);
+  }
+  :global(.hero__count) {
+    display: inline-block;
+    min-width: 5ch;
+    text-align: right;
+    color: var(--signal);
+  }
+
+  .hero__head {
+    grid-area: 1 / 1;
+    align-self: end;
+    justify-self: start;
+    position: relative;
+    z-index: 3;
+    display: grid;
+    gap: var(--space-3);
+    max-width: min(100%, 44rem);
+    padding: calc(var(--corner-inset, 0.5rem) + var(--space-3));
+    padding-right: var(--space-4);
+  }
+  .hero__title {
+    max-width: 15ch;
+    color: var(--ink);
+  }
+  .hero__role {
+    font-family: var(--font-text);
+    font-size: var(--size-prose);
+    line-height: var(--leading-prose);
+    color: var(--ink-2);
+    max-width: 58ch;
+    text-wrap: pretty;
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Narrow screens: portrait frame, headline below it. */
+  @media (max-width: 899px) {
+    .hero__grid {
+      grid-template-rows: auto auto;
+      row-gap: var(--space-4);
+    }
+    .hero__grid > :global(.hero__frame) {
+      grid-area: 1 / 1;
+      min-height: 0;
+      aspect-ratio: 3 / 4;
+      max-height: 72dvh;
+    }
+    .hero__head {
+      grid-area: 2 / 1;
+      max-width: none;
+      padding: 0;
+    }
+    :global(.hero__corner) {
+      max-width: 60%;
+    }
+    :global(.hero__corner.frame__corner--tr) {
+      max-width: 38%;
+    }
+  }
+</style>

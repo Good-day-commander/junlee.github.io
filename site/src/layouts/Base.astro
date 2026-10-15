@@ -1,0 +1,90 @@
+---
+/*
+  HTML shell for every page. Owned by SCAFFOLD; pages pass props, never edit.
+
+  surface   'film' (dark data surfaces: /, /research)
+            'box'  (light report surfaces: /publications, /record, /cv)
+  ogImage   absolute path under public/, e.g. '/og.png'. When omitted,
+            /og.png (the 1200x630 hero capture made by `pnpm og`) is used.
+  jsonLd    structured data object, serialised into one <script type="application/ld+json">.
+            The home page passes the Person record; other pages pass nothing.
+*/
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource/stix-two-text/400.css';
+import '@fontsource/stix-two-text/400-italic.css';
+import '@fontsource/stix-two-text/600.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@/styles/global.css';
+
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { profile } from '@/data/content';
+
+export interface Props {
+  title: string;
+  description: string;
+  surface: 'film' | 'box';
+  ogImage?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description, surface, ogImage, jsonLd } = Astro.props;
+
+const site = Astro.site ?? new URL(profile.links.site);
+const canonical = new URL(Astro.url.pathname, site);
+const isHome = Astro.url.pathname === '/';
+const pageTitle = isHome ? `${profile.name} · ${title}` : `${title} · ${profile.name}`;
+
+const ogPath = ogImage ?? '/og.png';
+const ogUrl = new URL(ogPath, site).href;
+const ogAlt = `${profile.name}: a patient-specific coronary vessel painted with its pressure field, beside the headline "Coronary physics, fast enough for the clinic."`;
+
+// sRGB approximations of --film-0 and --box for the browser chrome.
+const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
+---
+
+<!doctype html>
+<html lang="en" data-surface={surface}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="color-scheme" content={surface === 'film' ? 'dark' : 'light'} />
+    <meta name="author" content={profile.name} />
+    <meta property="og:type" content={isHome ? 'profile' : 'website'} />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+    <meta name="twitter:image:alt" content={ogAlt} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="generator" content={Astro.generator} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

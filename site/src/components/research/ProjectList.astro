@@ -1,0 +1,76 @@
+---
+/*
+  Funded projects as a list: title, funder and program, grant number and
+  period in mono. Every field is content.ts as written; the CV lists him as
+  a participating researcher on all of them, and the heading says so.
+*/
+import type { Project } from '@/data/content';
+
+export interface Props {
+  heading: string;
+  items: Project[];
+}
+
+const { heading, items } = Astro.props;
+---
+
+<section class="projects" aria-label={heading}>
+  <h3 class="projects__heading t-subheading">{heading}</h3>
+  <ul class="projects__list">
+    {
+      items.map((p) => (
+        <li class="projects__row">
+          <span class="projects__id t-mono">{p.id}</span>
+          <div class="projects__body">
+            <span class="projects__title">{p.title}</span>
+            <span class="projects__funder">{[p.funder, p.program].filter(Boolean).join(' · ')}</span>
+            <span class="projects__meta t-mono">
+              {p.grantNo} · {p.start} – {p.end}
+            </span>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .projects {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .projects__list {
+    border-top: 1px solid var(--line);
+  }
+  .projects__row {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: var(--space-2);
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .projects__id {
+    color: var(--ink-3);
+    padding-top: 0.2rem;
+  }
+  .projects__body {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .projects__title {
+    font-family: var(--font-text);
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .projects__funder {
+    font-family: var(--font-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .projects__meta {
+    color: var(--ink-3);
+  }
+</style>

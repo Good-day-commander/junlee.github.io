@@ -1,0 +1,92 @@
+---
+/*
+  Frame primitive: hairline border, 2px radius, mono corner chrome inside
+  the border, and an optional fixed three-tier label stack.
+
+    <Frame tl="PINO-DEMO-01" tr="8 649 nodes" br="FFR 0.83 CFD" aspect="16 / 9">
+      <VesselViewer client:visible ... />
+      <Fragment slot="what">Pressure field, CFD against PINO</Fragment>
+      <Fragment slot="result">R² 0.963 · inference 1.78 s</Fragment>
+      <Fragment slot="consequence">A patient case in under two seconds.</Fragment>
+    </Frame>
+
+  Corner labels are strings (mono, 0.7rem; uppercase only for short labels
+  without a unit, see `caps` below). Use `padded` when the
+  body is text that must clear the corners; media bodies leave it off.
+  Styles for .frame* live in global.css so islands can reuse the classes.
+*/
+export interface Props {
+  as?: 'div' | 'figure' | 'section' | 'article' | 'aside';
+  tl?: string;
+  tr?: string;
+  bl?: string;
+  br?: string;
+  /** CSS aspect-ratio for the body, e.g. "16 / 9" or "4 / 3". */
+  aspect?: string;
+  /** Pads the body clear of the corner labels (for text bodies). */
+  padded?: boolean;
+  /** Raised panel background (--bg-1) instead of the page ground. */
+  panel?: boolean;
+  /** Heading level used for the "what" slot. */
+  headingLevel?: 2 | 3 | 4;
+  id?: string;
+  class?: string;
+}
+
+const {
+  as: Tag = 'div',
+  tl,
+  tr,
+  bl,
+  br,
+  aspect,
+  padded = false,
+  panel = false,
+  headingLevel = 3,
+  id,
+  class: className,
+} = Astro.props;
+
+const hasStack = Astro.slots.has('what') || Astro.slots.has('result') || Astro.slots.has('consequence');
+
+/*
+  Uppercase is chrome for short identifiers (C1, 2026, FLOW, PINO-DEMO-01).
+  Longer labels and anything carrying a unit after a number (kPa, mm, s)
+  stay as written so the unit survives.
+*/
+const caps = (label: string) => label.length <= 14 && !/\d\s*[a-z]/.test(label);
+const cornerClass = (pos: string, label: string) =>
+  ['frame__corner', `frame__corner--${pos}`, { 'frame__corner--caps': caps(label) }];
+const What = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+---
+
+<Tag id={id} class:list={['frame', { 'frame--padded': padded, 'frame--panel': panel }, className]}>
+  {tl && <span class:list={cornerClass('tl', tl)}>{tl}</span>}
+  {tr && <span class:list={cornerClass('tr', tr)}>{tr}</span>}
+  {bl && <span class:list={cornerClass('bl', bl)}>{bl}</span>}
+  {br && <span class:list={cornerClass('br', br)}>{br}</span>}
+  <div class="frame__body" style={aspect ? `aspect-ratio: ${aspect};` : undefined}>
+    <slot />
+  </div>
+  {
+    hasStack && (
+      <div class="frame__stack">
+        {Astro.slots.has('what') && (
+          <What class="frame__what">
+            <slot name="what" />
+          </What>
+        )}
+        {Astro.slots.has('result') && (
+          <p class="frame__result">
+            <slot name="result" />
+          </p>
+        )}
+        {Astro.slots.has('consequence') && (
+          <p class="frame__consequence">
+            <slot name="consequence" />
+          </p>
+        )}
+      </div>
+    )
+  }
+</Tag>

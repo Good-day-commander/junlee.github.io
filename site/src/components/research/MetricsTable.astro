@@ -1,0 +1,128 @@
+---
+/*
+  The honest metrics table for the Flow chapter: this case beside the cohort
+  median, all cells mono, every value computed from the PINO manifest.
+*/
+import { formatDecimal, formatInt } from '@/lib/format';
+import { pino, parseRank } from './data';
+
+const c = pino.metrics.case;
+const k = pino.metrics.cohort;
+const rank = parseRank(pino.selection.case_rank_by_R2_pressure);
+
+const rows = [
+  {
+    label: 'Pressure R²',
+    kase: formatDecimal(c.pressure_Pa.R2, 3),
+    cohort: formatDecimal(k.pressure_R2.median, 3),
+  },
+  {
+    label: 'Pressure MAE',
+    kase: `${formatDecimal(c.pressure_Pa.MAE, 1)} Pa`,
+    cohort: `${formatDecimal(k.pressure_MAE_Pa.median, 1)} Pa`,
+  },
+  {
+    label: 'Speed R²',
+    kase: formatDecimal(c.velocity_mps.R2, 3),
+    cohort: formatDecimal(k.velocity_R2.median, 3),
+  },
+  {
+    label: 'FFR, Pd/Pa',
+    kase: `CFD ${formatDecimal(c.ffr.cfd, 2)} · PINO ${formatDecimal(c.ffr.pino, 3)}`,
+    cohort: `MAE vs CFD ${formatDecimal(k.ffr_MAE_vs_cfd, 4)}`,
+  },
+];
+
+const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
+---
+
+<figure class="metrics">
+  <table class="t-mono">
+    <caption class="metrics__caption">
+      Current model, {formatInt(k.n_cases)} cases, 10-fold cross-validation. All volume nodes of each case.
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Metric</th>
+        <th scope="col">This case</th>
+        <th scope="col">{cohortHead}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <th scope="row">{row.label}</th>
+            <td>{row.kase}</td>
+            <td>{row.cohort}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <figcaption class="metrics__note">
+    A well-predicted case, not a typical one: its pressure R² ranks {formatInt(rank.rank)} of {formatInt(rank.of)} in
+    the cohort.
+  </figcaption>
+</figure>
+
+<style>
+  .metrics {
+    display: grid;
+    gap: var(--space-2);
+    max-width: var(--measure);
+  }
+  table {
+    width: 100%;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .metrics__caption {
+    caption-side: top;
+    text-align: left;
+    padding-bottom: 0.6rem;
+    color: var(--ink-2);
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 0.55rem 0;
+    vertical-align: top;
+    font-weight: 400;
+  }
+  thead th {
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--line);
+  }
+  tbody tr + tr th,
+  tbody tr + tr td {
+    border-top: 1px solid var(--line-soft);
+  }
+  tbody th {
+    color: var(--ink-2);
+    padding-right: var(--space-3);
+  }
+  td {
+    color: var(--ink);
+    padding-right: var(--space-3);
+    white-space: nowrap;
+  }
+  td:last-child,
+  th:last-child {
+    padding-right: 0;
+  }
+  .metrics__note {
+    font-family: var(--font-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  @media (max-width: 480px) {
+    td {
+      white-space: normal;
+    }
+  }
+</style>

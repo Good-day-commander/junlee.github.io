@@ -1,0 +1,122 @@
+---
+/*
+  "Applied": CARDIOS and EASYCHECK, two frames. Copy carried over from the
+  legacy Home.tsx translational section (site-only material, not in the CV),
+  lightly tightened; the YouTube overview is a ghost action, not an embed.
+
+  The heading carries the product and what it is in one line ("CARDIOS,
+  coronary CT decision support"); the corner slots hold identifiers only
+  (the product class and the company), as C1 / 2026 do in What he has led.
+  No descriptor line sits above a heading.
+*/
+import Frame from '@/components/Frame.astro';
+import Button from '@/components/Button.astro';
+import { publications } from '@/data/content';
+import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
+
+const J2 = publications.find((p) => p.id === 'J2');
+const viscosityPaper = J2 ? `the ${J2.venue} ${J2.year} viscosity paper` : 'the viscosity paper';
+
+const company = 'The M.E.N.D. BioSimulator';
+const productClass = 'SaMD';
+
+const products = [
+  {
+    name: 'CARDIOS',
+    descriptor: 'coronary CT decision support',
+    summary:
+      'A CT-based coronary decision-support system that estimates whether a lesion is functionally significant without an invasive pressure wire. It combines coronary anatomy with CFD-informed hemodynamics and deep learning to reduce unnecessary catheterization and support faster triage in ambiguous disease. CARDIOS is the translational outlet of the CT-FFR and coronary flow modeling work.',
+    link: {
+      label: 'CARDIOS overview on YouTube',
+      href: 'https://www.youtube.com/watch?v=oSsvH7LRp7E',
+    },
+  },
+  {
+    name: 'EASYCHECK',
+    descriptor: 'wearable biomarker monitoring',
+    summary: `A smartwatch app that interprets PPG and derived biosignals in real time to estimate blood pressure, non-Newtonian blood viscosity, hydration status and early hemodynamic vulnerability. EASYCHECK is the productized extension of the PPG research line behind ${viscosityPaper}.`,
+    link: undefined,
+  },
+];
+---
+
+<p class="applied__lede t-prose">
+  Part of the work is translated into clinical software through <strong>{company}</strong>, a startup building SaMD
+  products on the same coronary CFD, CT-FFR and wearable PPG research.
+</p>
+
+<ul class="applied">
+  {
+    products.map((p) => (
+      <li>
+        <Frame as="article" class="applied__frame" padded tl={productClass} tr={company}>
+          <h3 class="applied__title t-subheading">
+            <span class="applied__name">{p.name}</span>, {p.descriptor}
+          </h3>
+          <p class="applied__summary">{p.summary}</p>
+          {p.link && (
+            <div class="applied__actions">
+              <Button variant="ghost" href={p.link.href} external>
+                {p.link.label}
+                <span slot="icon" aria-hidden="true" set:html={arrowUpRight} />
+              </Button>
+            </div>
+          )}
+        </Frame>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .applied__lede {
+    color: var(--ink-2);
+    margin-bottom: var(--space-4);
+  }
+  .applied__lede strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .applied {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  /* Frame roots are child components; their class is unscoped, hence :global under .applied. */
+  .applied :global(.applied__frame) {
+    height: 100%;
+  }
+  .applied :global(.applied__frame > .frame__body) {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    height: 100%;
+  }
+  .applied__title {
+    text-wrap: balance;
+    max-width: 28ch;
+  }
+  /* The product name holds the weight; the descriptor runs on in the same size at text weight. */
+  .applied__title {
+    font-weight: 400;
+  }
+  .applied__name {
+    font-weight: 600;
+  }
+  .applied__summary {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .applied__actions {
+    align-self: end;
+    padding-top: var(--space-1);
+  }
+  @media (max-width: 899px) {
+    .applied {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

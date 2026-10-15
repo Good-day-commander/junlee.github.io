@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T00:00:00+09:00",
+  "title": "Design System: hyeongjunlee.me",
+  "extensions": {
+    "surfaces": {
+      "film": { "pages": ["/", "/research"], "attribute": "html[data-surface='film']", "aliases": { "--bg": "film-0", "--bg-1": "film-1", "--bg-2": "film-2", "--line": "film-line", "--line-soft": "oklch(0.38 0.01 250 / 0.55)", "--ink": "bone", "--ink-2": "bone-2", "--ink-3": "bone-3" }, "themeColor": "#1a1b1f" },
+      "box": { "pages": ["/publications", "/record", "/cv"], "attribute": "html[data-surface='box']", "aliases": { "--bg": "box", "--bg-1": "box-2", "--bg-2": "box-3", "--line": "box-line", "--line-soft": "oklch(0.86 0.012 250 / 0.6)", "--ink": "box-ink", "--ink-2": "box-ink-2", "--ink-3": "box-ink-3" }, "themeColor": "#f9f8f6" }
+    },
+    "colorMeta": {
+      "signal": { "role": "primary", "displayName": "Clinical Signal", "canonical": "oklch(0.62 0.21 27)", "tonalRamp": ["oklch(0.15 0.21 27)", "oklch(0.26 0.21 27)", "oklch(0.38 0.21 27)", "oklch(0.5 0.21 27)", "oklch(0.62 0.21 27)", "oklch(0.73 0.21 27)", "oklch(0.84 0.21 27)", "oklch(0.95 0.21 27)"] },
+      "signal-fill": { "role": "primary", "displayName": "Signal Fill", "canonical": "oklch(0.52 0.2 27)", "tonalRamp": ["oklch(0.15 0.2 27)", "oklch(0.26 0.2 27)", "oklch(0.38 0.2 27)", "oklch(0.5 0.2 27)", "oklch(0.62 0.2 27)", "oklch(0.73 0.2 27)", "oklch(0.84 0.2 27)", "oklch(0.95 0.2 27)"] },
+      "signal-hover": { "role": "primary", "displayName": "Signal Hover", "canonical": "oklch(0.46 0.19 27)", "tonalRamp": ["oklch(0.15 0.19 27)", "oklch(0.26 0.19 27)", "oklch(0.38 0.19 27)", "oklch(0.5 0.19 27)", "oklch(0.62 0.19 27)", "oklch(0.73 0.19 27)", "oklch(0.84 0.19 27)", "oklch(0.95 0.19 27)"] },
+      "signal-soft": { "role": "primary", "displayName": "Signal Soft (selection)", "canonical": "oklch(0.62 0.21 27 / 0.18)", "tonalRamp": ["oklch(0.15 0.21 27 / 0.18)", "oklch(0.26 0.21 27 / 0.18)", "oklch(0.38 0.21 27 / 0.18)", "oklch(0.5 0.21 27 / 0.18)", "oklch(0.62 0.21 27 / 0.18)", "oklch(0.73 0.21 27 / 0.18)", "oklch(0.84 0.21 27 / 0.18)", "oklch(0.95 0.21 27 / 0.18)"] },
+      "film-0": { "role": "neutral", "displayName": "Film 0 (ground)", "canonical": "oklch(0.15 0.008 250)", "tonalRamp": ["oklch(0.15 0.008 250)", "oklch(0.21 0.008 250)", "oklch(0.28 0.01 250)", "oklch(0.38 0.01 250)", "oklch(0.5 0.01 250)", "oklch(0.62 0.01 250)", "oklch(0.8 0.008 250)", "oklch(0.95 0.008 250)"] },
+      "film-1": { "role": "neutral", "displayName": "Film 1 (panel)", "canonical": "oklch(0.21 0.008 250)", "tonalRamp": ["oklch(0.15 0.008 250)", "oklch(0.21 0.008 250)", "oklch(0.28 0.01 250)", "oklch(0.38 0.01 250)", "oklch(0.5 0.01 250)", "oklch(0.62 0.01 250)", "oklch(0.8 0.008 250)", "oklch(0.95 0.008 250)"] },
+      "film-2": { "role": "neutral", "displayName": "Film 2 (thumb)", "canonical": "oklch(0.28 0.01 250)", "tonalRamp": ["oklch(0.15 0.008 250)", "oklch(0.21 0.008 250)", "oklch(0.28 0.01 250)", "oklch(0.38 0.01 250)", "oklch(0.5 0.01 250)", "oklch(0.62 0.01 250)", "oklch(0.8 0.008 250)", "oklch(0.95 0.008 250)"] },
+      "film-line": { "role": "neutral", "displayName": "Film Line (hairline)", "canonical": "oklch(0.38 0.01 250)", "tonalRamp": ["oklch(0.15 0.008 250)", "oklch(0.21 0.008 250)", "oklch(0.28 0.01 250)", "oklch(0.38 0.01 250)", "oklch(0.5 0.01 250)", "oklch(0.62 0.01 250)", "oklch(0.8 0.008 250)", "oklch(0.95 0.008 250)"] },
+      "bone": { "role": "neutral", "displayName": "Bone (ink on film)", "canonical": "oklch(0.94 0.006 85)", "tonalRamp": ["oklch(0.15 0.006 85)", "oklch(0.26 0.008 85)", "oklch(0.38 0.01 85)", "oklch(0.5 0.012 85)", "oklch(0.6 0.012 85)", "oklch(0.74 0.012 85)", "oklch(0.86 0.008 85)", "oklch(0.94 0.006 85)"] },
+      "bone-2": { "role": "neutral", "displayName": "Bone 2 (secondary ink)", "canonical": "oklch(0.74 0.012 85)", "tonalRamp": ["oklch(0.15 0.006 85)", "oklch(0.26 0.008 85)", "oklch(0.38 0.01 85)", "oklch(0.5 0.012 85)", "oklch(0.6 0.012 85)", "oklch(0.74 0.012 85)", "oklch(0.86 0.008 85)", "oklch(0.94 0.006 85)"] },
+      "bone-3": { "role": "neutral", "displayName": "Bone 3 (chrome ink)", "canonical": "oklch(0.6 0.012 85)", "tonalRamp": ["oklch(0.15 0.006 85)", "oklch(0.26 0.008 85)", "oklch(0.38 0.01 85)", "oklch(0.5 0.012 85)", "oklch(0.6 0.012 85)", "oklch(0.74 0.012 85)", "oklch(0.86 0.008 85)", "oklch(0.94 0.006 85)"] },
+      "box": { "role": "neutral", "displayName": "Light Box (ground)", "canonical": "oklch(0.975 0.004 85)", "tonalRamp": ["oklch(0.15 0.004 85)", "oklch(0.26 0.004 85)", "oklch(0.38 0.006 85)", "oklch(0.5 0.008 85)", "oklch(0.62 0.008 85)", "oklch(0.75 0.008 85)", "oklch(0.9 0.008 85)", "oklch(0.975 0.004 85)"] },
+      "box-2": { "role": "neutral", "displayName": "Box 2 (panel)", "canonical": "oklch(0.94 0.006 85)", "tonalRamp": ["oklch(0.15 0.004 85)", "oklch(0.26 0.004 85)", "oklch(0.38 0.006 85)", "oklch(0.5 0.008 85)", "oklch(0.62 0.008 85)", "oklch(0.75 0.008 85)", "oklch(0.9 0.008 85)", "oklch(0.975 0.004 85)"] },
+      "box-3": { "role": "neutral", "displayName": "Box 3", "canonical": "oklch(0.9 0.008 85)", "tonalRamp": ["oklch(0.15 0.004 85)", "oklch(0.26 0.004 85)", "oklch(0.38 0.006 85)", "oklch(0.5 0.008 85)", "oklch(0.62 0.008 85)", "oklch(0.75 0.008 85)", "oklch(0.9 0.008 85)", "oklch(0.975 0.004 85)"] },
+      "box-ink": { "role": "neutral", "displayName": "Box Ink", "canonical": "oklch(0.18 0.012 250)", "tonalRamp": ["oklch(0.15 0.012 250)", "oklch(0.18 0.012 250)", "oklch(0.3 0.02 250)", "oklch(0.4 0.02 250)", "oklch(0.52 0.02 250)", "oklch(0.7 0.016 250)", "oklch(0.86 0.012 250)", "oklch(0.95 0.008 250)"] },
+      "box-ink-2": { "role": "neutral", "displayName": "Box Ink 2", "canonical": "oklch(0.4 0.02 250)", "tonalRamp": ["oklch(0.15 0.012 250)", "oklch(0.18 0.012 250)", "oklch(0.3 0.02 250)", "oklch(0.4 0.02 250)", "oklch(0.52 0.02 250)", "oklch(0.7 0.016 250)", "oklch(0.86 0.012 250)", "oklch(0.95 0.008 250)"] },
+      "box-ink-3": { "role": "neutral", "displayName": "Box Ink 3", "canonical": "oklch(0.52 0.02 250)", "tonalRamp": ["oklch(0.15 0.012 250)", "oklch(0.18 0.012 250)", "oklch(0.3 0.02 250)", "oklch(0.4 0.02 250)", "oklch(0.52 0.02 250)", "oklch(0.7 0.016 250)", "oklch(0.86 0.012 250)", "oklch(0.95 0.008 250)"] },
+      "box-line": { "role": "neutral", "displayName": "Box Line (hairline)", "canonical": "oklch(0.86 0.012 250)", "tonalRamp": ["oklch(0.15 0.012 250)", "oklch(0.18 0.012 250)", "oklch(0.3 0.02 250)", "oklch(0.4 0.02 250)", "oklch(0.52 0.02 250)", "oklch(0.7 0.016 250)", "oklch(0.86 0.012 250)", "oklch(0.95 0.008 250)"] }
+    },
+    "colormaps": [
+      { "name": "turbo", "role": "pressure", "source": "site/src/lib/colormaps.ts", "note": "Google polynomial approximation; one shared p range for CFD and PINO." },
+      { "name": "diverging", "role": "signed pressure error (PINO - CFD)", "source": "site/src/lib/colormaps.ts", "stops": ["rgb(59 76 192)", "rgb(124 159 249)", "rgb(221 221 221)", "rgb(245 156 125)", "rgb(180 4 38)"], "over": "rgb(255 214 0)", "overFraction": 0.08, "note": "Moreland cool-warm; symmetric about zero; values past +absMax take the over color." },
+      { "name": "viridis", "role": "near-wall speed; spectrograms", "source": "site/src/lib/colormaps.ts", "note": "Degree-6 polynomial fit of matplotlib viridis." }
+    ],
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline only; Archivo width 92, max 15ch." },
+      "display-page": { "displayName": "Display (page)", "purpose": "h1 of the report surfaces (publications, record, cv); max 20ch." },
+      "headline": { "displayName": "Headline", "purpose": "Section and chapter headings; max 28ch." },
+      "title": { "displayName": "Title", "purpose": "Frame 'what' line and subheadings." },
+      "body": { "displayName": "Body", "purpose": "Reading column, ledes, role line; 60ch measure." },
+      "caption": { "displayName": "Caption", "purpose": "Figure and table captions, viewer notes, status lines; italic STIX in ink-2." },
+      "ui": { "displayName": "UI", "purpose": "Nav, buttons, footer links, anchors, summaries." },
+      "mono": { "displayName": "Mono", "purpose": "Result lines, citations, DOIs, readouts, BibTeX; tabular numerals." },
+      "label": { "displayName": "Label", "purpose": "Corner chrome, colorbar labels, tags, axis labels; uppercase only for short unit-free identifiers." }
+    },
+    "shadows": [
+      { "name": "none", "value": "none", "purpose": "The system is flat. Separation is a 1px hairline in --line or a one-step tonal lift to --bg-1." },
+      { "name": "segment-pressed-underline", "value": "inset 0 -2px 0 var(--signal)", "purpose": "A 2px signal underline on a pressed segmented button, drawn as an inset box-shadow. An underline, not an elevation." }
+    ],
+    "texture": [
+      { "name": "film-grain", "value": "feTurbulence fractalNoise baseFrequency 0.9, 2 octaves, desaturated, 256px tile, opacity 0.05, position fixed, z-index 2147483000", "purpose": "One static grain sheet over film surfaces via body::after; never animated; removed in print." }
+    ],
+    "motion": [
+      { "name": "duration-quick", "value": "150ms", "purpose": "State transitions: hover color, border, underline, skip link." },
+      { "name": "duration-base", "value": "250ms", "purpose": "Reveals: spectrogram playhead fade." },
+      { "name": "duration-slow", "value": "400ms", "purpose": "Reserved slow step; declared, not yet consumed by a component." },
+      { "name": "duration-develop", "value": "1780ms", "purpose": "The PINO layer develops over the CFD field for the measured inference time (1.78 s on one L40S) while the readout counts; snaps under reduced motion." },
+      { "name": "drift-period", "value": "60s", "purpose": "Idle C-arm drift of the vessel, one revolution; paused offscreen and on document.hidden; 0s under prefers-reduced-motion." },
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "The one easing curve for every transition." }
+    ],
+    "focus": [
+      { "name": "ring", "value": "outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px", "purpose": "Every :focus-visible; :focus without -visible has no outline." }
+    ],
+    "breakpoints": [
+      { "name": "nav-compact", "value": "480px", "purpose": "Nav gap 1rem, type 0.875rem." },
+      { "name": "pulse-narrow", "value": "640px", "purpose": "Spectrogram axis column 2.25rem, tighter plot padding." },
+      { "name": "pub-stack", "value": "760px", "purpose": "Publication plate and row stack to one column." },
+      { "name": "hero-portrait", "value": "899px", "purpose": "Hero frame goes 3/4 portrait, headline moves below, wipe becomes a two-state toggle." },
+      { "name": "fronts-single", "value": "1023px", "purpose": "Three Fronts strip collapses to one column; Flow frame 4/3." },
+      { "name": "frame-width", "value": "1280px", "purpose": "Max width of the frame column." }
+    ],
+    "layout": {
+      "widthFrame": "1280px",
+      "widthText": "72rem",
+      "measure": "60ch",
+      "gutter": "clamp(1rem, 3vw, 2.5rem)",
+      "sectionPad": "clamp(4rem, 9vw, 7rem)",
+      "navHeight": "3rem",
+      "spacingBase": "8px",
+      "heroWipeStart": 0.56,
+      "heroCornerInset": "0.875rem"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action per page (Email). Signal fill under bone text; filled darker on hover.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\">Email <svg viewBox=\"0 0 256 256\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48Zm-96,85.15L52.57,64H203.43ZM98.71,128,40,181.81V74.19Zm11.84,10.85,12,11.05a8,8,0,0,0,10.82,0l12-11.05,58,53.15H52.57ZM157.29,128,216,74.18V181.82Z\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.6rem 1.1rem; border: 1px solid transparent; border-radius: 2px; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; user-select: none; transition: background-color 150ms cubic-bezier(0.16,1,0.3,1), border-color 150ms cubic-bezier(0.16,1,0.3,1), color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn svg { width: 1.125em; height: 1.125em; flex: none; } .ds-btn-primary { background: var(--signal-fill, oklch(0.52 0.2 27)); border-color: var(--signal-fill, oklch(0.52 0.2 27)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-btn-primary:hover { background: var(--signal-hover, oklch(0.46 0.19 27)); border-color: var(--signal-hover, oklch(0.46 0.19 27)); } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-btn:active { transform: none; } }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Bordered in the surface ink, inverts to an ink fill on hover (CV (PDF), Copy BibTeX, Replay). Shown on film.",
+      "html": "<a class=\"ds-btn ds-btn-ghost\" href=\"#\">CV (PDF)</a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.6rem 1.1rem; border: 1px solid transparent; border-radius: 2px; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; user-select: none; transition: background-color 150ms cubic-bezier(0.16,1,0.3,1), border-color 150ms cubic-bezier(0.16,1,0.3,1), color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-ghost { background: transparent; border-color: var(--bone, oklch(0.94 0.006 85)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-btn-ghost:hover { background: var(--bone, oklch(0.94 0.006 85)); color: var(--film-0, oklch(0.15 0.008 250)); } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-btn:active { transform: none; } }"
+    },
+    {
+      "name": "Frame",
+      "kind": "card",
+      "refersTo": "frame",
+      "description": "The signature container: hairline border, 2px radius, mono corner chrome inside the border, and the fixed three-tier stack (what / result / consequence).",
+      "html": "<figure class=\"ds-frame\"><span class=\"ds-frame-corner ds-frame-corner-tl ds-caps\">PINO-DEMO-01</span><span class=\"ds-frame-corner ds-frame-corner-tr\">8,649 nodes · 10.7–13.0 kPa</span><div class=\"ds-frame-body\"></div><div class=\"ds-frame-stack\"><h3 class=\"ds-frame-what\">Pressure field, CFD against PINO</h3><p class=\"ds-frame-result\">R² 0.963 this case, 0.898 cohort median (85 cases, 10-fold CV) · inference 1.78 s · L40S</p><p class=\"ds-frame-consequence\">A CFD-grade pressure field on a new patient geometry in under two seconds.</p></div></figure>",
+      "css": ".ds-frame { position: relative; margin: 0; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); --corner-inset: 0.5rem; } .ds-frame-corner { position: absolute; z-index: 2; padding: 0.1rem 0.25rem; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem; line-height: 1.3; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: var(--bone-3, oklch(0.6 0.012 85)); white-space: nowrap; pointer-events: none; } .ds-caps { letter-spacing: 0.08em; text-transform: uppercase; } .ds-frame-corner-tl { top: var(--corner-inset); left: var(--corner-inset); } .ds-frame-corner-tr { top: var(--corner-inset); right: var(--corner-inset); text-align: right; } .ds-frame-body { position: relative; z-index: 1; aspect-ratio: 16 / 9; background: var(--film-1, oklch(0.21 0.008 250)); } .ds-frame-stack { position: relative; z-index: 1; display: grid; gap: 0.35rem; padding: 1rem 1.5rem calc(var(--corner-inset) + 1.25rem); border-top: 1px solid var(--film-line, oklch(0.38 0.01 250)); } .ds-frame-what { margin: 0; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 600; font-size: 1.25rem; line-height: 1.3; letter-spacing: -0.01em; text-wrap: balance; } .ds-frame-result { margin: 0; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; line-height: 1.4; font-variant-numeric: tabular-nums; } .ds-frame-consequence { margin: 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1rem; line-height: 1.5; color: var(--bone-2, oklch(0.74 0.012 85)); text-wrap: pretty; }"
+    },
+    {
+      "name": "Colorbar",
+      "kind": "custom",
+      "refersTo": "colorbar-strip",
+      "description": "Vertical 10px strip at a frame's right edge, bordered in the hairline, with mono ticks to its left and an uppercase label whose unit keeps its case. Shown with the turbo pressure ramp.",
+      "html": "<div class=\"ds-colorbar\"><span class=\"ds-cb-label\">pressure <span class=\"ds-cb-unit\">kPa</span></span><ul class=\"ds-cb-ticks\"><li class=\"ds-cb-tick\" style=\"bottom:100%\">13.0</li><li class=\"ds-cb-tick\" style=\"bottom:50%\">11.9</li><li class=\"ds-cb-tick\" style=\"bottom:0\">10.7</li></ul><div class=\"ds-cb-strip\"></div></div>",
+      "css": ".ds-colorbar { position: relative; display: grid; grid-template-columns: auto 10px; column-gap: 0.45rem; height: 200px; padding: 0 0.75rem; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; } .ds-cb-strip { width: 10px; height: 100%; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 1px; box-sizing: content-box; background: linear-gradient(to top, rgb(48 18 59) 0%, rgb(66 64 164) 10%, rgb(66 110 231) 20%, rgb(45 154 250) 30%, rgb(26 196 219) 40%, rgb(51 227 161) 50%, rgb(118 246 100) 60%, rgb(187 251 56) 70%, rgb(236 229 46) 80%, rgb(254 185 44) 90%, rgb(248 128 29) 95%, rgb(207 64 12) 100%); } .ds-cb-ticks { position: relative; height: 100%; margin: 0; padding: 0; list-style: none; } .ds-cb-tick { position: absolute; right: 0; transform: translateY(50%); font-size: 0.75rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--bone-2, oklch(0.74 0.012 85)); white-space: nowrap; } .ds-cb-tick::after { content: ''; position: absolute; top: 50%; right: -0.45rem; width: 0.3rem; height: 1px; background: var(--bone-3, oklch(0.6 0.012 85)); } .ds-cb-label { position: absolute; right: 0.75rem; bottom: calc(100% + 0.55rem); font-size: 0.75rem; line-height: 1.2; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bone-3, oklch(0.6 0.012 85)); white-space: nowrap; } .ds-cb-unit { text-transform: none; letter-spacing: 0; color: var(--bone-2, oklch(0.74 0.012 85)); }"
+    },
+    {
+      "name": "Wipe Grip and Segmented Control",
+      "kind": "custom",
+      "refersTo": "wipe-grip",
+      "description": "The signature control: a full-height hairline with a mono CFD | PINO grip (signal border on hover/drag), and the segmented field toggle whose pressed state carries a 2px signal underline.",
+      "html": "<div class=\"ds-stage\"><div class=\"ds-handle\" tabindex=\"0\" role=\"slider\" aria-label=\"CFD | PINO wipe\"><span class=\"ds-grip\">CFD<span class=\"ds-grip-bar\"></span>PINO</span></div><fieldset class=\"ds-segment\"><button class=\"ds-seg-btn\" aria-pressed=\"true\">Pressure</button><button class=\"ds-seg-btn\" aria-pressed=\"false\">Error</button><button class=\"ds-seg-btn\" aria-pressed=\"false\">Speed</button></fieldset></div>",
+      "css": ".ds-stage { position: relative; height: 180px; background: var(--film-1, oklch(0.21 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-handle { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; cursor: ew-resize; outline: none; } .ds-handle::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: color-mix(in oklab, var(--bone, oklch(0.94 0.006 85)) 38%, transparent); } .ds-grip { position: absolute; top: 50%; left: 0; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.55rem; border: 1px solid var(--bone, oklch(0.94 0.006 85)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; transition: border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-grip-bar { width: 1px; height: 0.95em; background: var(--bone-3, oklch(0.6 0.012 85)); } .ds-handle:hover .ds-grip { border-color: var(--signal, oklch(0.62 0.21 27)); } .ds-handle:focus-visible .ds-grip { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } .ds-segment { position: absolute; left: 0.75rem; bottom: 0.75rem; display: inline-flex; margin: 0; padding: 0; border: 0; } .ds-seg-btn { margin: 0 0 0 -1px; padding: 0.4rem 0.75rem; min-height: 2rem; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 0; background: var(--film-0, oklch(0.15 0.008 250)); font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.85rem; line-height: 1.2; color: var(--bone-2, oklch(0.74 0.012 85)); cursor: pointer; transition: color 150ms cubic-bezier(0.16,1,0.3,1), border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-seg-btn:first-of-type { margin-left: 0; border-radius: 2px 0 0 2px; } .ds-seg-btn:last-of-type { border-radius: 0 2px 2px 0; } .ds-seg-btn:hover { position: relative; z-index: 1; color: var(--bone, oklch(0.94 0.006 85)); border-color: var(--bone-3, oklch(0.6 0.012 85)); } .ds-seg-btn[aria-pressed='true'] { position: relative; z-index: 1; color: var(--bone, oklch(0.94 0.006 85)); border-color: var(--bone, oklch(0.94 0.006 85)); box-shadow: inset 0 -2px 0 var(--signal, oklch(0.62 0.21 27)); } .ds-seg-btn:focus-visible { position: relative; z-index: 2; outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Thin 3rem top chrome: name left, four links right; the current page carries a 2px signal underline. No hamburger.",
+      "html": "<header class=\"ds-nav\"><a class=\"ds-nav-name\" href=\"#\">Hyeong Jun Lee</a><nav class=\"ds-nav-links\"><a href=\"#\" aria-current=\"page\">Research</a><a href=\"#\">Publications</a><a href=\"#\">Record</a><a href=\"#\">CV</a></nav></header>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0 1.5rem; min-height: 3rem; padding: 0 1.5rem; border-bottom: 1px solid var(--film-line, oklch(0.38 0.01 250)); background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; } .ds-nav-name { color: inherit; line-height: 1; letter-spacing: -0.01em; text-decoration: none; white-space: nowrap; padding: 0.9rem 0; } .ds-nav-links { display: flex; gap: 1.5rem; } .ds-nav-links a { display: inline-block; line-height: 1; color: var(--bone-2, oklch(0.74 0.012 85)); text-decoration: none; padding: 0.9rem 0; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 150ms cubic-bezier(0.16,1,0.3,1), border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-nav-links a:hover { color: var(--bone, oklch(0.94 0.006 85)); } .ds-nav-links a[aria-current='page'] { color: var(--bone, oklch(0.94 0.006 85)); border-bottom-color: var(--signal, oklch(0.62 0.21 27)); } .ds-nav a:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; border-radius: 2px; }"
+    },
+    {
+      "name": "Role Mark",
+      "kind": "chip",
+      "refersTo": "rolemark",
+      "description": "Author-role mark, bordered not filled. Rank by border ink: signal for first author, ink for co-first, hairline for co-author. Shown on light box.",
+      "html": "<div class=\"ds-rolemarks\"><span class=\"ds-rolemark\" data-role=\"first\">First author</span><span class=\"ds-rolemark\" data-role=\"co-first\">Co-first author</span><span class=\"ds-rolemark\" data-role=\"co-author\">Co-author</span></div>",
+      "css": ".ds-rolemarks { display: flex; gap: 0.75rem; padding: 1rem; background: var(--box, oklch(0.975 0.004 85)); } .ds-rolemark { display: inline-flex; align-items: center; min-height: 1.5rem; padding: 0 0.5rem; border: 1px solid var(--box-line, oklch(0.86 0.012 250)); border-radius: 2px; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.75rem; line-height: 1; letter-spacing: 0.01em; color: var(--box-ink-2, oklch(0.4 0.02 250)); white-space: nowrap; } .ds-rolemark[data-role='first'] { border-color: var(--signal, oklch(0.62 0.21 27)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-rolemark[data-role='co-first'] { border-color: var(--box-ink, oklch(0.18 0.012 250)); color: var(--box-ink, oklch(0.18 0.012 250)); }"
+    },
+    {
+      "name": "Tag",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Short mono uppercase tag for identifiers and states (KR / US / PCT, REGISTERED, PRESENTER). Rank by border ink, never by fill. Shown on light box.",
+      "html": "<div class=\"ds-tags\"><span class=\"ds-tag\" data-tone=\"signal\">Registered</span><span class=\"ds-tag\" data-tone=\"ink\">Intl</span><span class=\"ds-tag\">PCT</span></div>",
+      "css": ".ds-tags { display: flex; gap: 0.5rem; padding: 1rem; background: var(--box, oklch(0.975 0.004 85)); } .ds-tag { display: inline-flex; align-items: center; min-height: 1.25rem; padding: 0 0.4rem; border: 1px solid var(--box-line, oklch(0.86 0.012 250)); border-radius: 2px; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: var(--box-ink-2, oklch(0.4 0.02 250)); white-space: nowrap; } .ds-tag[data-tone='ink'] { border-color: var(--box-ink-2, oklch(0.4 0.02 250)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-tag[data-tone='signal'] { border-color: var(--signal, oklch(0.62 0.21 27)); color: var(--box-ink, oklch(0.18 0.012 250)); }"
+    },
+    {
+      "name": "Text Link",
+      "kind": "custom",
+      "refersTo": "body",
+      "description": "Inline link: inherits color, 1px underline in the tertiary ink offset 0.18em, underline turns signal on hover.",
+      "html": "<p class=\"ds-prose\">Pressure fields from the <a class=\"ds-link\" href=\"#\">DMD 2026 proceedings</a> and the <a class=\"ds-link\" href=\"#\">CMPB 2025 paper</a>.</p>",
+      "css": ".ds-prose { margin: 0; padding: 1rem; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.0625rem; line-height: 1.65; max-width: 60ch; } .ds-link { color: inherit; text-decoration-line: underline; text-decoration-thickness: 1px; text-decoration-color: var(--bone-3, oklch(0.6 0.012 85)); text-underline-offset: 0.18em; transition: text-decoration-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-link:hover { text-decoration-color: var(--signal, oklch(0.62 0.21 27)); } .ds-link:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; border-radius: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Angiographic Reading Room",
+    "overview": "The site is a cath-lab cine frame and the research is the image inside it. Every surface is read the way a cardiologist reads a run: a hairline-bordered frame, mono readouts pinned in the corners, the data filling the middle, and a fixed caption beneath it saying what it is, what it measured, and what follows. Nothing decorative competes with the vessel, the FFR curve or the spectrogram; UI chrome is thin, mono and tinted so it reads as instrument markings rather than interface.\n\nTwo surfaces share one ink and one accent. The data surfaces (/, /research) sit on film charcoal: a cool near-black that is never pure, under a single static grain sheet. The report surfaces (/publications, /record, /cv) sit on light-box white with the same bone-tinted ink family inverted and the same clinical red. Components never read the raw film or box values; they read semantic aliases (--bg, --ink, --line) that the <html data-surface> attribute resolves, so one component works unchanged on both surfaces.\n\nRank is carried by border ink and by frame size, never by weight, fill or color flooding. First-author work gets the larger frame and the signal-red border on its role mark; co-authored work gets a compact ruled row and a hairline. Type weight stays even across the hierarchy (one display weight, 600) so the eye ranks by geometry, not by shouting.",
+    "keyCharacteristics": [
+      "Film charcoal and light-box white as two surfaces of one world; identical ink roles and one red on both.",
+      "Frame, not card: hairline border, 2px radius, mono corner chrome, three-tier caption stack (what / result / consequence).",
+      "Three faces with fixed jobs: Archivo (width 92) for display and UI, STIX Two Text for reading, JetBrains Mono for every number, unit, identifier and readout.",
+      "Flat throughout; depth is a hairline, a tonal step or a fixed grain, never a shadow or gradient.",
+      "Signal red is reserved: probes, the PINO trace, active underlines, focus rings, selection and the one primary action per page.",
+      "Motion is physical evidence: the PINO layer develops over the measured 1.78 s, the vessel drifts one revolution per 60 s, and both stop under reduced motion."
+    ],
+    "rules": [
+      { "name": "The Two-Ink Rule", "body": "Each surface has exactly one ink family (bone on film, box-ink on light box) in three tiers, plus the one signal red. No other UI color exists; colormaps belong to the data, not the chrome.", "section": "colors" },
+      { "name": "The Alias Rule", "body": "Components read --bg, --bg-1, --bg-2, --line, --line-soft, --ink, --ink-2, --ink-3 only. Raw film-* and box-* values are set once per surface in tokens.css and referenced directly only when an element must hold the opposite surface inside a frame (the paper plate).", "section": "colors" },
+      { "name": "The Signal-Is-A-Stroke Rule", "body": "Signal red is a border, underline, ring, curve or counting numeral. It is a fill only on the primary button and skip link, and then as signal-fill, never as signal.", "section": "colors" },
+      { "name": "The Mono Number Rule", "body": "Every number, unit, identifier, DOI, year and readout is set in JetBrains Mono with tabular numerals; code, time and data elements inherit it globally. A number in Archivo or STIX is a defect.", "section": "typography" },
+      { "name": "The Even Weight Rule", "body": "Headings carry one weight (600) and body one weight (400). Rank is carried by size, measure and border ink, never by bolding.", "section": "typography" },
+      { "name": "The Unit Keeps Its Case Rule", "body": "Uppercase is chrome for short identifiers (C1, 2026, FLOW, PINO-DEMO-01) and for tags; units and ratios are never uppercased and never tracked.", "section": "typography" },
+      { "name": "The Hairline-Not-Shadow Rule", "body": "Separation is a 1px line or a tonal step. A box-shadow that leaves a surface is a defect; the only box-shadow in the build is an inset 2px underline on a pressed segmented button, which is an underline by another property, not an elevation.", "section": "elevation" },
+      { "name": "The One Grain Rule", "body": "Film surfaces carry exactly one grain layer, applied by body::after at 256px tiling and 5% opacity. Nothing else textures a surface.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do put every data artifact inside a Frame with mono corner chrome and the three-tier stack (what / result / consequence); the frame is the unit of the page.",
+      "Do read only the semantic aliases (--bg, --ink, --line, and their tiers) in components so they sit on film and light box unchanged.",
+      "Do set every number, unit, identifier and readout in JetBrains Mono with tabular numerals, and compute it from the manifest or content data.",
+      "Do carry rank by border ink and frame size: signal border for first-author, ink for co-first, hairline for co-author; the larger frame for led work.",
+      "Do keep signal red a stroke (border, underline, ring, curve, counting numeral) and reserve signal-fill for the single primary action and the skip link.",
+      "Do draw field colors from lib/colormaps.ts only: turbo for pressure, diverging for signed error with the above-range yellow, viridis for speed and spectrograms.",
+      "Do honor prefers-reduced-motion on every autonomous motion: drift to 0s, develop snapped, transforms removed."
+    ],
+    "donts": [
+      "Don't use drop shadows, glows, gradients, blur or translucent panels on any surface; separation is a hairline or a one-step tonal lift.",
+      "Don't add kickers, eyebrows or section numbers above headings; the heading carries itself.",
+      "Don't introduce a second accent or a fourth ink tier; the palette is one ink family per surface plus one red.",
+      "Don't uppercase a unit or a ratio (kPa, mm, s, Pd/Pa) or track it; uppercase is for short identifiers in corners and tags only.",
+      "Don't fill a role mark or tag; rank is border ink, never a colored chip.",
+      "Don't animate the grain, loop the vessel for decoration, or run any motion that is not evidence of a measured quantity.",
+      "Don't use icon fonts or glyph characters; icons are inline Phosphor SVGs sized to the text."
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+---
+/*
+  Author list exactly as the CV prints it (with † and * marks), with the
+  owner's own name set in bold. The match is on the cleaned token, so
+  "H.J. Lee†" and "H.J. Lee" both bold; nothing else does.
+*/
+export interface Props {
+  authors: string;
+  class?: string;
+}
+const { authors, class: className } = Astro.props;
+const ME = 'H.J. Lee';
+const tokens = authors.split(/,\s*/).map((raw) => {
+  const name = raw.replace(/[†*]+$/, '');
+  const marks = raw.slice(name.length);
+  return { name, marks, me: name === ME };
+});
+---
+
+<p class:list={['authors', className]}>
+  {
+    tokens.map((t, i) => (
+      <>
+        {t.me ? <strong class="authors__me">{t.name}</strong> : <span>{t.name}</span>}
+        {t.marks && <span class="authors__mark">{t.marks}</span>}
+        {i < tokens.length - 1 && ', '}
+      </>
+    ))
+  }
+</p>
+
+<style>
+  .authors {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .authors__me {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .authors__mark {
+    color: var(--ink-3);
+  }
+</style>

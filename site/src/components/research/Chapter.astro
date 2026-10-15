@@ -1,0 +1,76 @@
+---
+/*
+  One research chapter: heading, one STIX lede, the artifact at frame width
+  (the work leads), then the reading column, then a one-line consequence.
+  No kicker, no number: the heading and the artifact carry the chapter.
+
+    <Chapter id="flow" heading="Flow" lede="…" consequence="…">
+      <Fragment slot="artifact">…frames and islands…</Fragment>
+      …reading column (paragraphs, tables, paper frames)…
+    </Chapter>
+*/
+export interface Props {
+  id: string;
+  heading: string;
+  lede: string;
+  consequence: string;
+}
+
+const { id, heading, lede, consequence } = Astro.props;
+---
+
+<section class="chapter" id={id} aria-labelledby={`${id}-heading`}>
+  <header class="chapter__head wrap">
+    <h2 id={`${id}-heading`} class="t-heading">{heading}</h2>
+    <p class="chapter__lede t-prose">{lede}</p>
+  </header>
+
+  <div class="chapter__artifact wrap">
+    <slot name="artifact" />
+  </div>
+
+  <div class="chapter__read wrap wrap--text">
+    <slot />
+    <p class="chapter__consequence">{consequence}</p>
+  </div>
+</section>
+
+<style>
+  .chapter {
+    padding-block: var(--section-pad) 0;
+  }
+  .chapter:last-of-type {
+    padding-bottom: var(--section-pad);
+  }
+  .chapter__head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .chapter__head > .t-heading {
+    max-width: 28ch;
+  }
+  .chapter__lede {
+    color: var(--ink-2);
+  }
+  .chapter__artifact {
+    margin-bottom: var(--space-5);
+  }
+  .chapter__read {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .chapter__read > :global(.t-prose + .t-prose) {
+    margin-top: calc(-1 * var(--space-2));
+  }
+  .chapter__consequence {
+    font-family: var(--font-text);
+    font-size: 1.25rem;
+    line-height: 1.45;
+    max-width: var(--measure);
+    text-wrap: pretty;
+    color: var(--ink);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+</style>

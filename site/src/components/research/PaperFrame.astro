@@ -1,0 +1,140 @@
+---
+/*
+  A publication in a Frame: id and year in the corners, the author-role mark
+  from content.ts, title, authors, venue and DOI in mono. An optional figure
+  plate sits above the text, flush to the border. Rank is carried by width:
+  the parent grid gives first-author work the wider column (`wide`).
+*/
+import Frame from '@/components/Frame.astro';
+import RoleMark from '@/components/RoleMark.astro';
+import type { Publication } from '@/data/content';
+import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
+
+export interface Props {
+  pub: Publication;
+  /** Figure plate shown above the text; width/height set the aspect box. */
+  figure?: { src: string; alt: string; width: number; height: number; light?: boolean };
+  /** One editorial line (his part, or what the paper does). */
+  note?: string;
+  wide?: boolean;
+  class?: string;
+}
+
+const { pub, figure, note, wide = false, class: className } = Astro.props;
+
+const venueLine = [
+  pub.venueShort ?? pub.venue,
+  pub.volume,
+  pub.article ? pub.article : pub.pages,
+]
+  .filter(Boolean)
+  .join(' · ');
+
+/* Corner label: the year, or "in revision" for the manuscript (status prints in full below). */
+const yearLabel = pub.year || 'in revision';
+---
+
+<Frame as="article" tl={pub.id} tr={yearLabel} class:list={['paper', { 'paper--wide': wide }, className]}>
+  {
+    figure && (
+      <div
+        class:list={['paper__plate', { 'paper__plate--light': figure.light }]}
+        style={`aspect-ratio: ${figure.width} / ${figure.height};`}
+      >
+        <img src={figure.src} alt={figure.alt} width={figure.width} height={figure.height} loading="lazy" decoding="async" />
+      </div>
+    )
+  }
+  <div class="paper__text">
+    <RoleMark role={pub.myRole} />
+    <h3 class="paper__title">{pub.title}</h3>
+    <p class="paper__authors">{pub.authors}</p>
+    <p class="paper__venue t-mono">
+      <span>{venueLine}</span>
+      {!pub.year && <span class="paper__status">{pub.status}</span>}
+    </p>
+    {
+      pub.doi && (
+        <a class="paper__doi t-mono" href={`https://doi.org/${pub.doi}`} rel="noopener">
+          <span>doi:{pub.doi}</span>
+          <span class="icon" aria-hidden="true" set:html={arrowUpRight} />
+        </a>
+      )
+    }
+    {note && <p class="paper__note">{note}</p>}
+  </div>
+</Frame>
+
+<style>
+  .paper__plate {
+    width: 100%;
+    overflow: hidden;
+  }
+  .paper__plate--light {
+    background: var(--box);
+  }
+  .paper__plate img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .paper__text {
+    display: grid;
+    gap: 0.6rem;
+    padding: calc(var(--corner-inset, 0.5rem) + 1.5rem) var(--space-3) calc(var(--corner-inset, 0.5rem) + 1rem);
+  }
+  .paper__plate + .paper__text {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+  .paper__text > :global(.rolemark) {
+    justify-self: start;
+  }
+  .paper__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-subheading);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    max-width: 36ch;
+  }
+  .paper__authors {
+    font-family: var(--font-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: var(--measure);
+  }
+  .paper__venue {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    color: var(--ink-2);
+  }
+  .paper__status {
+    color: var(--ink);
+  }
+  .paper__doi {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    justify-self: start;
+    color: var(--ink);
+    text-decoration-color: var(--ink-3);
+  }
+  .paper__doi .icon :global(svg) {
+    width: 0.9em;
+    height: 0.9em;
+    fill: currentColor;
+  }
+  .paper__note {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: var(--measure);
+    margin-top: 0.4rem;
+    text-wrap: pretty;
+  }
+</style>

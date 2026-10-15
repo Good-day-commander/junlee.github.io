@@ -1,0 +1,56 @@
+---
+/*
+  Home. Experience surface on film: the hero cine frame, then Three fronts,
+  What he has led, Applied, Contact. Composes Base + shared components +
+  islands + the page-local components in components/home/.
+*/
+import Base from '@/layouts/Base.astro';
+import Section from '@/components/Section.astro';
+import Hero from '@/components/home/Hero.astro';
+import Fronts from '@/components/home/Fronts.astro';
+import Led from '@/components/home/Led.astro';
+import Applied from '@/components/home/Applied.astro';
+import Contact from '@/components/home/Contact.astro';
+import { loadPinoManifest, loadPulseManifest } from '@/components/home/manifests';
+import { profile } from '@/data/content';
+
+const pino = loadPinoManifest();
+const pulse = loadPulseManifest();
+
+const title = 'Coronary physics, fast enough for the clinic';
+const description = `${profile.name}, ${profile.role.toLowerCase()} at the ${profile.lab}, ${profile.university}: image-based coronary CFD and CT-FFR, physics-informed neural operators, and wearable PPG biomarkers.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: profile.role,
+  email: `mailto:${profile.email}`,
+  url: profile.links.site,
+  affiliation: {
+    '@type': 'Organization',
+    name: `${profile.lab}, ${profile.department}, ${profile.university}`,
+  },
+  sameAs: [profile.links.scholar, profile.links.linkedin, profile.links.orcid],
+};
+---
+
+<Base title={title} description={description} surface="film" jsonLd={jsonLd}>
+  <Hero pino={pino} />
+
+  <Section id="fronts" heading="Three fronts" width="frame">
+    <Fronts pino={pino} pulse={pulse} />
+  </Section>
+
+  <Section id="led" heading="What he has led" width="frame">
+    <Led />
+  </Section>
+
+  <Section id="applied" heading="Applied">
+    <Applied />
+  </Section>
+
+  <Section id="contact" heading="Contact">
+    <Contact />
+  </Section>
+</Base>

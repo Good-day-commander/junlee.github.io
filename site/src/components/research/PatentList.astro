@@ -1,0 +1,86 @@
+---
+/*
+  Patent filings as a mono list: jurisdiction and number, title, status.
+  Registered filings say so with their registration number; everything else
+  reads "application", never "patent". Withdrawn rows are never passed in.
+*/
+import type { Patent } from '@/data/content';
+
+export interface Props {
+  heading: string;
+  items: Patent[];
+}
+
+const { heading, items } = Astro.props;
+
+/** "KR 10-2026-0003225", "US 19/397,163"; PCT numbers already carry their prefix. */
+function numberLabel(p: Patent): string {
+  return p.applicationNo.startsWith(p.jurisdiction) ? p.applicationNo : `${p.jurisdiction} ${p.applicationNo}`;
+}
+
+function statusLine(p: Patent): string {
+  if (p.status === 'registered' && p.registrationNo) {
+    return `Registered ${p.registrationNo}${p.registrationDate ? `, ${p.registrationDate}` : ''}`;
+  }
+  return `Application, ${p.year}`;
+}
+---
+
+<section class="patents" aria-label={heading}>
+  <h3 class="patents__heading t-subheading">{heading}</h3>
+  <ul class="patents__list">
+    {
+      items.map((p) => (
+        <li class="patents__row">
+          <span class="patents__no t-mono">{numberLabel(p)}</span>
+          <span class="patents__title">{p.title}</span>
+          <span class:list={['patents__status t-mono', { 'patents__status--registered': p.status === 'registered' }]}>
+            {statusLine(p)}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .patents {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .patents__list {
+    border-top: 1px solid var(--line);
+  }
+  .patents__row {
+    display: grid;
+    grid-template-columns: minmax(11rem, max-content) 1fr;
+    gap: 0.25rem var(--space-3);
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .patents__no {
+    color: var(--ink);
+  }
+  .patents__title {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .patents__status {
+    grid-column: 2;
+    color: var(--ink-3);
+  }
+  .patents__status--registered {
+    color: var(--ink);
+  }
+  @media (max-width: 560px) {
+    .patents__row {
+      grid-template-columns: 1fr;
+    }
+    .patents__status {
+      grid-column: 1;
+    }
+  }
+</style>

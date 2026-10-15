@@ -1,0 +1,129 @@
+---
+/*
+  Rectangular action, 2px radius, filled on hover, visible focus ring.
+    primary  signal fill (the one primary action on a page: Email)
+    ghost    bordered in the surface ink, fills with ink on hover (CV (PDF))
+  Renders <a> when href is given, otherwise <button>.
+  An optional icon goes in the "icon" slot and is sized to the text.
+*/
+export interface Props {
+  variant?: 'primary' | 'ghost';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  /** Opens in a new tab with rel="noopener". Use only for files and off-site links. */
+  external?: boolean;
+  download?: boolean | string;
+  disabled?: boolean;
+  id?: string;
+  class?: string;
+  'aria-label'?: string;
+  'aria-pressed'?: boolean | 'true' | 'false' | 'mixed';
+  'aria-controls'?: string;
+  'aria-expanded'?: boolean | 'true' | 'false';
+}
+
+const {
+  variant = 'primary',
+  href,
+  type = 'button',
+  external = false,
+  download,
+  disabled = false,
+  id,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const classes = ['btn', `btn--${variant}`, className];
+---
+
+{
+  href ? (
+    <a
+      id={id}
+      href={href}
+      class:list={classes}
+      rel={external ? 'noopener' : undefined}
+      target={external ? '_blank' : undefined}
+      download={download}
+      aria-disabled={disabled ? 'true' : undefined}
+      tabindex={disabled ? -1 : undefined}
+      {...rest}
+    >
+      <span class="btn__label">
+        <slot />
+      </span>
+      <slot name="icon" />
+    </a>
+  ) : (
+    <button id={id} type={type} class:list={classes} disabled={disabled} {...rest}>
+      <span class="btn__label">
+        <slot />
+      </span>
+      <slot name="icon" />
+    </button>
+  )
+}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition:
+      background-color var(--duration-quick) var(--ease-out),
+      border-color var(--duration-quick) var(--ease-out),
+      color var(--duration-quick) var(--ease-out);
+  }
+  .btn--primary {
+    background: var(--signal-fill);
+    border-color: var(--signal-fill);
+    color: var(--signal-ink);
+  }
+  .btn--primary:hover {
+    background: var(--signal-hover);
+    border-color: var(--signal-hover);
+  }
+  .btn--ghost {
+    background: transparent;
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .btn--ghost:hover {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .btn :global(svg) {
+    width: 1.125em;
+    height: 1.125em;
+    flex: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn:active {
+      transform: none;
+    }
+  }
+</style>

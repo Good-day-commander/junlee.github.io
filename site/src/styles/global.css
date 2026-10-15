@@ -1,0 +1,371 @@
+/* Scan only src/ for utilities; node_modules/ stays out of the bundle. */
+@import 'tailwindcss' source('../');
+@import './tokens.css';
+
+/*
+  Global styles. The design lives here and in tokens.css; Tailwind utilities
+  are for layout only. Fonts are imported in layouts/Base.astro.
+*/
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+    accent-color: var(--signal);
+    caret-color: var(--signal);
+  }
+
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  main {
+    flex: 1 0 auto;
+  }
+
+  ::selection {
+    background: var(--signal-soft);
+    color: var(--ink);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border: 2px solid var(--scroll-track);
+    border-radius: 0;
+  }
+
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: var(--ring);
+    outline-offset: var(--ring-offset);
+    border-radius: var(--radius);
+  }
+
+  a {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--ink-3);
+    text-underline-offset: 0.18em;
+    transition:
+      text-decoration-color var(--duration-quick) var(--ease-out),
+      color var(--duration-quick) var(--ease-out);
+  }
+  a:hover {
+    text-decoration-color: var(--signal);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  p {
+    margin: 0;
+  }
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  img,
+  svg,
+  video,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+  }
+  code,
+  kbd,
+  samp,
+  pre,
+  time,
+  data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  table {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 0;
+  }
+
+  /* Grain: one static feTurbulence sheet over film surfaces, never animated */
+  html[data-surface='film'] body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    background-repeat: repeat;
+  }
+
+  @media print {
+    html[data-surface='film'] body::after {
+      display: none;
+    }
+  }
+}
+
+@layer components {
+  /* Type roles */
+  .t-display {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 92;
+    font-weight: 600;
+    font-size: var(--size-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+  .t-heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-heading);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    text-wrap: balance;
+  }
+  .t-subheading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-subheading);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .t-prose {
+    font-family: var(--font-text);
+    font-size: var(--size-prose);
+    line-height: var(--leading-prose);
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+  .t-prose em,
+  .t-caption {
+    font-family: var(--font-text);
+    font-style: italic;
+  }
+  .t-caption {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .t-ui {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    line-height: 1.3;
+  }
+  .t-mono {
+    font-family: var(--font-mono);
+    font-size: var(--size-mono);
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+  .t-label {
+    font-family: var(--font-mono);
+    font-size: var(--size-label);
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .ink-2 {
+    color: var(--ink-2);
+  }
+  .ink-3 {
+    color: var(--ink-3);
+  }
+  .signal {
+    color: var(--signal);
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Width containers */
+  .wrap {
+    width: 100%;
+    max-width: var(--width-frame);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .wrap--text {
+    max-width: var(--width-text);
+  }
+
+  /* Frame primitive: hairline border, 2px radius, mono corner chrome inside the border */
+  .frame {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    --corner-inset: 0.5rem;
+  }
+  .frame--panel {
+    background: var(--bg-1);
+  }
+  /*
+    Corner chrome is mono and reads as set: units (kPa, mm, s) and ratios
+    (Pd/Pa) keep their case. Short identifiers (ids, years, FLOW / IMAGE)
+    take .frame__corner--caps, which Frame.astro adds for labels of up to
+    14 characters that carry no unit.
+  */
+  .frame__corner {
+    position: absolute;
+    z-index: 2;
+    margin: 0;
+    padding: 0.1rem 0.25rem;
+    font-family: var(--font-mono);
+    font-size: var(--size-label);
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .frame__corner--caps {
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .frame__corner--tl {
+    top: var(--corner-inset);
+    left: var(--corner-inset);
+  }
+  .frame__corner--tr {
+    top: var(--corner-inset);
+    right: var(--corner-inset);
+    text-align: right;
+  }
+  .frame__corner--bl {
+    bottom: var(--corner-inset);
+    left: var(--corner-inset);
+  }
+  .frame__corner--br {
+    bottom: var(--corner-inset);
+    right: var(--corner-inset);
+    text-align: right;
+  }
+  .frame__body {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+  .frame--padded .frame__body {
+    padding: calc(var(--corner-inset) + 1.5rem) var(--space-3);
+  }
+  /* Fixed three-tier label stack: what (heading), result (number line), consequence */
+  .frame__stack {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 0.35rem;
+    padding: var(--space-2) var(--space-3) calc(var(--corner-inset) + 1.25rem);
+    border-top: 1px solid var(--line);
+  }
+  .frame--bare .frame__stack {
+    border-top: 0;
+  }
+  .frame__what {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-subheading);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .frame__result {
+    font-family: var(--font-mono);
+    font-size: var(--size-mono);
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    margin: 0;
+  }
+  .frame__consequence {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+    margin: 0;
+  }
+
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 2147483001;
+    padding: 0.5rem 0.75rem;
+    background: var(--signal-fill);
+    color: var(--signal-ink);
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    text-decoration: none;
+    border-radius: var(--radius);
+    transform: translateY(-200%);
+    transition: transform var(--duration-quick) var(--ease-out);
+  }
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --drift-period: 0s;
+  }
+  .skip-link {
+    transition: none;
+  }
+}

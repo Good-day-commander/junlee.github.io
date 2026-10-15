@@ -1,0 +1,58 @@
+---
+/*
+  Page section: heading, optional lede, then whatever the page puts inside.
+  Spacing is enforced here: the heading carries section-pad above itself
+  (so it binds to its own content, not to the block before), less below it;
+  consecutive sections therefore share one section-pad, and the last one
+  pads the page bottom.
+  There is no kicker and no section number; the heading carries itself.
+
+    width 'text'   72rem column (default; prose, lists, tables)
+          'frame'  1280px column (frames and viewers)
+*/
+export interface Props {
+  heading: string;
+  lede?: string;
+  id?: string;
+  level?: 2 | 3;
+  width?: 'text' | 'frame';
+  class?: string;
+}
+
+const { heading, lede, id, level = 2, width = 'text', class: className } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+const headingId = id ? `${id}-heading` : undefined;
+---
+
+<section class:list={['section', className]} id={id} aria-labelledby={headingId}>
+  <div class:list={['wrap', { 'wrap--text': width === 'text' }]}>
+    <header class="section__head">
+      <Heading id={headingId} class="t-heading">{heading}</Heading>
+      {lede && <p class="section__lede t-prose">{lede}</p>}
+    </header>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: 0;
+  }
+  .section:last-child {
+    padding-bottom: var(--section-pad);
+  }
+  .section__head > .t-heading {
+    margin-top: var(--section-pad);
+  }
+  .section__head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .section__head > .t-heading {
+    max-width: 28ch;
+  }
+  .section__lede {
+    color: var(--ink-2);
+  }
+</style>

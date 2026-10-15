@@ -1,0 +1,61 @@
+---
+/*
+  /publications: journal articles, peer-reviewed proceedings, under review.
+  Every entry is read from content.ts; author role is the record's myRole,
+  rank shows as frame size (first / co-first get the larger frame and plate).
+*/
+import Base from '@/layouts/Base.astro';
+import Section from '@/components/Section.astro';
+import PageHead from '@/components/record/PageHead.astro';
+import PubEntry from '@/components/record/PubEntry.astro';
+import { profile } from '@/data/content';
+import { leads, PUBLICATION_GROUPS, publicationCounts, publicationsOf } from '@/components/record/records';
+import { numberWord, numberWordCap } from '@/lib/format';
+
+const { journal, proceedings, underReview, lead } = publicationCounts;
+const words = (n: number, one: string, many = `${one}s`) => `${numberWord(n)} ${n === 1 ? one : many}`;
+const lede = `${numberWordCap(journal)} SCIE journal ${journal === 1 ? 'article' : 'articles'}, ${words(proceedings, 'peer-reviewed proceedings paper')} and ${words(underReview, 'manuscript')} under review; ${numberWord(lead)} of them first- or co-first-authored. Marks follow the CV: † first author (shared when it appears twice), * corresponding author.`;
+
+const description = `Journal articles, peer-reviewed proceedings and manuscripts under review by ${profile.name}, with author role stated on each entry and BibTeX for every one.`;
+---
+
+<Base title="Publications" description={description} surface="box">
+  <PageHead heading="Publications" lede={lede} />
+  {
+    PUBLICATION_GROUPS.map((group) => {
+      const items = publicationsOf(group.type);
+      if (items.length === 0) return null;
+      return (
+        <Section heading={group.heading} id={group.type} lede={group.note || undefined} class="pubs">
+          <ol class="pubs__list">
+            {items.map((pub) => (
+              <li class:list={['pubs__item', leads(pub) ? 'pubs__item--lead' : 'pubs__item--row']}>
+                <PubEntry pub={pub} />
+              </li>
+            ))}
+          </ol>
+        </Section>
+      );
+    })
+  }
+</Base>
+
+<style>
+  :global(.page-head + .section.section) {
+    padding-top: var(--space-6);
+  }
+  .pubs__list {
+    display: grid;
+    gap: var(--space-4);
+  }
+  /* Compact rows are ruled top and bottom; consecutive rows share one rule. */
+  .pubs__item--row :global(.pub--row) {
+    border-bottom: 1px solid var(--line);
+  }
+  .pubs__item--row + .pubs__item--row {
+    margin-top: calc(-1 * var(--space-4));
+  }
+  .pubs__item--row + .pubs__item--row :global(.pub--row) {
+    border-top: 0;
+  }
+</style>

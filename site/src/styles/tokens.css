@@ -1,0 +1,120 @@
+/*
+  Design tokens for hyeongjunlee.me.
+  Two surfaces share one ink and one accent:
+    film  (dark)  data surfaces: /, /research
+    box   (light) report surfaces: /publications, /record, /cv
+  Pages pick a surface through <html data-surface="film|box"> (set by Base.astro).
+  Components read only the semantic aliases (--bg, --ink, --line, ...),
+  never the raw film-* / box-* values, so one component works on both surfaces.
+*/
+
+:root {
+  /* Film: cool near-black, never pure */
+  --film-0: oklch(0.15 0.008 250);
+  --film-1: oklch(0.21 0.008 250);
+  --film-2: oklch(0.28 0.01 250);
+  --film-line: oklch(0.38 0.01 250);
+
+  /* Bone ink on film (tinted, not gray) */
+  --bone: oklch(0.94 0.006 85);
+  --bone-2: oklch(0.74 0.012 85);
+  --bone-3: oklch(0.6 0.012 85); /* 0.56 fell to 4.2:1 where it sits over the viewer ground; 0.60 clears 4.5:1 */
+
+  /* Light box */
+  --box: oklch(0.975 0.004 85);
+  --box-2: oklch(0.94 0.006 85);
+  --box-3: oklch(0.9 0.008 85);
+  --box-ink: oklch(0.18 0.012 250);
+  --box-ink-2: oklch(0.4 0.02 250);
+  --box-ink-3: oklch(0.52 0.02 250);
+  --box-line: oklch(0.86 0.012 250);
+
+  /* One clinical red, shared by both surfaces */
+  --signal: oklch(0.62 0.21 27);
+  /*
+    Fill used under bone text (primary button, skip link). --signal itself
+    gives bone only ~3.1:1, below AA for 0.95rem text; this darker step of
+    the same hue gives ~4.6:1. Probes, rings, underlines keep --signal.
+  */
+  --signal-fill: oklch(0.52 0.2 27);
+  --signal-hover: oklch(0.46 0.19 27);
+  --signal-ink: var(--bone);
+  --signal-soft: oklch(0.62 0.21 27 / 0.18);
+
+  /* Type faces (self-hosted through fontsource, imported in Base.astro) */
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-ui: var(--font-display);
+  --font-text: 'STIX Two Text', 'Times New Roman', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  /* Type sizes */
+  --size-display: clamp(2.4rem, 5.4vw, 5.5rem);
+  --size-heading: clamp(1.75rem, 1.35rem + 1.2vw, 2.25rem);
+  --size-subheading: 1.25rem;
+  --size-prose: 1.0625rem;
+  --size-ui: 0.95rem;
+  --size-mono: 0.8rem;
+  --size-label: 0.75rem; /* corner chrome and ticks: 12px, the body-text floor */
+  --leading-display: 0.98;
+  --leading-heading: 1.1;
+  --leading-prose: 1.65;
+  --tracking-display: -0.02em;
+  --tracking-heading: -0.015em;
+  --tracking-label: 0.08em;
+  --measure: 60ch; /* STIX sets narrow: 60ch renders ~72-78 characters per line */
+
+  /* Spacing, 8px base */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --space-6: 4rem;
+  --section-pad: clamp(4rem, 9vw, 7rem);
+  --gutter: clamp(1rem, 3vw, 2.5rem);
+  --width-frame: 1280px;
+  --width-text: 72rem;
+  --nav-h: 3rem;
+  --radius: 2px;
+
+  /* Motion */
+  --duration-quick: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-develop: 1780ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --drift-period: 60s;
+
+  /* Focus ring */
+  --ring: 2px solid var(--signal);
+  --ring-offset: 2px;
+}
+
+/* Semantic aliases per surface */
+html[data-surface='film'] {
+  color-scheme: dark;
+  --bg: var(--film-0);
+  --bg-1: var(--film-1);
+  --bg-2: var(--film-2);
+  --line: var(--film-line);
+  --line-soft: oklch(0.38 0.01 250 / 0.55);
+  --ink: var(--bone);
+  --ink-2: var(--bone-2);
+  --ink-3: var(--bone-3);
+  --scroll-track: var(--film-0);
+  --scroll-thumb: var(--film-2);
+}
+
+html[data-surface='box'] {
+  color-scheme: light;
+  --bg: var(--box);
+  --bg-1: var(--box-2);
+  --bg-2: var(--box-3);
+  --line: var(--box-line);
+  --line-soft: oklch(0.86 0.012 250 / 0.6);
+  --ink: var(--box-ink);
+  --ink-2: var(--box-ink-2);
+  --ink-3: var(--box-ink-3);
+  --scroll-track: var(--box);
+  --scroll-thumb: var(--box-line);
+}

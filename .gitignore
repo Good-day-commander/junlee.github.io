@@ -73,3 +73,11 @@ npm-debug.log*
 # Raw website source data (meshes, recordings); never publish
 website_assets/
 assets-raw/
+
+# Astro site public assets (the generic public/ rule above must not swallow them)
+!site/public/
+!site/public/**
+
+# Impeccable local caches and review captures
+.impeccable/review/
+.impeccable/hook.cache.json

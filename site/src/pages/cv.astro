@@ -1,0 +1,612 @@
+---
+/*
+  /cv: the CV as a page, in the PDF's order, generated from content.ts.
+  Header without the phone number (the site is public). Prints as a
+  document: box surface, no chrome, a page break before each section.
+*/
+import Base from '@/layouts/Base.astro';
+import Button from '@/components/Button.astro';
+import CvSection from '@/components/record/CvSection.astro';
+import Authors from '@/components/record/Authors.astro';
+import {
+  awards,
+  education,
+  experience,
+  fellowships,
+  profile,
+  publications,
+  skills,
+  talks,
+  teaching,
+  projects,
+  type Publication,
+  type Talk,
+} from '@/data/content';
+import { applicationLabel, awardPublication, citationLine, doiUrl, period, publicPatents } from '@/components/record/records';
+import arrowDown from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
+
+const PDF = '/uploads/resume.pdf';
+
+/* Research interests: one paragraph from the product positioning (PRODUCT.md); no claim beyond it. */
+const interests =
+  'Making the physics of coronary flow fast enough for clinical use, on three connected fronts. Flow: image-based, patient-specific coronary CFD and CT-FFR (gray-zone FFR, lattice Boltzmann pipelines), and physics-informed neural operators that return CFD-grade pressure and velocity fields in seconds. Image: diffusion-based 4D coronary CT synthesis for dynamic FFR. Pulse: wearable PPG biomarkers (non-Newtonian blood viscosity, blood pressure, fluid status). The machine learning is physics-constrained (Carreau–Yasuda priors, Navier–Stokes residuals) rather than black-box, and the same line of work has been carried into products and patent filings.';
+
+const pubGroups: { heading: string; items: Publication[] }[] = [
+  { heading: 'Journal articles (SCIE)', items: publications.filter((p) => p.type === 'journal') },
+  { heading: 'Peer-reviewed proceedings', items: publications.filter((p) => p.type === 'proceedings') },
+  { heading: 'Manuscript under revision', items: publications.filter((p) => p.type === 'under-review') },
+];
+
+const talkGroups: { heading: string; items: Talk[] }[] = [
+  { heading: 'International', items: talks.filter((t) => t.category === 'International') },
+  { heading: 'Domestic', items: talks.filter((t) => t.category === 'Domestic') },
+];
+
+const skillGroups: { label: string; items: string[] }[] = [
+  { label: 'Computational', items: skills.computational },
+  { label: 'Machine learning', items: skills.ml },
+  { label: 'Data', items: skills.data },
+  { label: 'Languages', items: skills.languages },
+];
+
+const links = [
+  { label: 'Google Scholar', href: profile.links.scholar },
+  { label: 'LinkedIn', href: profile.links.linkedin },
+  { label: 'ORCID', href: profile.links.orcid },
+];
+
+const description = `Curriculum vitae of ${profile.name}: education, appointments, publications, presentations, patents, projects, awards, teaching and skills, with the PDF.`;
+---
+
+<Base title="CV" description={description} surface="box">
+  <article class="cv wrap wrap--text">
+    <header class="cv-head">
+      <div class="cv-head__id">
+        <h1 class="cv-head__name">{profile.name}</h1>
+        <p class="cv-head__role">
+          {profile.role}, {profile.lab}<br />
+          {profile.department}, {profile.university}
+        </p>
+        <p class="cv-head__role cv-head__role--second">
+          {profile.concurrent.role}, {profile.concurrent.org}, {profile.concurrent.project}
+        </p>
+        <ul class="cv-head__contact">
+          <li>
+            <a class="t-mono" href={`mailto:${profile.email}`}>{profile.email}</a>
+          </li>
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href} rel="me noopener">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+          <li class="cv-head__site">
+            <a class="t-mono" href={profile.links.site}>{profile.links.site.replace(/^https?:\/\//, '')}</a>
+          </li>
+        </ul>
+      </div>
+      <div class="cv-head__actions">
+        <Button variant="primary" href={PDF} external>
+          Download PDF
+          <Fragment slot="icon">
+            <span class="icon" aria-hidden="true" set:html={arrowDown} />
+          </Fragment>
+        </Button>
+        <p class="cv-head__hint">The web version omits the phone number. The PDF is the same CV, four pages.</p>
+      </div>
+    </header>
+
+    <CvSection heading="Research interests" id="interests" flow>
+      <p class="cv-prose">{interests}</p>
+    </CvSection>
+
+    <CvSection heading="Education" id="education" flow>
+      {
+        education.map((e) => (
+          <div class="cv-row">
+            <p class="cv-row__period t-mono">{period(e.start, e.end)}</p>
+            <div class="cv-row__main">
+              <p class="cv-row__title">{e.degree}</p>
+              <p class="cv-row__meta">
+                {e.institution}, {e.location}
+              </p>
+              {e.note && <p class="cv-row__meta cv-row__meta--note">{e.note}</p>}
+            </div>
+          </div>
+        ))
+      }
+    </CvSection>
+
+    <CvSection heading="Research experience" id="experience">
+      {
+        experience.map((x) => (
+          <div class="cv-row">
+            <p class="cv-row__period t-mono">{period(x.start, x.end)}</p>
+            <div class="cv-row__main">
+              <p class="cv-row__title">{x.role}</p>
+              <p class="cv-row__meta">
+                {x.org}, {x.location}
+              </p>
+              {x.notes && x.notes.map((n) => <p class="cv-row__meta cv-row__meta--note">{n}</p>)}
+              <ul class="cv-bullets">
+                {x.bullets.map((b) => (
+                  <li>{b}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))
+      }
+    </CvSection>
+
+    <CvSection heading="Publications" id="publications">
+      <p class="cv-legend">† first author (shared when it appears twice) · * corresponding author</p>
+      {
+        pubGroups.map(
+          (g) =>
+            g.items.length > 0 && (
+              <div class="cv-group">
+                <h3 class="cv-group__heading">{g.heading}</h3>
+                <ol class="cv-list">
+                  {g.items.map((p) => {
+                    const doi = doiUrl(p);
+                    return (
+                      <li class="cv-item" id={p.id}>
+                        <span class="cv-item__id t-mono">[{p.id}]</span>
+                        <div class="cv-item__main">
+                          <Authors authors={p.authors} class="cv-item__authors" />
+                          <p class="cv-item__title">{p.title}</p>
+                          <p class="cv-item__meta">
+                            <span class="cv-item__venue">{citationLine(p)}</span>{p.type === 'under-review' ? `. ${p.status}` : ''}{doi && <span> <a class="t-mono" href={doi} rel="noopener">doi:{p.doi}</a></span>}
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            ),
+        )
+      }
+    </CvSection>
+
+    <CvSection heading="Conference presentations" id="presentations">
+      {
+        talkGroups.map((g) => (
+          <div class="cv-group">
+            <h3 class="cv-group__heading">{g.heading}</h3>
+            <ol class="cv-list">
+              {g.items.map((t) => (
+                <li class="cv-item" id={t.id}>
+                  <span class="cv-item__id t-mono">[{t.id}]</span>
+                  <div class="cv-item__main">
+                    <p class="cv-item__title">
+                      <span class="cv-item__year t-mono">{t.year}</span> {t.title}
+                    </p>
+                    <p class="cv-item__meta">
+                      {`${t.note.replace(/\.$/, '')}. ${t.venue}, ${t.location}. ${t.format}${t.role === 'presenter' ? '; presented by H.J. Lee.' : '.'}`}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </CvSection>
+
+    <CvSection heading="Patents" id="patents">
+      <ol class="cv-list">
+        {
+          publicPatents.map((p) => (
+            <li class="cv-item" id={p.id}>
+              <span class="cv-item__id t-mono">[{p.id}]</span>
+              <div class="cv-item__main">
+                <p class="cv-item__title">{p.title}</p>
+                <p class="cv-item__meta">
+                  <span class="t-mono">{applicationLabel(p)}</span>{' · '}{p.status === 'registered' && p.registrationNo ? <span><span class="t-mono">Registered No. {p.registrationNo}</span>{p.registrationDate ? ` (${p.registrationDate})` : ''}</span> : <span>filed <span class="t-mono">{p.year}</span>, pending</span>}<span class="cv-item__inventors"> · {p.inventors}</span>
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </CvSection>
+
+    <CvSection heading="Research projects (participating researcher)" id="projects">
+      <ol class="cv-list">
+        {
+          projects.map((r) => (
+            <li class="cv-item" id={r.id}>
+              <span class="cv-item__id t-mono">[{r.id}]</span>
+              <div class="cv-item__main">
+                <p class="cv-item__title">{r.title}</p>
+                <p class="cv-item__meta">
+                  {r.program ? `${r.funder}, ${r.program}` : r.funder} · <span class="t-mono">{r.grantNo}</span> · <span class="t-mono">{period(r.start, r.end)}</span>
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </CvSection>
+
+    <CvSection heading="Awards and honors" id="awards">
+      {
+        awards.map((a) => {
+          const pub = awardPublication(a.forPublication);
+          return (
+            <div class="cv-row cv-row--tight">
+              <p class="cv-row__period t-mono">{a.year}</p>
+              <div class="cv-row__main">
+                <p class="cv-row__title">{a.title}</p>
+                <p class="cv-row__meta">
+                  {a.note ? `${a.org}, ${a.note}` : a.org}{pub && <span> (<a href={`#${pub.id}`}>{pub.id}</a>)</span>}
+                </p>
+              </div>
+            </div>
+          );
+        })
+      }
+    </CvSection>
+
+    <CvSection heading="Fellowships and scholarships" id="fellowships" flow>
+      {
+        fellowships.map((f) => (
+          <div class="cv-row cv-row--tight">
+            <p class="cv-row__period t-mono">{f.period}</p>
+            <div class="cv-row__main">
+              <p class="cv-row__title">{f.title}</p>
+              <p class="cv-row__meta">{f.org}</p>
+            </div>
+          </div>
+        ))
+      }
+    </CvSection>
+
+    <CvSection heading="Teaching" id="teaching" flow>
+      {
+        teaching.map((t) => (
+          <div class="cv-row cv-row--tight">
+            <p class="cv-row__period t-mono">{t.period}</p>
+            <div class="cv-row__main">
+              <p class="cv-row__title">{t.role}</p>
+              <p class="cv-row__meta">{t.org}</p>
+            </div>
+          </div>
+        ))
+      }
+    </CvSection>
+
+    <CvSection heading="Skills" id="skills" flow>
+      <dl class="cv-skills">
+        {
+          skillGroups.map((g) => (
+            <div class="cv-skills__group">
+              <dt>{g.label}</dt>
+              <dd>{g.items.join('; ')}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </CvSection>
+  </article>
+</Base>
+
+<style is:global>
+  @media print {
+    @page {
+      margin: 16mm 18mm;
+    }
+    html[data-surface='box'] {
+      background: white;
+    }
+    .nav,
+    .footer,
+    .skip-link,
+    .cv-head__actions {
+      display: none !important;
+    }
+    .cv {
+      max-width: none;
+      padding: 0;
+      font-size: 10.5pt;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+  }
+</style>
+
+<style>
+  .cv {
+    padding-block: var(--space-6) var(--section-pad);
+  }
+
+  /* Header */
+  .cv-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4);
+    align-items: start;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--ink);
+  }
+  .cv-head__name {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 92;
+    font-weight: 600;
+    font-size: clamp(2rem, 1.5rem + 2.4vw, 3.25rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  .cv-head__role {
+    margin-top: var(--space-2);
+    font-family: var(--font-text);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .cv-head__role--second {
+    margin-top: 0.25rem;
+    color: var(--ink-2);
+  }
+  .cv-head__contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem var(--space-3);
+    margin-top: var(--space-3);
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+  }
+  .cv-head__contact a {
+    text-decoration-color: var(--line);
+  }
+  .cv-head__contact .t-mono {
+    font-size: var(--size-ui);
+  }
+  .cv-head__actions {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: end;
+    max-width: 16rem;
+  }
+  .cv-head__hint {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--ink-3);
+    text-align: right;
+    text-wrap: pretty;
+  }
+  .icon {
+    display: inline-flex;
+  }
+
+  /* Prose */
+  .cv-prose {
+    font-family: var(--font-text);
+    font-size: var(--size-prose);
+    line-height: var(--leading-prose);
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+
+  /* Period rows */
+  .cv-row {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+  .cv-row--tight {
+    /* "Mar. 2020 - Feb. 2022" in 0.8rem mono needs ~10.1rem; nowrap below. */
+    grid-template-columns: 10.5rem minmax(0, 1fr);
+  }
+  .cv-row__period {
+    color: var(--ink-2);
+    padding-top: 0.25rem;
+    white-space: nowrap;
+  }
+  .cv-row__main {
+    display: grid;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+  .cv-row__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    text-wrap: pretty;
+  }
+  .cv-row__meta {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+    max-width: 66ch;
+  }
+  .cv-row__meta--note {
+    font-style: italic;
+  }
+  .cv-bullets {
+    display: grid;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+    padding-left: 1.1rem;
+    list-style: disc;
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 66ch;
+  }
+  .cv-bullets li::marker {
+    color: var(--ink-3);
+  }
+
+  /* Numbered lists [J1] … */
+  .cv-legend {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-3);
+  }
+  .cv-group {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .cv-group__heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .cv-list {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .cv-item {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--space-2);
+    scroll-margin-top: var(--space-2);
+  }
+  .cv-item__id {
+    color: var(--ink-3);
+    padding-top: 0.2rem;
+  }
+  .cv-item__main {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+  .cv-item :global(.cv-item__authors) {
+    font-size: 0.95rem;
+  }
+  .cv-item__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+    max-width: 70ch;
+  }
+  .cv-item__year {
+    color: var(--ink-2);
+    font-weight: 400;
+    margin-right: 0.25rem;
+  }
+  .cv-item__meta {
+    font-family: var(--font-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+    max-width: 72ch;
+    overflow-wrap: anywhere;
+  }
+  .cv-item__venue {
+    font-style: italic;
+  }
+  .cv-item__meta a {
+    text-decoration-color: var(--line);
+  }
+  .cv-item__inventors {
+    color: var(--ink-3);
+  }
+
+  /* Skills */
+  .cv-skills {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .cv-skills__group {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+  .cv-skills dt {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+  }
+  .cv-skills dd {
+    margin: 0;
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 66ch;
+  }
+
+  @media (max-width: 760px) {
+    .cv-head {
+      grid-template-columns: 1fr;
+    }
+    .cv-head__actions {
+      justify-items: start;
+      max-width: none;
+    }
+    .cv-head__hint {
+      text-align: left;
+    }
+    .cv-row,
+    .cv-row--tight,
+    .cv-skills__group {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+    .cv-row__period {
+      padding-top: 0;
+    }
+  }
+
+  @media print {
+    .cv-head {
+      grid-template-columns: 1fr;
+      padding-bottom: 0.8rem;
+    }
+    .cv-head__name {
+      font-size: 22pt;
+    }
+    .cv-head__role,
+    .cv-prose,
+    .cv-row__meta,
+    .cv-item__meta,
+    .cv-bullets,
+    .cv-skills dd {
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+    .cv-row__title,
+    .cv-item__title {
+      font-size: 10.5pt;
+    }
+    .cv-row,
+    .cv-item {
+      break-inside: avoid;
+    }
+    .cv-row {
+      grid-template-columns: 9rem minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+    .cv-row--tight {
+      grid-template-columns: 9rem minmax(0, 1fr);
+    }
+    .cv-list,
+    .cv-group {
+      gap: 0.5rem;
+    }
+  }
+</style>

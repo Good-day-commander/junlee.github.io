@@ -1,0 +1,363 @@
+{
+ "case_id": "PINO-DEMO-01",
+ "schema": "pino-viewer-manifest/1",
+ "generated": "2026-10-15",
+ "generator": "website_assets/web/convert.py (from website_assets/pino, export_for_web.py output of 2026-10-14)",
+ "byteOrder": "little-endian",
+ "alignment": 4,
+ "units": {
+  "length": "mm",
+  "pressure": "Pa (solver gauge pressure)",
+  "velocity": "m/s",
+  "s": "mm along the vessel (geodesic distance from the inlet cap)"
+ },
+ "vertexCount": 8649,
+ "triangleCount": 17294,
+ "vessel": "unknown",
+ "vessel_note": "coronary branch label is not recorded in the CFD dataset",
+ "buffers": {
+  "file": "vessel.bin",
+  "byteLength": 492948,
+  "arrays": {
+   "positions": {
+    "dtype": "float32",
+    "components": 3,
+    "count": 8649,
+    "byteOffset": 0,
+    "byteLength": 103788,
+    "units": "mm",
+    "bounds": {
+     "min": [
+      -17.005,
+      -22.225,
+      -3.708
+     ],
+     "max": [
+      17.005,
+      22.225,
+      3.708
+     ]
+    }
+   },
+   "indices": {
+    "dtype": "uint32",
+    "components": 3,
+    "count": 17294,
+    "byteOffset": 103788,
+    "byteLength": 207528,
+    "topology": "triangles"
+   },
+   "p_cfd": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 8649,
+    "byteOffset": 311316,
+    "byteLength": 34596,
+    "units": "Pa",
+    "min": 10715.9785,
+    "max": 12988.6514
+   },
+   "p_pino": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 8649,
+    "byteOffset": 345912,
+    "byteLength": 34596,
+    "units": "Pa",
+    "min": 10666.4854,
+    "max": 12956.623
+   },
+   "p_err": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 8649,
+    "byteOffset": 380508,
+    "byteLength": 34596,
+    "units": "Pa",
+    "definition": "p_pino - p_cfd",
+    "min": -167.2355,
+    "max": 603.3107
+   },
+   "vmag_cfd": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 8649,
+    "byteOffset": 415104,
+    "byteLength": 34596,
+    "units": "m/s",
+    "min": 0.0001,
+    "max": 0.772
+   },
+   "vmag_pino": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 8649,
+    "byteOffset": 449700,
+    "byteLength": 34596,
+    "units": "m/s",
+    "min": 0.0105,
+    "max": 0.7101
+   },
+   "region": {
+    "dtype": "uint8",
+    "components": 1,
+    "count": 8649,
+    "byteOffset": 484296,
+    "byteLength": 8649,
+    "codes": {
+     "0": "wall",
+     "1": "inlet cap",
+     "2": "outlet cap"
+    }
+   }
+  }
+ },
+ "regionCounts": {
+  "0": 8338,
+  "1": 147,
+  "2": 164
+ },
+ "ranges": {
+  "p": [
+   10716.0,
+   12988.7
+  ],
+  "p_err_abs_max": 512.6,
+  "p_err_min": -167.2,
+  "p_err_max": 603.3,
+  "vmag_wall_max": 0.137,
+  "vmag_cap_max": 0.736,
+  "streamline_vmag_max": 1.331,
+  "note": "no paper figure for this model: p range = this case's CFD surface pressure min/max (PINO spans a narrower range, keep the same limits for both); p_err_abs_max = 99th percentile of |p_err| (the error is asymmetric, the largest positive errors sit at the throat: use an above-range colour); vmag_max = wall vertices, vmag_cap_max = cap vertices, streamline_vmag_max = streamlines (99th percentiles)",
+  "viewer_notes": [
+   "Pressure: paint p_cfd and p_pino with the same p range and always show the colourbar. PINO equals p_proximal_Pa from the inlet to s = 5.0 mm, spreads the stenotic drop over a longer stretch (smaller total drop, FFR 0.824 vs CFD 0.83) and is nearly flat over the last 6.4 mm; do not describe that flat stretch as pressure recovery.",
+   "Error: p_err = p_pino - p_cfd on a symmetric diverging range +/- p_err_abs_max (99th percentile); the error is asymmetric, so values above +p_err_abs_max (the throat) take a distinct above-range colour.",
+   "Surface speed: the wall is no-slip, so vmag on wall vertices is the speed of the first interior node (near-wall speed, mesh-spacing dependent); cap vertices carry the speed about 3 gate lengths inside the cap plane. Wall range 0..vmag_wall_max, caps 0..vmag_cap_max; to use one range, mask caps with region > 0. Streamlines are the better speed comparison.",
+   "Streamlines: colour vmag and vmag_pino both on 0..streamline_vmag_max.",
+   "FFR: read on the probe planes (geometry.ffr_probes), not at the curve ends; use metrics.case.ffr."
+  ]
+ },
+ "geometry": {
+  "origin": "bounding-box centre of the vessel surface (translation only)",
+  "bounds": {
+   "min": [
+    -17.005,
+    -22.225,
+    -3.708
+   ],
+   "max": [
+    17.005,
+    22.225,
+    3.708
+   ],
+   "size": [
+    34.01,
+    44.45,
+    7.415
+   ]
+  },
+  "inlet_center": [
+   -16.14,
+   20.87,
+   2.07
+  ],
+  "outlet_center": [
+   14.01,
+   -21.92,
+   -1.22
+  ],
+  "ffr_probes": {
+   "proximal": {
+    "center_mm": [
+     -11.88,
+     18.35,
+     1.09
+    ],
+    "s_mm": 5.8
+   },
+   "distal": {
+    "center_mm": [
+     13.93,
+     -18.01,
+     -2.39
+    ],
+    "s_mm": 66.0
+   }
+  }
+ },
+ "metrics": {
+  "case": {
+   "points": "all volume nodes (~80k)",
+   "pressure_Pa": {
+    "R2": 0.963,
+    "MAE": 111.2,
+    "RMSE": 163.8
+   },
+   "velocity_mps": {
+    "R2": 0.846,
+    "MAE": 0.0758,
+    "RMSE": 0.1202,
+    "quantity": "speed |u|"
+   },
+   "ffr": {
+    "cfd": 0.83,
+    "pino": 0.824,
+    "note": "read on the same two probe planes 5 mm inside each cap (geometry.ffr_probes): CFD over every plane node, PINO over the stored 512-node subsample of each plane; not at the curve ends"
+   },
+   "pino_profile": {
+    "inlet_plateau_mm": 5.0,
+    "distal_flat_mm": 6.4,
+    "note": "inlet_plateau_mm: PINO pressure equals p_proximal_Pa up to this s; distal_flat_mm: last stretch where the PINO section mean moves < 2% of its total drop (not pressure recovery)"
+   },
+   "percentile_in_cohort": {
+    "pressure_R2": 86,
+    "pressure_MAE": 35,
+    "pressure_RMSE": 39,
+    "velocity_R2": 81,
+    "note": "percent of the 85 cases with a value <= this case (higher R2 = better, higher MAE/RMSE = worse)"
+   }
+  },
+  "cohort": {
+   "n_cases": 85,
+   "source": "current model, 10-fold CV (not a paper figure)",
+   "points": "all volume nodes of each case; velocity = speed |u|",
+   "pressure_R2": {
+    "median": 0.898,
+    "q25": 0.759,
+    "q75": 0.941
+   },
+   "pressure_MAE_Pa": {
+    "median": 180.2,
+    "q25": 90.3,
+    "q75": 366.3
+   },
+   "pressure_RMSE_Pa": {
+    "median": 254.4,
+    "q25": 122.7,
+    "q75": 488.7
+   },
+   "velocity_R2": {
+    "median": 0.756,
+    "q25": 0.683,
+    "q75": 0.838
+   },
+   "velocity_MAE_mps": {
+    "median": 0.1085,
+    "q25": 0.0695,
+    "q75": 0.1803
+   },
+   "velocity_RMSE_mps": {
+    "median": 0.1623,
+    "q25": 0.1202,
+    "q75": 0.2849
+   },
+   "ffr_MAE_vs_cfd": 0.0383,
+   "ffr_corr_vs_cfd": 0.831
+  }
+ },
+ "timing": {
+  "cfd": {
+   "solver": "svSolver (SimVascular), steady",
+   "time_steps": 400,
+   "mpi_ranks": 24,
+   "wall_time_s": null,
+   "note": "run logs were not provided with the dataset, so the wall time is unknown; mpi_ranks is the default of the provided run.sh, the rank count actually used was not recorded"
+  },
+  "pino": {
+   "gpu": "NVIDIA L40S",
+   "inference_ms_median": 1781.0,
+   "query_points": "~80k",
+   "preprocessing_s_approx": 1.2,
+   "note": "inference = encoder + decoder over every volume node (fp32, one GPU, median after warm-up); preprocessing = SDF grid and input assembly, about 1-2 s depending on caches"
+  }
+ },
+ "p_proximal_Pa": 12956.6,
+ "model": {
+  "name": "PINO: geometry-informed neural operator (GINO backbone) with a pressure-only Navier-Stokes residual at the prescribed and at counterfactual inlet flows",
+  "protocol": "10-fold cross-validation over 85 patients; this case is predicted by the fold model that never saw it",
+  "training_cases": 68,
+  "selection_cases": 8
+ },
+ "mesh": {
+  "surface_vertices": 8649,
+  "surface_triangles": 17294,
+  "decimated": false,
+  "volume_nodes": "~80k",
+  "volume_cells": "~464k",
+  "streamlines": 296,
+  "region_codes": {
+   "0": "wall",
+   "1": "inlet cap",
+   "2": "outlet cap"
+  }
+ },
+ "selection": {
+  "note": "A well-predicted case, not a typical one: pressure R2 0.963 ranks 13/85 (1 = best) and speed R2 0.846 ranks 16/85 against cohort medians of 0.898 and 0.756. Show the cohort median beside the case numbers.",
+  "mode": "picked",
+  "rule": "picked by hand for a natural-looking vessel (smooth calibre, no abrupt diameter step) among clean-label cases with good prediction (pressure R2 >= 0.92, speed R2 >= 0.75, |FFR error| <= 0.03, CFD FFR <= 0.90); a well-predicted case, not a typical one: see dataset_metrics for the cohort medians",
+  "case_rank_by_R2_pressure": "13/85 (1 = best)",
+  "case_rank_by_R2_velocity": "16/85 (1 = best)",
+  "cohort_median_R2_pressure": 0.898,
+  "cohort_median_R2_velocity": 0.756,
+  "percentile_in_cohort": {
+   "pressure_R2": 86,
+   "pressure_MAE": 35,
+   "pressure_RMSE": 39,
+   "velocity_R2": 81,
+   "note": "percent of the 85 cases with a value <= this case (higher R2 = better, higher MAE/RMSE = worse)"
+  },
+  "n_eligible": 68,
+  "n_excluded_label_quality": 17
+ },
+ "streamlines": {
+  "file": "streamlines.bin",
+  "byteLength": 1181688,
+  "pointCount": 59025,
+  "lineCount": 296,
+  "sourcePointCount": 176186,
+  "thinning": {
+   "stride": 3,
+   "rule": "every stride-th point per line, first and last point of every line kept, every line kept"
+  },
+  "arrays": {
+   "positions": {
+    "dtype": "float32",
+    "components": 3,
+    "count": 59025,
+    "byteOffset": 0,
+    "byteLength": 708300,
+    "units": "mm"
+   },
+   "vmag": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 59025,
+    "byteOffset": 708300,
+    "byteLength": 236100,
+    "units": "m/s",
+    "source": "CFD",
+    "min": 0.0033,
+    "max": 1.4083
+   },
+   "vmag_pino": {
+    "dtype": "float32",
+    "components": 1,
+    "count": 59025,
+    "byteOffset": 944400,
+    "byteLength": 236100,
+    "units": "m/s",
+    "source": "PINO speed interpolated at the same CFD streamline points",
+    "min": 0.0,
+    "max": 1.4248
+   },
+   "lineOffsets": {
+    "dtype": "uint32",
+    "components": 1,
+    "count": 297,
+    "byteOffset": 1180500,
+    "byteLength": 1188,
+    "note": "line i spans points [lineOffsets[i], lineOffsets[i+1])"
+   }
+  }
+ }
+}
