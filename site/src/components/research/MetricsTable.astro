@@ -17,9 +17,10 @@ const rows = [
     cohort: formatDecimal(k.pressure_R2.median, 3),
   },
   {
+    /* kPa at one decimal, like every other pressure in chrome and tables (recorded decision). */
     label: 'Pressure MAE',
-    kase: `${formatDecimal(c.pressure_Pa.MAE, 1)} Pa`,
-    cohort: `${formatDecimal(k.pressure_MAE_Pa.median, 1)} Pa`,
+    kase: `${formatDecimal(c.pressure_Pa.MAE / 1000, 1)} kPa`,
+    cohort: `${formatDecimal(k.pressure_MAE_Pa.median / 1000, 1)} kPa`,
   },
   {
     label: 'Speed R²',
@@ -28,7 +29,7 @@ const rows = [
   },
   {
     label: 'FFR, Pd/Pa',
-    kase: `CFD ${formatDecimal(c.ffr.cfd, 2)} · PINO ${formatDecimal(c.ffr.pino, 3)}`,
+    kase: `CFD ${formatDecimal(c.ffr.cfd, 3)} · PINO ${formatDecimal(c.ffr.pino, 3)}`,
     cohort: `MAE vs CFD ${formatDecimal(k.ffr_MAE_vs_cfd, 4)}`,
   },
 ];
@@ -37,10 +38,11 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
 ---
 
 <figure class="metrics">
-  <table class="t-mono">
-    <caption class="metrics__caption">
-      Current model, {formatInt(k.n_cases)} cases, 10-fold cross-validation. All volume nodes of each case.
-    </caption>
+  <p class="metrics__caption" id="metrics-caption">
+    Current model, {formatInt(k.n_cases)} cases, 10-fold cross-validation. All volume nodes of each case.
+  </p>
+  <div class="metrics__scroll" tabindex="0" role="region" aria-label="PINO metrics, this case against the cohort">
+  <table class="t-mono" aria-describedby="metrics-caption">
     <thead>
       <tr>
         <th scope="col">Metric</th>
@@ -60,6 +62,7 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
       }
     </tbody>
   </table>
+  </div>
   <figcaption class="metrics__note">
     A well-predicted case, not a typical one: its pressure R² ranks {formatInt(rank.rank)} of {formatInt(rank.of)} in
     the cohort.
@@ -72,15 +75,21 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
     gap: var(--space-2);
     max-width: var(--measure);
   }
+  /* On a phone the table keeps its rows on one line and scrolls sideways instead of breaking labels. */
+  .metrics__scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .metrics__scroll:focus-visible {
+    outline: var(--ring);
+    outline-offset: var(--ring-offset);
+  }
   table {
     width: 100%;
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
   }
   .metrics__caption {
-    caption-side: top;
-    text-align: left;
-    padding-bottom: 0.6rem;
     color: var(--ink-2);
     font-family: var(--font-text);
     font-style: italic;
@@ -95,6 +104,8 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
   }
   thead th {
     color: var(--ink-3);
+    white-space: nowrap;
+    padding-right: var(--space-3);
     border-bottom: 1px solid var(--line);
   }
   tbody tr + tr th,
@@ -104,6 +115,7 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
   tbody th {
     color: var(--ink-2);
     padding-right: var(--space-3);
+    white-space: nowrap;
   }
   td {
     color: var(--ink);
@@ -119,10 +131,5 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
     font-size: 0.95rem;
     line-height: 1.5;
     color: var(--ink-2);
-  }
-  @media (max-width: 480px) {
-    td {
-      white-space: normal;
-    }
   }
 </style>

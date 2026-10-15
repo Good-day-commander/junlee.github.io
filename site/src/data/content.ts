@@ -59,9 +59,9 @@ export type Appointment = {
   pi: string;
 };
 
-/** The CV's one-line form of an appointment: "Role, Org – project (PI: …)". */
+/** The CV's one-line form of an appointment: "Role, Org, project (PI: …)". */
 export function appointmentLine(appointment: Appointment): string {
-  return `${appointment.role}, ${appointment.org} – ${appointment.project} (PI: ${appointment.pi})`;
+  return `${appointment.role}, ${appointment.org}, ${appointment.project} (PI: ${appointment.pi})`;
 }
 
 export type Profile = {

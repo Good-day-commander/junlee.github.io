@@ -19,6 +19,8 @@
     scrollbar-color: var(--scroll-thumb) var(--scroll-track);
     accent-color: var(--signal);
     caret-color: var(--signal);
+    /* The nav is sticky: in-page anchors land below it, not under it. */
+    scroll-padding-top: calc(var(--nav-h) + var(--space-2));
   }
 
   body {
@@ -172,7 +174,7 @@
     font-family: var(--font-display);
     font-weight: 600;
     font-size: var(--size-subheading);
-    line-height: 1.3;
+    line-height: 1.32;
     letter-spacing: -0.01em;
     text-wrap: balance;
   }
@@ -229,7 +231,13 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Width containers */
+  /*
+    Width containers. One left edge for the whole site: every column starts
+    where the frames, nav and footer start. Text columns are not a narrower
+    centred box; their reading measure is constrained instead (.t-prose
+    holds --measure, rows and tables hold their own ch caps), so headings,
+    prose, lists and frames all share one edge.
+  */
   .wrap {
     width: 100%;
     max-width: var(--width-frame);
@@ -237,7 +245,7 @@
     padding-inline: var(--gutter);
   }
   .wrap--text {
-    max-width: var(--width-text);
+    max-width: var(--width-frame);
   }
 
   /* Frame primitive: hairline border, 2px radius, mono corner chrome inside the border */
@@ -317,7 +325,7 @@
     font-family: var(--font-display);
     font-weight: 600;
     font-size: var(--size-subheading);
-    line-height: 1.3;
+    line-height: 1.32;
     letter-spacing: -0.01em;
     text-wrap: balance;
     margin: 0;
@@ -329,6 +337,10 @@
     font-variant-numeric: tabular-nums;
     color: var(--ink);
     margin: 0;
+  }
+  /* A result that carries more than one measurement runs as short stacked lines, never a chain of separators. */
+  .frame__result .rl {
+    display: block;
   }
   .frame__consequence {
     font-family: var(--font-text);

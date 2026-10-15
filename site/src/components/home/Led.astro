@@ -1,59 +1,64 @@
 ---
 /*
-  "What he has led": the led works as frames whose size carries rank, the
-  co-authored work as a compact list, and one mono readout line with the
-  counts. Published first-author papers (C1, J2) take the wide frame in the
-  left column; the co-first paper (J4) and the first-author manuscript still
-  under revision (M1) run narrower in the right column, one beside each
-  lead. Everything is computed from content.ts: roles from myRole, counts
-  from the arrays, the one-line contribution from the experience bullet
-  tagged with the publication id (e.g. "... [J2]").
+  "Led work": an instrument strip of counts, one honours line, the led works
+  as frames whose size carries rank, then the co-authored work as a compact
+  list. Published first-author papers (C1, J2) take the wide left column;
+  the first-author manuscript under revision (M1) and the co-first paper
+  (J4) run narrower on the right, newest beside newest.
+
+  Each frame reads in the one anatomy the site uses for a paper: title,
+  authors, venue with the DOI, then the role mark at the end of that row,
+  then the one sentence on my part, pinned to the frame's foot so paired
+  frames end on one line.
+  Everything is computed from content.ts: roles from myRole, counts from the
+  arrays, honours from awards[] / fellowships[], the contribution from the
+  experience bullet tagged with the publication id (e.g. "... [J2]").
 */
 import Frame from '@/components/Frame.astro';
 import RoleMark from '@/components/RoleMark.astro';
-import { experience, patents, projects, publications, talks } from '@/data/content';
-import type { Publication } from '@/data/content';
+import { awards, experience, fellowships, patents, projects, publications, talks } from '@/data/content';
+import type { Award, Publication } from '@/data/content';
 import { formatInt } from '@/lib/format';
 import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
+import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
 
-// Order the led works: published first by year (newest first), then under revision.
 const yearNum = (p: Publication) => (p.year ? Number(p.year) : -1);
-const led = publications
-  .filter((p) => p.myRole === 'first' || p.myRole === 'co-first')
-  .sort((a, b) => {
-    const aRev = a.type === 'under-review' ? 1 : 0;
-    const bRev = b.type === 'under-review' ? 1 : 0;
-    return aRev - bRev || yearNum(b) - yearNum(a);
-  });
+const isRev = (p: Publication) => p.type === 'under-review';
+const led = publications.filter((p) => p.myRole === 'first' || p.myRole === 'co-first');
 const coauthored = publications.filter((p) => p.myRole === 'co-author').sort((a, b) => yearNum(b) - yearNum(a));
 
 /*
   Rank → frame size. A published first-author paper is a lead and takes the
-  wide column; co-first work and anything not yet published takes the
-  narrow one. DOM order stays by rank (leads first), and each frame is
-  placed on the grid explicitly so a lead and a narrow frame share a row.
+  wide column, newest first; everything else takes the narrow column, the
+  manuscript under revision first, then by year. Row n pairs the n-th lead
+  with the n-th narrow frame, so both columns read newest at the top.
 */
-const isLead = (p: Publication) => p.myRole === 'first' && p.type !== 'under-review';
-let leadRow = 0;
-let sideRow = 0;
-const placed = led.map((p) => {
-  const lead = isLead(p);
-  const row = lead ? ++leadRow : ++sideRow;
-  return { p, lead, row, col: lead ? 1 : 2 };
-});
+const isLead = (p: Publication) => p.myRole === 'first' && !isRev(p);
+const leads = led.filter(isLead).sort((a, b) => yearNum(b) - yearNum(a));
+const sides = led
+  .filter((p) => !isLead(p))
+  .sort((a, b) => Number(isRev(b)) - Number(isRev(a)) || yearNum(b) - yearNum(a));
+const placed = [
+  ...leads.map((p, i) => ({ p, lead: true, row: i + 1, col: 1 })),
+  ...sides.map((p, i) => ({ p, lead: false, row: i + 1, col: 2 })),
+];
 
-/** The experience bullet tagged [ID] (or [ID, …]), with its label prefix and tag removed. */
+/** The experience bullet tagged [ID] (or [ID, …]) as one clean sentence. */
 function contribution(id: string): string | undefined {
   const tag = new RegExp(`\\[(?:[A-Z]\\d+,\\s*)*${id}(?:,\\s*[A-Z]\\d+)*\\]`);
   for (const job of experience) {
     for (const bullet of job.bullets) {
       if (!tag.test(bullet)) continue;
-      return bullet
+      let s = bullet
         .replace(tag, '')
         .replace(/^[^:]{3,40}:\s*/, '')
-        .replace(/\s+\.$/, '.')
-        .replace(/\s*\($/, '')
+        .replace(/\s+([;,.])/g, '$1')
         .trim();
+      // A bullet that runs on past its claim ("…spectrograms; blood pressure, …") ends at the claim.
+      const semi = s.indexOf(';');
+      if (semi > 0) s = s.slice(0, semi);
+      s = s.replace(/[.;,\s]+$/, '');
+      return `${s.charAt(0).toUpperCase()}${s.slice(1)}.`;
     }
   }
   return undefined;
@@ -65,10 +70,23 @@ function venueLine(p: Publication): string {
   const parts = [p.venueShort ?? p.venue];
   if (p.volume) parts.push(p.article ? `${p.volume}, ${p.article}` : p.pages ? `${p.volume}, ${p.pages}` : p.volume);
   const head = parts.join(' ');
-  return p.year ? `${head} (${p.year})` : head;
+  // A proceedings venue already names its year ("Proc. ASME 2026 …"); do not print it twice.
+  return p.year && !head.includes(p.year) ? `${head} (${p.year})` : head;
 }
 
-// Counts
+/**
+  Venue for the led frames: always the full journal name. A manuscript's one
+  status label, "under revision (EAAI)", sits in the frame's corner instead
+  of the year, as on /publications.
+*/
+function leadVenue(p: Publication): string {
+  if (!isRev(p)) return venueLine(p);
+  return p.venue;
+}
+
+const awardsFor = (id: string) => awards.filter((a) => a.forPublication === id);
+
+// Counts: the instrument strip.
 const scie = publications.filter((p) => p.type === 'journal').length;
 const proceedings = publications.filter((p) => p.type === 'proceedings').length;
 const publicPatents = patents.filter((p) => p.status !== 'withdrawn');
@@ -76,33 +94,65 @@ const registered = publicPatents.filter((p) => p.status === 'registered').length
 const presented = talks.filter((t) => t.role === 'presenter').length;
 
 const readout = [
-  { n: scie, label: 'SCIE journal articles' },
-  { n: proceedings, label: 'peer-reviewed proceedings' },
+  { n: scie, label: 'SCIE articles' },
+  { n: proceedings, label: 'proceedings papers' },
   { n: publicPatents.length, label: 'patents', note: `${formatInt(registered)} registered` },
   { n: projects.length, label: 'funded projects' },
-  { n: talks.length, label: 'conference talks', note: `${formatInt(presented)} as presenter` },
+  { n: talks.length, label: 'talks', note: `${formatInt(presented)} presented` },
+  { n: awards.length, label: 'awards', note: `${formatInt(fellowships.length)} fellowships` },
 ];
+
+/*
+  Honours line: the paper award tied to a led paper, the society award, and
+  the longest fellowship, each worded from its record.
+*/
+const acronym = (org: string) => org.match(/\(([A-Z0-9]+)\)/)?.[1];
+const paperAward = awards.find((a) => a.forPublication && led.some((p) => p.id === a.forPublication));
+const societyAward = awards.find((a) => a !== paperAward && acronym(a.org));
+const fellowship = fellowships.find((f) => /BK21 FOUR/.test(f.title));
+const honourLabel = (a: Award) =>
+  a.forPublication ? `${a.title} ${a.year} (${a.forPublication})` : `${acronym(a.org) ?? a.org} ${a.title} ${a.year}`;
+const honours = [
+  paperAward && honourLabel(paperAward),
+  societyAward && honourLabel(societyAward),
+  fellowship && fellowship.title.replace(/\s*\(([^)]+)\)$/, ', $1'),
+].filter((h): h is string => Boolean(h));
 ---
 
-<p class="readout t-mono">
+<ul class="strip t-mono" aria-label="Counts">
   {
-    readout.map((r, i) => (
-      <>
-        {i > 0 && <span class="readout__sep" aria-hidden="true">·</span>}
-        <span class="readout__item">
-          <span class="readout__n">{formatInt(r.n)}</span> {r.label}
-          {r.note && <span class="readout__note">({r.note})</span>}
-        </span>
-      </>
+    readout.map((r) => (
+      <li class="strip__cell">
+        <span class="strip__n">{formatInt(r.n)}</span>
+        <span class="strip__label">{r.label}</span>
+        {r.note && <span class="strip__note">{r.note}</span>}
+      </li>
     ))
   }
-</p>
+</ul>
+
+{
+  honours.length > 0 && (
+    <div class="honours">
+      <ul class="honours__list t-mono" aria-label="Honours">
+        {honours.map((h) => (
+          <li class="honours__item">{h}</li>
+        ))}
+      </ul>
+      <a class="honours__link" href="/record/#awards">
+        Awards and fellowships
+        <span class="arrow" aria-hidden="true" set:html={arrowRight} />
+      </a>
+    </div>
+  )
+}
 
 <ol class="led">
   {
     placed.map(({ p, lead, row, col }) => {
       const url = doiUrl(p);
-      const published = p.type !== 'under-review';
+      const text = contribution(p.id);
+      const won = awardsFor(p.id);
       return (
         <li class:list={['led__cell', { 'led__cell--lead': lead }]} style={`--row: ${row}; --col: ${col};`}>
           <Frame
@@ -110,35 +160,40 @@ const readout = [
             class:list={['led__frame', { 'led__frame--lead': lead }]}
             padded
             tl={p.id}
-            tr={p.year || 'Under revision'}
+            tr={p.year || (isRev(p) ? `under revision (${p.venueShort ?? p.venue})` : undefined)}
           >
-            <div class="led__meta">
-              <RoleMark role={p.myRole} />
-              {!published && <span class="led__status">{p.status}</span>}
-            </div>
-            <p class="led__authors">{p.authors}</p>
-            <Fragment slot="what">
+            <h3 class="frame__what led__title">
               {url ? (
-                <a class="led__title" href={url} rel="noopener">
+                <a href={url} rel="noopener">
                   {p.title}
                   <span class="led__arrow" aria-hidden="true" set:html={arrowUpRight} />
                 </a>
               ) : (
                 p.title
               )}
-            </Fragment>
-            <Fragment slot="result">
-              {venueLine(p)}
+            </h3>
+            <p class="led__authors">{p.authors}</p>
+            <p class="led__venue frame__result">
+              <span class="led__venue-text">
+                {leadVenue(p)}
+              </span>
               {p.doi && (
-                <>
-                  {' · '}
-                  <a href={url} rel="noopener">
-                    doi {p.doi}
-                  </a>
-                </>
+                <a class="led__doi" href={url} rel="noopener">
+                  doi:{p.doi}
+                </a>
               )}
-            </Fragment>
-            {contribution(p.id) && <Fragment slot="consequence">{contribution(p.id)}</Fragment>}
+              <RoleMark role={p.myRole} />
+            </p>
+            {won.map((a) => (
+              <p class="led__award t-mono">
+                {a.year} {a.title}, {a.org}
+              </p>
+            ))}
+            {text && (
+              <div class="led__part">
+                <p class="frame__consequence">{text}</p>
+              </div>
+            )}
           </Frame>
         </li>
       );
@@ -173,31 +228,97 @@ const readout = [
 </ol>
 
 <p class="more">
-  <a href="/publications">All publications</a>
-  <span aria-hidden="true">·</span>
-  <a href="/record">Talks, patents, projects, awards</a>
+  <a href="/publications/">All publications</a>
+  <a href="/record/">Talks, patents, projects, awards</a>
 </p>
 
 <style>
-  .readout {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.6rem;
+  /* Instrument strip: hairline-divided cells, the count in primary ink, no separators to orphan. */
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-block: 1px solid var(--line);
+    margin-bottom: var(--space-2);
+  }
+  .strip__cell {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: 0.15rem 0.5rem;
+    padding: 0.75rem var(--space-2);
+    border-left: 1px solid var(--line-soft);
+  }
+  .strip__cell:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .strip__n {
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .strip__label {
+    min-width: 0;
     color: var(--ink-2);
     font-size: var(--size-mono);
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+  .strip__note {
+    grid-column: 2;
+    color: var(--ink-3);
+    font-size: var(--size-label);
+  }
+
+  /* Honours: hairline-divided items like the strip above, no chained separators. */
+  .honours {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem var(--space-3);
     margin-bottom: var(--space-5);
-    max-width: var(--width-text);
   }
-  .readout__n {
-    color: var(--ink);
+  .honours__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0;
+    color: var(--ink-2);
+  }
+  .honours__item {
+    padding-inline: var(--space-2);
+    border-left: 1px solid var(--line-soft);
+    white-space: nowrap;
+  }
+  .honours__item:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .honours__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-ui);
     font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ink);
+    white-space: nowrap;
+    text-decoration-color: var(--line);
   }
-  .readout__note {
-    color: var(--ink-3);
-    margin-left: 0.35rem;
+  .honours__link:hover {
+    text-decoration-color: var(--signal);
   }
-  .readout__sep {
+  .arrow {
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
     color: var(--ink-3);
+  }
+  .arrow :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .honours__link:hover .arrow {
+    color: var(--signal);
   }
 
   /* Wide column for the leads, narrow for the rest; rows are placed from the frontmatter. */
@@ -218,45 +339,26 @@ const readout = [
     flex-direction: column;
   }
   .led :global(.led__frame > .frame__body) {
-    display: grid;
-    gap: var(--space-2);
-    align-content: start;
-  }
-  .led :global(.led__frame > .frame__stack) {
     flex: 1 0 auto;
-    align-content: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
   }
-  /* The lead frame sets its title a step larger; type weight stays even. */
-  .led :global(.led__frame--lead .frame__what) {
-    font-size: 1.5rem;
-    max-width: 30ch;
-  }
-  .led :global(.led__frame--lead > .frame__body),
-  .led :global(.led__frame--lead > .frame__stack) {
+  .led :global(.led__frame--lead > .frame__body) {
     padding-inline: var(--space-4);
   }
-  .led__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-1) var(--space-2);
-  }
-  .led__status {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--ink-2);
-  }
-  .led__authors {
-    font-family: var(--font-text);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: var(--ink-2);
-    text-wrap: pretty;
-  }
+  /* The lead frame sets its title a step larger; type weight stays even. */
   .led__title {
+    max-width: 44ch;
+  }
+  .led :global(.led__frame--lead) .led__title {
+    font-size: 1.5rem;
+    line-height: 1.32;
+  }
+  .led__title a {
     text-decoration-color: transparent;
   }
-  .led__title:hover {
+  .led__title a:hover {
     text-decoration-color: var(--signal);
   }
   .led__arrow {
@@ -271,14 +373,44 @@ const readout = [
     width: 100%;
     height: 100%;
   }
-  .led__title:hover .led__arrow {
+  .led__title a:hover .led__arrow {
     color: var(--signal);
   }
-  .led :global(.frame__result a) {
+  .led__venue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.75rem;
+  }
+  .led__venue abbr {
+    text-decoration: none;
+    cursor: help;
+  }
+  .led__doi {
+    color: var(--ink-2);
     text-decoration-color: var(--line);
   }
-  .led :global(.frame__result a:hover) {
+  .led__doi:hover {
     text-decoration-color: var(--signal);
+  }
+  .led__authors {
+    font-family: var(--font-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .led__award {
+    color: var(--ink);
+  }
+  /* My part: pinned to the frame foot under a hairline, so paired frames end together. */
+  .led__part {
+    margin-top: auto;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--line);
+  }
+  .led__part > p {
+    max-width: 62ch;
   }
 
   .co__heading {
@@ -332,16 +464,54 @@ const readout = [
     margin-top: var(--space-4);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
+    gap: 0.5rem var(--space-4);
     font-family: var(--font-ui);
     font-weight: 500;
     font-size: var(--size-ui);
-    color: var(--ink-2);
   }
   .more a {
     color: var(--ink);
   }
 
+  @media (max-width: 520px) {
+    /* Phones: one honour per line, no dividers to strand at a wrap. */
+    .honours__list {
+      flex-direction: column;
+    }
+    .honours__item {
+      padding-inline: 0;
+      border-left: 0;
+      white-space: normal;
+    }
+    .strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .strip__cell:nth-child(n) {
+      border-left: 1px solid var(--line-soft);
+      padding-left: var(--space-2);
+      border-top: 0;
+    }
+    .strip__cell:nth-child(2n + 1) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .strip__cell:nth-child(n + 3) {
+      border-top: 1px solid var(--line-soft);
+    }
+  }
+  /* Tablet: three cells a row. Phones (≤520px, above) take two, so no label breaks inside a word. */
+  @media (min-width: 521px) and (max-width: 899px) {
+    .strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .strip__cell:nth-child(3n + 1) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .strip__cell:nth-child(n + 4) {
+      border-top: 1px solid var(--line-soft);
+    }
+  }
   @media (max-width: 899px) {
     /* One column, in rank order: the leads first, then the narrower frames. */
     .led {
@@ -351,11 +521,10 @@ const readout = [
       grid-row: auto;
       grid-column: auto;
     }
-    .led :global(.led__frame--lead > .frame__body),
-    .led :global(.led__frame--lead > .frame__stack) {
+    .led :global(.led__frame--lead > .frame__body) {
       padding-inline: var(--space-3);
     }
-    .led :global(.led__frame--lead .frame__what) {
+    .led :global(.led__frame--lead) .led__title {
       font-size: 1.35rem;
     }
     .co__row {

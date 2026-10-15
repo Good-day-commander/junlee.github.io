@@ -30,14 +30,16 @@ A researcher whose work makes the physics of coronary flow fast enough for clini
 - Hosting: GitHub Pages from `Good-day-commander/junlee.github.io` (branch `main`), custom domain hyeongjunlee.me via Cloudflare DNS. Deploy runs on every push to main.
 - The owner edits the site through AI agents (previously Manus) and writes in Korean; the site stays English.
 - Assets on hand: paper figures under `site/client/public/media/papers/extracted/`; DMD 2026 PINO figures (CFD vs prediction fields, R² 0.9646 scatter); conference photos (ACFM 2025 podium, DMD 2026, Yonsei symposium, CARDIOS discussion); posters and slides under `C:\Users\user\Desktop\junlee.github.io\학회\`; patent spreadsheets under `...\patent\`.
-- Assets requested from the owner on 2026-10-08, not yet received: one PINO case (vessel mesh plus CFD and predicted pressure/velocity), an environmental portrait, a 30–60 s segment of his own Galaxy Watch PPG, synthesized 4D CT frames (only if IRB-cleared for public display), CARDIOS/EASYCHECK screenshots.
+- Received 2026-10-13/15: PINO case PINO-DEMO-01 (`website_assets/pino`, converted to `site/public/data/pino`), fluid-bolus spectrograms (`website_assets/fluid_bolus` → `site/public/data/pulse`), 4D CT phase renders from the J1 figure deck (`site/public/data/image`). Still requested: an environmental portrait, CARDIOS/EASYCHECK screenshots with an approved description, permission to link conference posters, any reviewing/membership items missing from the CV.
 
 ## Capabilities and Constraints
 
 - Static site, no backend, no accounts. Must remain deployable by the Actions workflow.
 - Author-role honesty is non-negotiable: J2 first author, J4 co-first, C1 first, J1 co-author, J3 co-author, C2 co-author, M1 first author under revision. Co-authored work is never presented as led.
 - No patient-identifiable imagery. 4D CT material appears only if IRB-cleared; PPG demos use the owner's own recordings.
-- Open owner decisions (recorded, not decided): which LinkedIn slug is live (`hyeongjunlee` per CV vs `hyeong-jun-lee-389435247` per site); whether the 2022 BESCO entry is an award or a nomination; whether two patent applications the internal sheet marks withdrawn/abandoned stay listed as pending; whether the public CV PDF should keep the mobile number and the PI's email.
+- Decided by the owner on 2026-10-12/13: LinkedIn is https://www.linkedin.com/in/hyeongjunlee/; the 2022 BESCO entry is an award; the two patent applications the internal sheet marks withdrawn/abandoned stay listed as pending (CV is authoritative); the public CV PDF is a web copy with the mobile number and the referee contact removed (`site/public/uploads/resume.pdf`), the full CV stays private.
+- Standing rule (owner, 2026-10-15): every surface must lead the visitor to his profile, CV, LinkedIn or email; the nav carries Email and CV (PDF) and every page ends with a Close offering them.
+- Image chapter artifact: the 4D CT phase renders (Case 1, Fig. 8 of J1) under `site/public/data/image/`, shown as a phase scrubber; the methods diagram is secondary.
 - Terminology to keep: FFR, CT-FFR, PINO, DeepONet, PPG, Carreau–Yasuda, LBM, SaMD. Lab: Multiscale Fluid Dynamics Lab (MFDL), School of Mechanical Engineering, Yonsei University; PI Prof. Joon Sang Lee. Concurrent: Project Researcher, Yonsei University Health System, 4D CT-FFR project (PI Prof. Jung-Sun Kim).
 
 ## Brand Commitments

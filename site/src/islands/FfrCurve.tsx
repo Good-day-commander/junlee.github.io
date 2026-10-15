@@ -4,6 +4,15 @@
   and the FFR values read on the distal plane, as the manifest instructs
   (never at the curve ends).
 
+  Nothing is printed on the data. The probe labels sit in a band above the
+  plot with their dashed planes running up to them; the FFR values sit in a
+  legend row beneath the chart (HTML, so it wraps between items on a phone
+  and never inside one), keyed to the curves by their stroke swatches. The
+  curves carry only a dot where they cross the distal plane.
+
+  Precision: FFR two decimals, the site's chrome precision (the metrics
+  table on /research keeps three).
+
   Public API
     <FfrCurve centerlineUrl="/data/pino/centerline.json" wipe={0.5} mode="hero" />
     props    centerlineUrl  centerline.json
@@ -29,8 +38,19 @@ export interface FfrCurveProps {
   className?: string;
 }
 
-/* top holds the Pd/Pa label and legend; the Frame around it pads its body clear of the corner chrome. */
-const PAD = { top: 26, right: 18, bottom: 34, left: 46 };
+/*
+  top: the label band above the plot, two rows: the probe labels on the
+  first, the Pd/Pa axis title on the second (left of the plot, over the
+  tick column), so the title never reads as part of a probe label.
+  bottom: x tick labels, then the axis title. The Frame around the chart pads
+  its body clear of the corner chrome.
+*/
+const PAD = { top: 44, right: 14, bottom: 42, left: 46 };
+const PROBE_BASELINE = 14;
+/* Mono label metrics for collision checks: 0.7rem JetBrains Mono, about 0.6 em per glyph. */
+const LABEL_PX = 11.2;
+const GLYPH_PX = LABEL_PX * 0.6;
+const FFR_DIGITS = 2;
 
 function interp(xs: number[], ys: number[], x: number): number {
   if (x <= xs[0]) return ys[0];
@@ -89,7 +109,7 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
 
   const activeWipe = followViewer ? followed : wipe;
   const ratio = mode === 'hero' ? 0.38 : 0.5;
-  const height = width ? Math.max(150, Math.min(360, Math.round(width * ratio))) : 0;
+  const height = width ? Math.max(mode === 'hero' ? 150 : 200, Math.min(360, Math.round(width * ratio))) : 0;
 
   const chart = useMemo(() => {
     if (!data || !width || !height) return null;
@@ -121,7 +141,34 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
     const wCfd = hasWipe ? interp(sArr, cfd, sW) : 0;
     const wPino = hasWipe ? interp(sArr, pino, sW) : 0;
 
+    /*
+      Probe labels: centred on their plane, clamped to the plot's width, and
+      pushed apart if the two would touch.
+    */
+    const probeText = {
+      proximal: `proximal ${formatMm(probes.proximal)}`,
+      distal: `distal ${formatMm(probes.distal)}`,
+    };
+    const lo = PAD.left;
+    const hi = width - PAD.right;
+    const place = (k: 'proximal' | 'distal') => {
+      const w = probeText[k].length * GLYPH_PX;
+      const c = x(probes[k]);
+      const left = Math.min(Math.max(c - w / 2, lo), hi - w);
+      return { left, w };
+    };
+    const pl = place('proximal');
+    const dl = place('distal');
+    const gap = 10;
+    const overlap = pl.left + pl.w + gap - dl.left;
+    if (overlap > 0) {
+      pl.left = Math.max(lo, pl.left - overlap / 2);
+      dl.left = Math.min(hi - dl.w, pl.left + pl.w + gap);
+    }
+
     return {
+      probeText,
+      probeLabelX: { proximal: pl.left, distal: dl.left },
       sMax,
       y0,
       y1,
@@ -145,7 +192,7 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
 
   const title = 'Pressure ratio along the vessel, CFD and PINO';
   const desc = data
-    ? `Pd/Pa from the inlet to the outlet at ${formatMm(data.s_mm[data.s_mm.length - 1])}. On the distal probe plane at ${formatMm(data.ffr.probe_s.distal)}, CFD reads FFR ${formatDecimal(data.ffr.cfd, 2)} and PINO ${formatDecimal(data.ffr.pino, 3)}; the proximal plane sits at ${formatMm(data.ffr.probe_s.proximal)}.`
+    ? `Pd/Pa from the inlet to the outlet at ${formatMm(data.s_mm[data.s_mm.length - 1])}. On the distal probe plane at ${formatMm(data.ffr.probe_s.distal)}, CFD reads FFR ${formatDecimal(data.ffr.cfd, FFR_DIGITS)} and PINO ${formatDecimal(data.ffr.pino, FFR_DIGITS)}; the proximal plane sits at ${formatMm(data.ffr.probe_s.proximal)}.`
     : 'Loading the centerline pressure curve.';
 
   const aspectStyle = { aspectRatio: mode === 'hero' ? '1 / 0.38' : '2 / 1' };
@@ -187,24 +234,25 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
               </text>
             </g>
           ))}
-          <text className={s.axisLabel} x={width - PAD.right} y={height - 4} textAnchor="end">
-            s <tspan className={s.unit}>mm from the inlet</tspan>
+          <text className={s.axisLabel} x={width - PAD.right} y={height - 6} textAnchor="end">
+            s, mm from the inlet
           </text>
-          <text className={`${s.axisLabel} ${s.ratio}`} x={PAD.left} y={PAD.top - 10} textAnchor="start">
+          <text className={s.axisLabel} x={PAD.left - 8} y={PAD.top - 14} textAnchor="end">
             Pd/Pa
           </text>
 
-          {/* Probe planes */}
+          {/* Probe planes: dashed lines run up into the label band */}
           {(['proximal', 'distal'] as const).map((k) => (
             <g key={k}>
-              <line className={s.probe} x1={chart.x(chart.probes[k])} x2={chart.x(chart.probes[k])} y1={PAD.top} y2={height - PAD.bottom} />
-              <text
-                className={s.probeLabel}
-                x={chart.x(chart.probes[k]) + (k === 'distal' ? -4 : 4)}
-                y={PAD.top + 10}
-                textAnchor={k === 'distal' ? 'end' : 'start'}
-              >
-                {k} {formatMm(chart.probes[k])}
+              <line
+                className={s.probe}
+                x1={chart.x(chart.probes[k])}
+                x2={chart.x(chart.probes[k])}
+                y1={PROBE_BASELINE + 5}
+                y2={height - PAD.bottom}
+              />
+              <text className={s.probeLabel} x={chart.probeLabelX[k]} y={PROBE_BASELINE} textAnchor="start">
+                {chart.probeText[k]}
               </text>
             </g>
           ))}
@@ -212,25 +260,9 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
           <path className={s.cfd} d={chart.cfdPath} />
           <path className={s.pino} d={chart.pinoPath} />
 
-          {/* FFR values at the distal plane */}
-          <text className={s.ffrValue} x={chart.x(chart.probes.distal) - 6} y={chart.distalCfdY - 7} textAnchor="end">
-            FFR {formatDecimal(data.ffr.cfd, 2)} CFD
-          </text>
-          <text className={`${s.ffrValue} ${s.isPino}`} x={chart.x(chart.probes.distal) - 6} y={chart.distalPinoY + 14} textAnchor="end">
-            {formatDecimal(data.ffr.pino, 3)} PINO
-          </text>
-
-          {/* Legend */}
-          <g transform={`translate(${width - PAD.right}, ${PAD.top - 12})`}>
-            <line className={s.pino} x1={-118} x2={-104} y1={0} y2={0} />
-            <text className={s.legend} x={-98} y={0} dominantBaseline="middle">
-              PINO
-            </text>
-            <line className={s.cfd} x1={-52} x2={-38} y1={0} y2={0} />
-            <text className={s.legend} x={-32} y={0} dominantBaseline="middle">
-              CFD
-            </text>
-          </g>
+          {/* Where each curve crosses the distal plane: the FFR reading, valued in the legend row */}
+          <circle className={s.wipeDotCfd} cx={chart.x(chart.probes.distal)} cy={chart.distalCfdY} r={3} />
+          <circle className={s.wipeDotPino} cx={chart.x(chart.probes.distal)} cy={chart.distalPinoY} r={3} />
 
           {/* Wipe station */}
           {chart.hasWipe && (
@@ -238,14 +270,6 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
               <line className={s.wipeLine} x1={chart.x(chart.sW)} x2={chart.x(chart.sW)} y1={PAD.top} y2={height - PAD.bottom} />
               <circle className={s.wipeDotCfd} cx={chart.x(chart.sW)} cy={chart.y(chart.wCfd)} r={3.5} />
               <circle className={s.wipeDotPino} cx={chart.x(chart.sW)} cy={chart.y(chart.wPino)} r={3.5} />
-              <text
-                className={s.wipeText}
-                x={chart.x(chart.sW) + (chart.sW > chart.sMax * 0.72 ? -6 : 6)}
-                y={height - PAD.bottom - 6}
-                textAnchor={chart.sW > chart.sMax * 0.72 ? 'end' : 'start'}
-              >
-                {formatMm(chart.sW)} · {formatDecimal(chart.wCfd, 3)} CFD · {formatDecimal(chart.wPino, 3)} PINO
-              </text>
             </g>
           )}
         </svg>
@@ -254,6 +278,28 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
           {error ? `the pressure curve did not load: ${error}` : 'loading the pressure curve'}
         </p>
       )}
+      {/* Always rendered, so the frame does not grow when the data arrives. */}
+      <div className={s.legendRow}>
+        {chart && data && (
+          <>
+          <span className={s.legendLead}>FFR, distal plane</span>
+          <span className={s.key}>
+            <span className={`${s.swatch} ${s.swatchCfd}`} aria-hidden="true" />
+            CFD <span className={s.keyValue}>{formatDecimal(data.ffr.cfd, FFR_DIGITS)}</span>
+          </span>
+          <span className={s.key}>
+            <span className={`${s.swatch} ${s.swatchPino}`} aria-hidden="true" />
+            PINO <span className={`${s.keyValue} ${s.isPino}`}>{formatDecimal(data.ffr.pino, FFR_DIGITS)}</span>
+          </span>
+          {chart.hasWipe && (
+            <span className={s.station} aria-live="off">
+              at {formatMm(chart.sW)}: CFD {formatDecimal(chart.wCfd, FFR_DIGITS)} · PINO{' '}
+              {formatDecimal(chart.wPino, FFR_DIGITS)}
+            </span>
+          )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

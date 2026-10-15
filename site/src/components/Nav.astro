@@ -1,28 +1,38 @@
 ---
 /*
-  Thin top chrome: name left, Research / Publications / Record / CV right.
-  The current page is marked with aria-current and a signal underline.
-  On narrow screens the links stay a compact row (wrapping under the name
-  when needed); there is no hamburger and no modal.
+  Thin sticky top chrome: name left, the four pages, then the two conversion
+  actions (Email, primary; CV (PDF), ghost) on every page, so a visitor is
+  never more than one click from writing or reading the CV.
+
+  Narrow screens keep one 3rem row: name, Email, CV (PDF) and a "Menu"
+  disclosure that opens the four pages as an inline strip under the bar.
+  No hamburger icon, no modal, no focus trap.
+
+  Internal hrefs carry the trailing slash the static build serves, so a nav
+  click never costs a redirect.
 */
+import Button from '@/components/Button.astro';
 import { profile } from '@/data/content';
 
 const items = [
-  { href: '/research', label: 'Research' },
-  { href: '/publications', label: 'Publications' },
-  { href: '/record', label: 'Record' },
-  { href: '/cv', label: 'CV' },
+  { href: '/research/', label: 'Research' },
+  { href: '/publications/', label: 'Publications' },
+  { href: '/record/', label: 'Record' },
+  { href: '/cv/', label: 'CV' },
 ];
 
-const current = Astro.url.pathname.replace(/\/+$/, '') || '/';
-const isCurrent = (href: string) => current === href || current.startsWith(`${href}/`);
+const strip = (p: string) => p.replace(/\/+$/, '') || '/';
+const current = strip(Astro.url.pathname);
+const isCurrent = (href: string) => current === strip(href) || current.startsWith(`${strip(href)}/`);
+/* /cv carries the same actions (plus LinkedIn) in its own sticky bar right under the nav; never print them twice. */
+const showActions = current !== '/cv';
 ---
 
 <header class="nav">
   <div class="nav__row wrap">
     <a class="nav__name" href="/" aria-current={current === '/' ? 'page' : undefined}>{profile.name}</a>
-    <nav class="nav__links" aria-label="Primary">
-      <ul>
+    <nav class="nav__pages" aria-label="Primary">
+      <ul class="nav__links">
         {
           items.map((item) => (
             <li>
@@ -33,20 +43,63 @@ const isCurrent = (href: string) => current === href || current.startsWith(`${hr
           ))
         }
       </ul>
+      <details class="nav__menu">
+        <summary class="nav__summary">Menu</summary>
+        <ul class="nav__menu-list">
+          {
+            items.map((item) => (
+              <li>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
     </nav>
+    {
+      showActions && (
+        <div class="nav__actions">
+          <Button href={`mailto:${profile.email}`} size="compact">
+            Email
+          </Button>
+          <Button variant="ghost" href="/uploads/resume.pdf" external size="compact">
+            CV (PDF)
+          </Button>
+        </div>
+      )
+    }
   </div>
 </header>
 
+<script>
+  // Close the narrow-screen page menu on Escape or on a click outside it.
+  const menu = document.querySelector<HTMLDetailsElement>('.nav__menu');
+  if (menu) {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (menu.open && e.target instanceof Node && !menu.contains(e.target)) menu.open = false;
+    });
+  }
+</script>
+
 <style>
   .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     border-bottom: 1px solid var(--line);
     background: var(--bg);
   }
   .nav__row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
     gap: 0 var(--space-3);
     min-height: var(--nav-h);
   }
@@ -59,15 +112,17 @@ const isCurrent = (href: string) => current === href || current.startsWith(`${hr
     text-decoration: none;
     white-space: nowrap;
     padding-block: 0.9rem;
+    margin-right: auto;
   }
   .nav__name[aria-current='page'] {
     color: var(--ink);
   }
-  .nav__links ul {
+  .nav__links {
     display: flex;
     gap: var(--space-3);
   }
-  .nav__links a {
+  .nav__links a,
+  .nav__menu-list a {
     display: inline-block;
     font-family: var(--font-ui);
     font-weight: 500;
@@ -82,21 +137,115 @@ const isCurrent = (href: string) => current === href || current.startsWith(`${hr
       color var(--duration-quick) var(--ease-out),
       border-color var(--duration-quick) var(--ease-out);
   }
-  .nav__links a:hover {
+  .nav__links a:hover,
+  .nav__menu-list a:hover {
     color: var(--ink);
   }
-  .nav__links a[aria-current='page'] {
+  .nav__links a[aria-current='page'],
+  .nav__menu-list a[aria-current='page'] {
     color: var(--ink);
     border-bottom-color: var(--signal);
   }
-  @media (max-width: 480px) {
-    .nav__links ul {
-      gap: var(--space-2);
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--line);
+    min-height: 1.75rem;
+  }
+
+  /* The disclosure only exists on narrow screens. */
+  .nav__menu {
+    display: none;
+  }
+  .nav__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2rem;
+    padding: 0.3rem 0.1rem 0.3rem 0.4rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.85rem;
+    line-height: 1;
+    color: var(--ink-2);
+    cursor: pointer;
+    list-style: none;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: color var(--duration-quick) var(--ease-out);
+  }
+  .nav__summary::-webkit-details-marker {
+    display: none;
+  }
+  /* Caret: a bordered square turned 45 degrees, as on every disclosure. */
+  .nav__summary::after {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-0.12rem) rotate(45deg);
+    transition: transform var(--duration-quick) var(--ease-out);
+  }
+  .nav__menu[open] > .nav__summary {
+    color: var(--ink);
+  }
+  .nav__menu[open] > .nav__summary::after {
+    transform: translateY(0.1rem) rotate(-135deg);
+  }
+  .nav__summary:hover {
+    color: var(--ink);
+  }
+  /* Closed: no box at all (the closed slot would otherwise contain and overflow it). */
+  .nav__menu:not([open]) .nav__menu-list {
+    display: none;
+  }
+  .nav__menu-list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
+    padding-inline: var(--gutter);
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+
+  @media (max-width: 760px) {
+    .nav__row {
+      gap: 0 var(--space-1);
     }
-    .nav__name,
-    .nav__links a {
+    .nav__links {
+      display: none;
+    }
+    .nav__pages {
+      order: 3;
+    }
+    .nav__menu {
+      display: block;
+    }
+    .nav__actions {
+      order: 2;
+      padding-left: 0;
+      border-left: 0;
+    }
+    .nav__name {
       font-size: 0.875rem;
       padding-block: 0.75rem;
+    }
+  }
+  @media (max-width: 359px) {
+    .nav__actions :global(.btn--ghost) {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav__summary::after {
+      transition: none;
     }
   }
 </style>

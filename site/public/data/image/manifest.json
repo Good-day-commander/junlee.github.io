@@ -1,0 +1,65 @@
+{
+ "source": {
+  "paper_id": "J1",
+  "title": "Synthesis of coronary 4D CT image by denoising diffusion probabilistic model",
+  "venue": "Computer Methods and Programs in Biomedicine 282, 109382 (2026)",
+  "doi": "10.1016/j.cmpb.2026.109382",
+  "figure": "Fig. 8. Visualized CFD results for Case 1: pressure and wall shear stress profiles during the whole period (Phase 0–9)",
+  "frames_from": "authors' figure deck (Figure for 4DCT.pptx), same renders as Fig. 8 at 1036×782"
+ },
+ "case": "Case 1",
+ "phases": 10,
+ "width": 1036,
+ "height": 782,
+ "fields": {
+  "pressure": {
+   "label": "Pressure",
+   "unit": "mmHg",
+   "range": [
+    70,
+    130
+   ],
+   "colormap": "coolwarm (blue 70 → red 130)",
+   "frames": [
+    "pressure-p0.webp",
+    "pressure-p1.webp",
+    "pressure-p2.webp",
+    "pressure-p3.webp",
+    "pressure-p4.webp",
+    "pressure-p5.webp",
+    "pressure-p6.webp",
+    "pressure-p7.webp",
+    "pressure-p8.webp",
+    "pressure-p9.webp"
+   ]
+  },
+  "wss": {
+   "label": "Wall shear stress",
+   "unit": "Pa",
+   "range": [
+    0,
+    5
+   ],
+   "colormap": "coolwarm (blue 0 → red 5)",
+   "frames": [
+    "wss-p0.webp",
+    "wss-p1.webp",
+    "wss-p2.webp",
+    "wss-p3.webp",
+    "wss-p4.webp",
+    "wss-p5.webp",
+    "wss-p6.webp",
+    "wss-p7.webp",
+    "wss-p8.webp",
+    "wss-p9.webp"
+   ]
+  }
+ },
+ "notes": [
+  "Phase 0 and Phase 5 are the two acquired CT phases (end-diastole and end-systole); phases 1–4 and 6–9 are synthesized by the diffusion deformable model and then solved with CFD.",
+  "Reported in the paper: PSNR 32.01, SSIM 0.937, Dice 0.973, 4D CT-FFR accuracy 90.5 % against invasive FFR (abstract)."
+ ],
+ "supporting": {
+  "fig9": "fig9-phasewise-ffr-wss.webp"
+ }
+}

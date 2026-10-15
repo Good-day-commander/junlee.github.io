@@ -16,15 +16,23 @@
   (pressure | error | speed) is the Flow front's own evidence, which a
   still could not show.
 
+  Image mounts the PhaseScrubber island in compact mode: Case 1 of J1 on a
+  light-box plate, a ten-phase rail with the two acquired CT phases marked,
+  and the readout. It plays the cycle once when first in view. The manifest
+  is passed in at build time so the plate, rail and legend are in the
+  server render, Phase 0 already on the light box.
+
   Pulse mounts the SpectrogramDevelop island `bare` inside its Frame: the
   Frame draws the border and the top-left label, the island draws the clock,
   axes, colorbar legend, method line and Replay, and sets the body's height
   itself so none of that is clipped.
 */
 import Frame from '@/components/Frame.astro';
-import RoleMark from '@/components/RoleMark.astro';
 import VesselViewer from '@/islands/VesselViewer';
 import SpectrogramDevelop from '@/islands/SpectrogramDevelop';
+import PhaseScrubber from '@/islands/PhaseScrubber';
+import { imageManifest, imageManifestUrl, imageMetrics } from '@/islands/image/data';
+import { venueInitials } from '@/islands/image/manifest';
 import { publications } from '@/data/content';
 import { formatDecimal, formatInt, formatSeconds } from '@/lib/format';
 import { cohortN, shortGpu, type PinoManifest, type PulseManifest } from './manifests';
@@ -43,6 +51,7 @@ const pub = (id: string) => {
   return p;
 };
 const J1 = pub('J1');
+const M1 = pub('M1');
 
 // Flow
 const inference = formatSeconds(pino.timing.pino.inference_ms_median / 1000);
@@ -50,10 +59,16 @@ const gpu = shortGpu(pino.timing.pino.gpu);
 const r2Case = formatDecimal(pino.metrics.case.pressure_Pa.R2, 3);
 const r2Median = formatDecimal(pino.metrics.cohort.pressure_R2.median, 3);
 const nCases = formatInt(pino.metrics.cohort.n_cases);
-const flowResult = `inference ${inference} · ${gpu} · pressure R² ${r2Case} this case, ${r2Median} cohort median (${nCases} cases, 10-fold CV)`;
+const flowResult = [
+  `inference ${inference} on ${gpu}`,
+  `pressure R² ${r2Case} this case, ${r2Median} cohort median (${nCases} cases, 10-fold CV)`,
+];
 
-// Image
-const imageResult = `${J1.venue} ${J1.volume}, ${J1.article} (${J1.year}) · doi ${J1.doi}`;
+// Image: the measured outcome first, then the paper it comes from.
+const imageResult = [
+  `4D CT-FFR accuracy ${imageMetrics.ffrAccuracy} % against invasive FFR`,
+  `${J1.id}, ${venueInitials(J1.venue)} ${J1.volume}, ${J1.article} (${J1.year})`,
+];
 
 // Pulse
 const dev = pulse.pipeline.metrics.development_oof;
@@ -61,7 +76,13 @@ const temporal = pulse.pipeline.metrics.additional_same_center_temporal;
 const nDev = cohortN(dev.cohort);
 const nTemporal = cohortN(temporal.cohort);
 const crop = pulse.stft.recommended_crop_hz;
-const pulseResult = `smartwatch PPG ${formatInt(pulse.stft.method.fs_hz)} Hz · STFT ${formatInt(crop[0])}–${formatInt(crop[1])} Hz · fluid-bolus AUC ${formatDecimal(dev.AUC, 3)} development${nDev ? ` (n ${formatInt(nDev)})` : ''}, ${formatDecimal(temporal.AUC, 3)} temporal validation${nTemporal ? ` (n ${formatInt(nTemporal)})` : ''}`;
+/* The fluid-bolus numbers come from M1, so they always carry its status. */
+const m1Status = `manuscript under revision (${M1.venueShort ?? venueInitials(M1.venue)})`;
+const pulseResult = [
+  `smartwatch PPG at ${formatInt(pulse.stft.method.fs_hz)} Hz, STFT ${formatInt(crop[0])}–${formatInt(crop[1])} Hz`,
+  `fluid-bolus AUC ${formatDecimal(dev.AUC, 3)} development${nDev ? ` (n ${formatInt(nDev)})` : ''}, ${formatDecimal(temporal.AUC, 3)} temporal validation${nTemporal ? ` (n ${formatInt(nTemporal)})` : ''}`,
+  m1Status,
+];
 
 /*
   Corner chrome: the two islands draw their own top-right chrome (field
@@ -94,6 +115,10 @@ const fronts = [
     consequence: 'Viscosity, blood pressure and fluid status read from a watch.',
   },
 ] as const;
+
+/* The arrow rides on the last word (joined by a no-break space) so it never wraps alone or floats in the gap. */
+const lead = (t: string) => t.slice(0, t.lastIndexOf(' ') + 1);
+const tail = (t: string) => t.slice(t.lastIndexOf(' ') + 1);
 ---
 
 <ol class="strip">
@@ -105,7 +130,6 @@ const fronts = [
           class={`front front--${f.id}`}
           tl={f.label}
           tr={f.tr}
-          aspect={f.id === 'image' ? '4 / 3' : undefined}
           id={`front-${f.id}`}
         >
           {f.id === 'flow' && (
@@ -114,30 +138,17 @@ const fronts = [
             </div>
           )}
           {f.id === 'image' && (
-            <div class="front__media front__plate">
-              <img
-                src="/media/papers/extracted/4dct-figure1.png"
-                width="1499"
-                height="967"
-                alt="Figure 1 of the 4D coronary CT diffusion paper: the diffusion deformable model that synthesizes the full cardiac cycle from two acquired CT phases, and the CFD step that derives dynamic FFR from it."
-                loading="lazy"
-                decoding="async"
-              />
-              <p class="front__caption t-caption">
-                Figure 1, <cite>{J1.title}</cite>, {J1.venue} {J1.year}. <RoleMark role={J1.myRole} />
-              </p>
-            </div>
+            <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={imageManifest} compact />
           )}
           {f.id === 'pulse' && (
             <SpectrogramDevelop client:visible manifestUrl="/data/pulse/manifest.json" variant="stft" bare />
           )}
           <Fragment slot="what">
-            <a class="front__link" href={`/research#${f.id}`}>
-              <span>{f.what}</span>
-              <span class="front__arrow" aria-hidden="true" set:html={arrowRight} />
+            <a class="front__link" href={`/research/#${f.id}`}>
+              <span class="front__text">{lead(f.what)}<span class="front__tail">{tail(f.what)}{'\u00a0'}<span class="front__arrow" aria-hidden="true" set:html={arrowRight} /></span></span>
             </a>
           </Fragment>
-          <Fragment slot="result">{f.result}</Fragment>
+          <Fragment slot="result">{f.result.map((line) => <span class="rl">{line}</span>)}</Fragment>
           <Fragment slot="consequence">{f.consequence}</Fragment>
         </Frame>
       </li>
@@ -161,12 +172,16 @@ const fronts = [
     display: flex;
     flex-direction: column;
   }
+  /*
+    Image and Pulse share a grid row, so both frames take its height. The
+    body takes the slack, so the two caption stacks start on one line.
+  */
   .strip :global(.front > .frame__body) {
-    flex: none;
+    flex: 1 0 auto;
     overflow: hidden;
   }
   .strip :global(.front > .frame__stack) {
-    flex: 1 0 auto;
+    flex: none;
   }
   /* The wide cine frame: a 21:9 stage for the chapter viewer. */
   .strip :global(.front--flow > .frame__body) {
@@ -195,52 +210,30 @@ const fronts = [
     height: 100%;
     aspect-ratio: auto;
   }
-  /* The 4D CT figure is a white-ground paper plate; it reads as a light-box plate on film. */
-  .front__plate {
-    grid-template-rows: minmax(0, 1fr) auto;
-    background: var(--box);
-    color: var(--box-ink-2);
-    padding: calc(var(--corner-inset, 0.5rem) + 1.25rem) var(--space-2) var(--space-2);
-    gap: var(--space-1);
-  }
-  .front__plate img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  .front__caption {
-    color: var(--box-ink-2);
-    font-size: 0.8rem;
-    line-height: 1.4;
-    text-wrap: pretty;
-  }
-  .front__caption :global(.rolemark) {
-    color: var(--box-ink);
-    border-color: var(--box-line);
-    margin-left: 0.25rem;
-  }
+  /* The "what" link runs inline; the arrow sits after the last word (see tail()). */
   .front__link {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.4rem;
+    display: inline;
     text-decoration: none;
     color: var(--ink);
   }
-  .front__link span:first-child {
+  .front__text {
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-decoration-color: transparent;
     text-underline-offset: 0.18em;
     transition: text-decoration-color var(--duration-quick) var(--ease-out);
   }
-  .front__link:hover span:first-child {
+  .front__link:hover .front__text {
     text-decoration-color: var(--signal);
   }
+  .front__tail {
+    white-space: nowrap;
+  }
   .front__arrow {
-    display: inline-flex;
+    display: inline-block;
     width: 0.9em;
     height: 0.9em;
-    align-self: center;
+    vertical-align: -0.1em;
     color: var(--ink-3);
     transition:
       color var(--duration-quick) var(--ease-out),

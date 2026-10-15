@@ -8,6 +8,11 @@
             /og.png (the 1200x630 hero capture made by `pnpm og`) is used.
   jsonLd    structured data object, serialised into one <script type="application/ld+json">.
             The home page passes the Person record; other pages pass nothing.
+  ogAlt     alt text for the share image when a page passes its own image.
+  noindex   true on /404: robots noindex, and no canonical or og:url.
+  close     props for the shared Close (components/Close.astro) that ends
+            every page inside <main>; pass a page's own line here, or false
+            to omit it. Pages never render the Close themselves.
 */
 import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource/stix-two-text/400.css';
@@ -18,17 +23,24 @@ import '@/styles/global.css';
 
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
+import Close from '@/components/Close.astro';
+import type { Props as CloseProps } from '@/components/Close.astro';
 import { profile } from '@/data/content';
+import appleTouchIcon from '@/assets/brand/apple-touch-icon.png';
+import favicon32 from '@/assets/brand/favicon-32.png';
 
 export interface Props {
   title: string;
   description: string;
   surface: 'film' | 'box';
   ogImage?: string;
+  ogAlt?: string;
   jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+  close?: CloseProps | false;
 }
 
-const { title, description, surface, ogImage, jsonLd } = Astro.props;
+const { title, description, surface, ogImage, ogAlt: ogAltProp, jsonLd, noindex = false, close = {} } = Astro.props;
 
 const site = Astro.site ?? new URL(profile.links.site);
 const canonical = new URL(Astro.url.pathname, site);
@@ -37,7 +49,9 @@ const pageTitle = isHome ? `${profile.name} · ${title}` : `${title} · ${profil
 
 const ogPath = ogImage ?? '/og.png';
 const ogUrl = new URL(ogPath, site).href;
-const ogAlt = `${profile.name}: a patient-specific coronary vessel painted with its pressure field, beside the headline "Coronary physics, fast enough for the clinic."`;
+const ogAlt =
+  ogAltProp ??
+  `${profile.name}: a patient-specific coronary vessel painted with its pressure field, beside the headline "Coronary physics, fast enough for the clinic."`;
 
 // sRGB approximations of --film-0 and --box for the browser chrome.
 const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
@@ -50,7 +64,7 @@ const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical.href} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical.href} />}
     <meta name="theme-color" content={themeColor} />
     <meta name="color-scheme" content={surface === 'film' ? 'dark' : 'light'} />
     <meta name="author" content={profile.name} />
@@ -58,7 +72,7 @@ const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
     <meta property="og:site_name" content={profile.name} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical.href} />
+    {!noindex && <meta property="og:url" content={canonical.href} />}
     <meta property="og:image" content={ogUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -69,6 +83,8 @@ const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
     <meta name="twitter:image" content={ogUrl} />
     <meta name="twitter:image:alt" content={ogAlt} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={favicon32.src} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={appleTouchIcon.src} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="generator" content={Astro.generator} />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
@@ -78,6 +94,7 @@ const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
     <Nav />
     <main id="main" tabindex="-1">
       <slot />
+      {close !== false && <Close {...close} />}
     </main>
     <Footer />
   </body>

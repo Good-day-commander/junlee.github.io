@@ -1,19 +1,30 @@
 ---
 /*
-  /record: talks, patents, funded projects, awards, background. A Read
-  surface: rules and spacing carry the structure, no cards. Presenter versus
-  co-author, registered versus pending and international versus domestic are
-  marked on every row, straight from content.ts.
+  /record: talks, patents, funded projects, awards. A Read surface: rules
+  and spacing carry the structure. Talks are split into the ones I presented
+  and the ones I co-authored; registered versus pending and international
+  versus domestic are marked on every row, straight from content.ts. Tags
+  follow the title and venue on every width, never above a title.
+
+  The talks open with three photographs as evidence of the talks they
+  document (optimized by astro:assets from src/assets/photos). The
+  registered patent families are featured as frames above the pending
+  filings. Education, appointments and skills live on /cv only; the page
+  ends with the shared Close (rendered by Base), which points there.
 */
+import { Image } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
 import Section from '@/components/Section.astro';
+import Frame from '@/components/Frame.astro';
 import PageHead from '@/components/record/PageHead.astro';
 import Tag from '@/components/record/Tag.astro';
-import { awards, education, experience, fellowships, profile, skills, teaching } from '@/data/content';
+import { awards, fellowships, profile, talks, teaching, type Talk } from '@/data/content';
 import {
   applicationLabel,
   awardPublication,
+  capitalize,
   honourCounts,
+  normRange,
   patentCounts,
   patentFamilies,
   period,
@@ -23,78 +34,192 @@ import {
   talksByYear,
 } from '@/components/record/records';
 import { numberWord, numberWordCap } from '@/lib/format';
+import photoAcfm from '@/assets/photos/gallery-acfm-2025.jpg';
+import photoDmd from '@/assets/photos/gallery-dmd-2026.jpg';
+import photoYonsei from '@/assets/photos/gallery-talk-yonsei.jpg';
 
-const years = talksByYear();
+const presentedYears = talksByYear('presenter');
+const coauthoredYears = talksByYear('co-author');
+const coauthoredCount = talkCounts.total - talkCounts.presented;
 const families = patentFamilies();
+const registeredFamilies = families.filter((f) => f.registered);
+const pendingFamilies = families.filter((f) => !f.registered);
 
-const lede = `${numberWordCap(talkCounts.total)} conference presentations (${numberWord(talkCounts.presented)} presented in person), ${numberWord(patentCounts.filings)} patent filings in ${numberWord(patentCounts.families)} families with ${numberWord(patentCounts.registered)} registered, ${numberWord(projectSpan.count)} funded projects from ${projectSpan.from} to ${projectSpan.to}, and the honours, appointments and training behind them.`;
+const lede = `${numberWordCap(talkCounts.total)} conference presentations (${numberWord(talkCounts.presented)} presented in person), ${numberWord(patentCounts.filings)} patent filings in ${numberWord(patentCounts.families)} families with ${numberWord(patentCounts.registered)} registered, ${numberWord(projectSpan.count)} funded projects from ${projectSpan.from} to ${projectSpan.to}, and the honours behind them.`;
 
 const anchors = [
   { href: '#talks', label: 'Talks' },
   { href: '#patents', label: 'Patents' },
   { href: '#projects', label: 'Projects' },
   { href: '#awards', label: 'Awards' },
-  { href: '#background', label: 'Background' },
 ];
 
-const talksLede = `${numberWordCap(talkCounts.international)} international and ${numberWord(talkCounts.domestic)} domestic. Presenter marks the talks he gave himself.`;
+const talksLede = `${numberWordCap(talkCounts.presented)} I presented myself and ${numberWord(coauthoredCount)} as co-author; ${numberWord(talkCounts.international)} international, ${numberWord(talkCounts.domestic)} domestic.`;
 const patentsLede = `${numberWordCap(patentCounts.filings)} filings, ${patentCounts.byJurisdiction
   .filter((j) => j.count > 0)
   .map((j) => `${numberWord(j.count)} ${j.jurisdiction}`)
-  .join(', ')}. Counterpart filings share a row; registered families come first.`;
+  .join(', ')}. Counterpart filings share a row; the registered families come first.`;
 const projectsLede = `Participating researcher on ${numberWord(projectSpan.count)} funded projects, ${projectSpan.from} to ${projectSpan.to}, newest end date first.`;
 const awardsLede = `${numberWordCap(honourCounts.awards)} awards, ${numberWord(honourCounts.fellowships)} fellowships and ${numberWord(honourCounts.teaching)} teaching appointment.`;
 
-const skillGroups: { label: string; items: string[] }[] = [
-  { label: 'Computational', items: skills.computational },
-  { label: 'Machine learning', items: skills.ml },
-  { label: 'Data', items: skills.data },
-  { label: 'Languages', items: skills.languages },
+/** "Seoul, Korea. Oral." The CV's lowercase format field, set in sentence case. */
+const talkMeta = (t: Talk) => `${t.venue}, ${t.location}. ${capitalize(t.format)}.`;
+
+/*
+  Talk photographs. Two document talks in the record, and their captions are
+  read from those rows; the Yonsei symposium has no CV entry, so its caption
+  is the old site's gallery copy.
+*/
+const talkById = (id: string) => talks.find((t) => t.id === id);
+const acronym = (venue: string) => venue.match(/\(([A-Z][A-Za-z0-9]+)\)/)?.[1];
+function talkCaption(t: Talk | undefined, fallback: string): { text: string; href?: string } {
+  if (!t) return { text: fallback };
+  const a = acronym(t.venue);
+  const name = a ? (a.includes(t.year) ? a.replace(t.year, ` ${t.year}`) : `${a} ${t.year}`) : `${t.venue} ${t.year}`;
+  return { text: `${name}, ${t.location.split(',')[0]} · ${capitalize(t.format)}`, href: `#${t.id}` };
+}
+const I3 = talkById('I3');
+const I1 = talkById('I1');
+const photos = [
+  {
+    src: photoAcfm,
+    alt: I3
+      ? `${profile.name} presenting at the podium of the ${I3.venue}, ${I3.location}.`
+      : `${profile.name} at a conference podium.`,
+    caption: talkCaption(I3, 'ACFM 2025, Seoul'),
+  },
+  {
+    src: photoDmd,
+    alt: I1 ? `The poster presented at the ${I1.venue}: ${I1.title}.` : 'Conference poster.',
+    caption: talkCaption(I1, 'DMD 2026, Minneapolis'),
+  },
+  {
+    src: photoYonsei,
+    alt: `${profile.name} presenting cardiovascular AI research at a Yonsei department symposium.`,
+    caption: { text: 'Yonsei department symposium, 2024' } as { text: string; href?: string },
+  },
 ];
 
-const description = `Talks, patents, funded projects, awards and background of ${profile.name}, with presenter, registered and pending stated on every row.`;
+const description = `Talks, patents, funded projects and awards of ${profile.name}, with presenter, registered and pending stated on every row.`;
 ---
 
-<Base title="Record" description={description} surface="box">
+<Base
+  title="Record"
+  description={description}
+  surface="box"
+  ogImage="/og/record.png"
+  ogAlt={`${profile.name}, Record: the page heading on light-box white with its lede, "${lede}"`}
+  close={{
+    line: 'Write to me about any of this work, a position, or a copy of a paper.',
+    note: 'Education, appointments and skills are on the CV.',
+    noteLink: { href: '/cv/', label: 'Read the CV' },
+  }}
+>
   <PageHead heading="Record" lede={lede} anchors={anchors} />
 
   <Section heading="Talks" id="talks" lede={talksLede} class="rec">
-    <div class="years">
+    <ul class="photos">
       {
-        years.map((group) => (
-          <div class="year">
-            <h3 class="year__label t-mono">{group.year}</h3>
-            <ol class="rows">
-              {group.items.map((talk) => (
-                <li class="row row--talk" id={talk.id}>
-                  <div class="row__main">
-                    <p class="row__title">{talk.title}</p>
-                    <p class="row__meta">
-                      {talk.venue}, {talk.location}. <span class="row__format">{talk.format}</span>.{' '}
-                      <span class="row__note">{talk.note}</span>
-                    </p>
-                  </div>
-                  <div class="row__tags">
-                    <Tag tone={talk.role === 'presenter' ? 'signal' : 'soft'}>
-                      {talk.role === 'presenter' ? 'Presenter' : 'Co-author'}
-                    </Tag>
-                    <Tag tone="soft" title={talk.category}>
-                      {talk.category === 'International' ? 'Intl' : 'Domestic'}
-                    </Tag>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
+        photos.map((ph) => (
+          <li class="photo" style={`--a: ${(ph.src.width / ph.src.height).toFixed(4)};`}>
+            <figure class="photo__plate">
+              <Image
+                src={ph.src}
+                alt={ph.alt}
+                width={960}
+                widths={[320, 480, 720, 960]}
+                sizes="(min-width: 1024px) 26rem, (min-width: 600px) 45vw, 90vw"
+                format="webp"
+                quality={78}
+                loading="lazy"
+                class="photo__img"
+              />
+              <figcaption class="photo__caption t-mono">
+                {ph.caption.href ? <a href={ph.caption.href}>{ph.caption.text}</a> : ph.caption.text}
+              </figcaption>
+            </figure>
+          </li>
         ))
       }
-    </div>
+    </ul>
+    {
+      [
+        { heading: 'Presented', groups: presentedYears, co: false },
+        { heading: 'Co-authored', groups: coauthoredYears, co: true },
+      ].map((block) => (
+        <div class="sub">
+          <h3 class="sub__heading t-subheading">{block.heading}</h3>
+          <div class="years">
+            {block.groups.map((group) => (
+              <div class="year">
+                <h4 class="year__label t-mono">{group.year}</h4>
+                <ol class="rows">
+                  {group.items.map((talk) => (
+                    <li class:list={['row row--talk', { 'row--co': block.co }]} id={talk.id}>
+                      <div class="row__main">
+                        <p class="row__title">{talk.title}</p>
+                        <p class="row__meta">
+                          {talkMeta(talk)} <span class="row__note">{talk.note}</span>
+                        </p>
+                      </div>
+                      <div class="row__tags">
+                        <Tag tone="soft" title={talk.category}>
+                          {talk.category === 'International' ? 'Intl' : 'Domestic'}
+                        </Tag>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))
+    }
   </Section>
 
   <Section heading="Patents" id="patents" lede={patentsLede} class="rec">
+    {
+      registeredFamilies.length > 0 && (
+        <ul class="registered">
+          {registeredFamilies.map((family) => (
+            <li id={family.key}>
+              <Frame
+                as="article"
+                padded
+                class="registered__frame"
+                tl={family.jurisdictions.join(' · ')}
+                tr={family.yearLabel}
+              >
+                <h3 class="frame__what registered__title">{family.title}</h3>
+                <ul class="filings">
+                  {family.members.map((p) => (
+                    <li class="filing" id={p.id !== family.key ? p.id : undefined}>
+                      <span class="filing__app t-mono">{applicationLabel(p)}</span>
+                      {p.status === 'registered' && p.registrationNo ? (
+                        <span class="filing__reg t-mono">
+                          <span>
+                            Registered No. {p.registrationNo}
+                            {p.registrationDate && <span class="filing__date"> · {p.registrationDate}</span>}
+                          </span>
+                          <Tag tone="signal">Registered</Tag>
+                        </span>
+                      ) : (
+                        <span class="filing__pending t-mono">filed {p.year} · pending</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <p class="row__meta row__meta--inventors">{family.members[0].inventors}</p>
+              </Frame>
+            </li>
+          ))}
+        </ul>
+      )
+    }
     <ol class="rows rows--ruled">
       {
-        families.map((family) => (
+        pendingFamilies.map((family) => (
           <li class="row row--patent" id={family.key}>
             <div class="row__main">
               <p class="row__title">{family.title}</p>
@@ -102,21 +227,13 @@ const description = `Talks, patents, funded projects, awards and background of $
                 {family.members.map((p) => (
                   <li class="filing" id={p.id !== family.key ? p.id : undefined}>
                     <span class="filing__app t-mono">{applicationLabel(p)}</span>
-                    {p.status === 'registered' && p.registrationNo ? (
-                      <span class="filing__reg t-mono">
-                        Registered No. {p.registrationNo}
-                        {p.registrationDate && <span class="filing__date"> · {p.registrationDate}</span>}
-                      </span>
-                    ) : (
-                      <span class="filing__pending t-mono">filed {p.year} · pending</span>
-                    )}
+                    <span class="filing__pending t-mono">filed {p.year} · pending</span>
                   </li>
                 ))}
               </ul>
               <p class="row__meta row__meta--inventors">{family.members[0].inventors}</p>
             </div>
             <div class="row__tags">
-              {family.registered && <Tag tone="signal">Registered</Tag>}
               {family.jurisdictions.map((j) => (
                 <Tag tone="soft">{j}</Tag>
               ))}
@@ -158,7 +275,13 @@ const description = `Talks, patents, funded projects, awards and background of $
                 <div class="row__main">
                   <p class="row__title">{award.title}</p>
                   <p class="row__meta">
-                    {award.note ? `${award.org}, ${award.note}` : award.org}{pub && <span> (<a href={`/publications#${pub.id}`}>{pub.id}</a>)</span>}
+                    {award.note ? `${award.org}, ${award.note}` : award.org}
+                    {pub && (
+                      <span>
+                        {' '}
+                        (<a href={`/publications/#${pub.id}`}>{pub.id}</a>)
+                      </span>
+                    )}
                   </p>
                 </div>
               </li>
@@ -173,7 +296,7 @@ const description = `Talks, patents, funded projects, awards and background of $
         {
           fellowships.map((f) => (
             <li class="row row--honour">
-              <p class="row__period t-mono">{f.period}</p>
+              <p class="row__period t-mono">{normRange(f.period)}</p>
               <div class="row__main">
                 <p class="row__title">{f.title}</p>
                 <p class="row__meta">{f.org}</p>
@@ -189,7 +312,7 @@ const description = `Talks, patents, funded projects, awards and background of $
         {
           teaching.map((t) => (
             <li class="row row--honour">
-              <p class="row__period t-mono">{t.period}</p>
+              <p class="row__period t-mono">{normRange(t.period)}</p>
               <div class="row__main">
                 <p class="row__title">{t.role}</p>
                 <p class="row__meta">{t.org}</p>
@@ -200,79 +323,51 @@ const description = `Talks, patents, funded projects, awards and background of $
       </ol>
     </div>
   </Section>
-
-  <Section heading="Background" id="background" class="rec">
-    <div class="sub">
-      <h3 class="sub__heading t-subheading">Education</h3>
-      <ol class="rows rows--ruled">
-        {
-          education.map((e) => (
-            <li class="row row--bg">
-              <p class="row__period t-mono">{period(e.start, e.end)}</p>
-              <div class="row__main">
-                <p class="row__title">{e.degree}</p>
-                <p class="row__meta">
-                  {e.institution}, {e.location}
-                </p>
-                {e.note && <p class="row__meta row__meta--note">{e.note}</p>}
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-    <div class="sub">
-      <h3 class="sub__heading t-subheading">Experience</h3>
-      <ol class="rows rows--ruled">
-        {
-          experience.map((x) => (
-            <li class="row row--bg">
-              <p class="row__period t-mono">{period(x.start, x.end)}</p>
-              <div class="row__main">
-                <p class="row__title">{x.role}</p>
-                <p class="row__meta">
-                  {x.org}, {x.location}
-                </p>
-                {x.notes && (
-                  <ul class="notes">
-                    {x.notes.map((n) => (
-                      <li class="row__meta row__meta--note">{n}</li>
-                    ))}
-                  </ul>
-                )}
-                <ul class="bullets">
-                  {x.bullets.map((b) => (
-                    <li>{b}</li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-    <div class="sub">
-      <h3 class="sub__heading t-subheading">Skills</h3>
-      <dl class="skills">
-        {
-          skillGroups.map((g) => (
-            <div class="skills__group">
-              <dt>{g.label}</dt>
-              <dd>{g.items.join('; ')}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </Section>
 </Base>
 
 <style>
-  :global(.page-head + .section.section) {
-    padding-top: var(--space-6);
+  /*
+    Talk photographs: each plate grows in proportion to its aspect ratio
+    (--a), so the plates on one row share one height without cropping.
+  */
+  .photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    max-width: 60rem;
+    margin-bottom: var(--space-5);
   }
-  :global(.section.rec) {
-    scroll-margin-top: var(--space-2);
+  .photo {
+    flex: var(--a) 1 calc(var(--a) * 9rem);
+    max-width: calc(var(--a) * 16rem);
+    min-width: 0;
+  }
+  .photo__plate {
+    margin: 0;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .photo :global(.photo__img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--a);
+    object-fit: cover;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-1);
+  }
+  .photo__caption {
+    font-size: var(--size-label);
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+  .photo__caption a {
+    color: var(--ink-2);
+    text-decoration-color: var(--line);
+  }
+  .photo__caption a:hover {
+    color: var(--ink);
+    text-decoration-color: var(--signal);
   }
 
   /* Year groups for talks */
@@ -294,6 +389,43 @@ const description = `Talks, patents, funded projects, awards and background of $
     padding-top: 0.75rem;
   }
 
+  /* Registered patent families: frames above the pending list. */
+  .registered {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .registered > li {
+    min-width: 0;
+  }
+  .registered :global(.registered__frame) {
+    height: 100%;
+  }
+  .registered :global(.registered__frame > .frame__body) {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+  .registered__title {
+    max-width: 40ch;
+  }
+  /* In a frame the number and its registration stack, so REGISTERED stays on the registration row. */
+  .registered .filing {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .registered .filing + .filing {
+    margin-top: 0.35rem;
+  }
+  .filing__reg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+  }
+
   /* Generic ruled rows */
   .rows {
     display: grid;
@@ -309,7 +441,6 @@ const description = `Talks, patents, funded projects, awards and background of $
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-1) var(--space-3);
     padding-block: var(--space-2) var(--space-3);
-    scroll-margin-top: var(--space-2);
   }
   .row--talk {
     padding-block: 0.75rem;
@@ -317,9 +448,16 @@ const description = `Talks, patents, funded projects, awards and background of $
   .row--talk + .row--talk {
     border-top: 1px solid var(--line-soft);
   }
+  /* Talks I co-authored read one step quieter than the ones I gave. */
+  .row--co .row__title {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .row--co .row__meta {
+    font-size: 0.95rem;
+  }
   .row--project,
-  .row--honour,
-  .row--bg {
+  .row--honour {
     grid-template-columns: 11rem minmax(0, 1fr);
   }
   .row__main {
@@ -344,14 +482,8 @@ const description = `Talks, patents, funded projects, awards and background of $
     text-wrap: pretty;
     max-width: 66ch;
   }
-  .row__meta--note {
-    font-style: italic;
-  }
   .row__meta--inventors {
     font-size: 0.95rem;
-  }
-  .row__format {
-    color: var(--ink-2);
   }
   .row__note {
     color: var(--ink-3);
@@ -367,7 +499,7 @@ const description = `Talks, patents, funded projects, awards and background of $
   }
   .row__year {
     color: var(--ink-3);
-    margin-left: 0.25rem;
+    margin-left: var(--space-1);
   }
   .row__period {
     color: var(--ink-2);
@@ -381,13 +513,13 @@ const description = `Talks, patents, funded projects, awards and background of $
   /* Patent filings */
   .filings {
     display: grid;
-    gap: 0.25rem;
-    margin-top: 0.25rem;
+    gap: 0.35rem;
+    margin-top: var(--space-1);
   }
   .filing {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem var(--space-2);
+    gap: 0.15rem var(--space-2);
     align-items: baseline;
   }
   .filing__app {
@@ -409,50 +541,6 @@ const description = `Talks, patents, funded projects, awards and background of $
   .sub__heading {
     margin-bottom: var(--space-2);
   }
-  .notes {
-    display: grid;
-    gap: 0.15rem;
-  }
-  .bullets {
-    display: grid;
-    gap: 0.35rem;
-    margin-top: 0.35rem;
-    padding-left: 1.1rem;
-    list-style: disc;
-    font-family: var(--font-text);
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--ink-2);
-    max-width: 66ch;
-  }
-  .bullets li::marker {
-    color: var(--ink-3);
-  }
-  .skills {
-    display: grid;
-    gap: var(--space-2);
-    border-top: 1px solid var(--line);
-    padding-top: var(--space-2);
-  }
-  .skills__group {
-    display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
-    gap: var(--space-3);
-  }
-  .skills dt {
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: var(--size-ui);
-    color: var(--ink);
-  }
-  .skills dd {
-    margin: 0;
-    font-family: var(--font-text);
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--ink-2);
-    max-width: 66ch;
-  }
 
   @media (max-width: 760px) {
     .year {
@@ -464,14 +552,14 @@ const description = `Talks, patents, funded projects, awards and background of $
     }
     .row,
     .row--project,
-    .row--honour,
-    .row--bg,
-    .skills__group {
+    .row--honour {
       grid-template-columns: 1fr;
+    }
+    .registered {
+      grid-template-columns: minmax(0, 1fr);
     }
     .row__tags {
       justify-content: flex-start;
-      order: -1;
       padding-top: 0;
     }
     .row__period {

@@ -8,7 +8,7 @@
         [ Hz unit ][ chrome band: corners live here ]
         [ y axis  ][ stage: canvas, playhead, states ]
         [         ][ x axis                          ]
-        [ toolbar: dB colorbar · replay              ]
+        [ toolbar: dB colorbar | replay              ]
         [ frame__stack caption (what / result / consequence) ]
 */
 
@@ -208,12 +208,22 @@
   row-gap: 0.5rem;
 }
 .pulse__method {
+  display: inline-flex;
+  flex-wrap: wrap;
+  row-gap: 0.35rem;
   font-family: var(--font-mono);
   font-size: var(--size-label);
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--ink-3);
+}
+.pulse__method-part {
   white-space: nowrap;
+}
+.pulse__method-part + .pulse__method-part {
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--line-soft);
 }
 
 .pulse__scale {
@@ -261,6 +271,10 @@
     background-color var(--duration-quick) var(--ease-out),
     border-color var(--duration-quick) var(--ease-out),
     color var(--duration-quick) var(--ease-out);
+}
+/* Replay holds the right end of the toolbar in every frame, wrapped or not. */
+.pulse__bar > .pulse__btn {
+  margin-left: auto;
 }
 .pulse__btn:hover {
   background: var(--ink);

@@ -13,14 +13,22 @@
 */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import VesselViewer, { type ViewerState } from '@/islands/VesselViewer';
-import { formatSeconds } from '@/lib/format';
+import { formatDecimal, formatSeconds } from '@/lib/format';
 
 export interface HeroViewerProps {
   manifestUrl: string;
   /** Measured inference time in seconds (manifest timing.pino.inference_ms_median / 1000). */
   inferenceSeconds: number;
-  /** "FFR Pd/Pa 0.83 CFD · 0.82 PINO", computed in Astro. */
-  ffrLine: string;
+  /**
+    "FFR Pd/Pa 0.83 CFD · 0.82 PINO", computed in Astro. Kept for the
+    current Hero.astro; prefer ffrCfd / ffrPino, which this island formats
+    itself (two decimals, the site's FFR precision in chrome).
+  */
+  ffrLine?: string;
+  /** Case FFR on the distal probe plane (manifest metrics.case.ffr.cfd). */
+  ffrCfd?: number;
+  /** Case FFR on the distal probe plane (manifest metrics.case.ffr.pino). */
+  ffrPino?: number;
   /** "L40S" */
   gpu: string;
   /**
@@ -32,6 +40,26 @@ export interface HeroViewerProps {
   initialWipe?: number;
 }
 
+/*
+  The readout is two fixed lines, never one string left to wrap: a label
+  line "FFR Pd/Pa" and a value line "CFD 0.83 · PINO 0.82", so a narrow
+  frame cannot split a value from its solver. The older single-string prop
+  is parsed into the same two lines.
+*/
+const FFR_LINE = /^(.*?)\s+([\d.]+)\s+CFD\s+·\s+([\d.]+)\s+PINO\s*$/;
+
+function ffrLines(ffrLine?: string, cfd?: number, pino?: number): [string, string] | null {
+  if (typeof cfd === 'number' && typeof pino === 'number') {
+    return ['FFR Pd/Pa', `CFD ${formatDecimal(cfd, 2)} · PINO ${formatDecimal(pino, 2)}`];
+  }
+  if (!ffrLine) return null;
+  const m = FFR_LINE.exec(ffrLine);
+  if (!m) return [ffrLine, ''];
+  return [m[1], `CFD ${formatDecimal(Number(m[2]), 2)} · PINO ${formatDecimal(Number(m[3]), 2)}`];
+}
+
+const NOWRAP = { whiteSpace: 'nowrap' } as const;
+
 /** If the viewer never reports ready (WebGL unavailable), stop showing 0.00 after this. */
 const READY_FALLBACK_MS = 8000;
 
@@ -39,9 +67,12 @@ export default function HeroViewer({
   manifestUrl,
   inferenceSeconds,
   ffrLine,
+  ffrCfd,
+  ffrPino,
   gpu,
   initialWipe = 0.56,
 }: HeroViewerProps) {
+  const ffr = ffrLines(ffrLine, ffrCfd, ffrPino);
   const [ready, setReady] = useState(false);
   const [wipe, setWipe] = useState<number | null>(null);
   const [shown, setShown] = useState(inferenceSeconds);
@@ -90,8 +121,17 @@ export default function HeroViewer({
         data-ready={ready ? 'true' : undefined}
         data-wipe={wipe === null ? undefined : wipe.toFixed(3)}
       >
-        <span className="hero__readout-line">{ffrLine}</span>
-        <span className="hero__readout-line">
+        {ffr && (
+          <span className="hero__readout-line" style={NOWRAP}>
+            {ffr[0]}
+          </span>
+        )}
+        {ffr && ffr[1] && (
+          <span className="hero__readout-line" style={NOWRAP}>
+            {ffr[1]}
+          </span>
+        )}
+        <span className="hero__readout-line" style={NOWRAP}>
           inference <span className="hero__count">{formatSeconds(shown)}</span> · {gpu}
         </span>
       </p>

@@ -1,24 +1,30 @@
 ---
 /*
   Home. Experience surface on film: the hero cine frame, then Three fronts,
-  What he has led, Applied, Contact. Composes Base + shared components +
-  islands + the page-local components in components/home/.
+  Led work, About, Applied, and the shared Close (rendered by Base with the
+  home page's own line). Composes Base + shared components + islands + the
+  page-local components in components/home/.
 */
+import { getImage } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
 import Section from '@/components/Section.astro';
 import Hero from '@/components/home/Hero.astro';
 import Fronts from '@/components/home/Fronts.astro';
 import Led from '@/components/home/Led.astro';
+import About from '@/components/home/About.astro';
 import Applied from '@/components/home/Applied.astro';
-import Contact from '@/components/home/Contact.astro';
 import { loadPinoManifest, loadPulseManifest } from '@/components/home/manifests';
-import { profile } from '@/data/content';
+import { awards, education, profile, skills } from '@/data/content';
+import portrait from '@/assets/photos/profile-main.jpg';
 
 const pino = loadPinoManifest();
 const pulse = loadPulseManifest();
 
 const title = 'Coronary physics, fast enough for the clinic';
 const description = `${profile.name}, ${profile.role.toLowerCase()} at the ${profile.lab}, ${profile.university}: image-based coronary CFD and CT-FFR, physics-informed neural operators, and wearable PPG biomarkers.`;
+
+const site = Astro.site ?? new URL(profile.links.site);
+const portraitImage = await getImage({ src: portrait, format: 'jpg', width: portrait.width });
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -27,30 +33,42 @@ const jsonLd = {
   jobTitle: profile.role,
   email: `mailto:${profile.email}`,
   url: profile.links.site,
+  image: new URL(portraitImage.src, site).href,
   affiliation: {
     '@type': 'Organization',
     name: `${profile.lab}, ${profile.department}, ${profile.university}`,
   },
+  alumniOf: Array.from(new Set(education.map((e) => e.institution))).map((name) => ({
+    '@type': 'CollegeOrUniversity',
+    name,
+  })),
+  award: awards.map((a) => `${a.title}, ${a.org} (${a.year})`),
+  knowsAbout: [...skills.computational, ...skills.ml],
   sameAs: [profile.links.scholar, profile.links.linkedin, profile.links.orcid],
+};
+
+const close = {
+  line: 'Open to collaboration on coronary hemodynamics, medical AI and wearable biosignal analysis.',
+  note: 'For research, an industry partnership, a position or a copy of a paper, email is the fastest route; I reply from Seoul (UTC+9).',
 };
 ---
 
-<Base title={title} description={description} surface="film" jsonLd={jsonLd}>
+<Base title={title} description={description} surface="film" jsonLd={jsonLd} close={close}>
   <Hero pino={pino} />
 
   <Section id="fronts" heading="Three fronts" width="frame">
     <Fronts pino={pino} pulse={pulse} />
   </Section>
 
-  <Section id="led" heading="What he has led" width="frame">
+  <Section id="led" heading="Led work" width="frame">
     <Led />
   </Section>
 
-  <Section id="applied" heading="Applied">
-    <Applied />
+  <Section id="about" heading="About" width="frame">
+    <About />
   </Section>
 
-  <Section id="contact" heading="Contact">
-    <Contact />
+  <Section id="applied" heading="Applied" width="frame">
+    <Applied />
   </Section>
 </Base>

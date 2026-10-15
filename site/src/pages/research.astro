@@ -7,6 +7,7 @@
 */
 import Base from '@/layouts/Base.astro';
 import Frame from '@/components/Frame.astro';
+import PageHead from '@/components/record/PageHead.astro';
 import Chapter from '@/components/research/Chapter.astro';
 import PaperFrame from '@/components/research/PaperFrame.astro';
 import MetricsTable from '@/components/research/MetricsTable.astro';
@@ -16,8 +17,11 @@ import CwtStrip from '@/components/research/CwtStrip.astro';
 import VesselViewer from '@/islands/VesselViewer';
 import FfrCurve from '@/islands/FfrCurve';
 import SpectrogramDevelop from '@/islands/SpectrogramDevelop';
+import PhaseScrubber from '@/islands/PhaseScrubber';
+import { imageAcquired, imageBase, imageManifest, imageManifestUrl, imageMetrics } from '@/islands/image/data';
+import { figureLabel, venueInitials } from '@/islands/image/manifest';
 import { profile, publications, patents, projects } from '@/data/content';
-import { formatDecimal, formatInt, formatMm, formatPaRange, formatSeconds } from '@/lib/format';
+import { formatDecimal, formatInt, formatMm, formatSeconds, numberWord, numberWordCap } from '@/lib/format';
 import { pino, pulse, urls, parseCohortN, parseFolds, parseNetworkCount } from '@/components/research/data';
 
 /* Publications by id, so a missing id fails the build instead of rendering a hole. */
@@ -50,11 +54,11 @@ const imageProjects = ['R2', 'R3'].map((id) => {
 const c = pino.metrics.case;
 const k = pino.metrics.cohort;
 const nodes = formatInt(pino.vertexCount);
-const pRange = formatPaRange(pino.ranges.p[0], pino.ranges.p[1]);
 const inference = formatSeconds(pino.timing.pino.inference_ms_median / 1000);
 const gpu = pino.timing.pino.gpu;
+/* FFR: two decimals in chrome; the three-decimal values live in the metrics table, and the gap is stated once. */
 const ffrCfd = formatDecimal(c.ffr.cfd, 2);
-const ffrPino = formatDecimal(c.ffr.pino, 3);
+const ffrPino = formatDecimal(c.ffr.pino, 2);
 const ffrDelta = formatDecimal(Math.abs(c.ffr.cfd - c.ffr.pino), 3);
 const probes = pino.geometry.ffr_probes;
 const cohortN = formatInt(k.n_cases);
@@ -72,9 +76,28 @@ const stftM = pulse.stft.method;
 const crop = pulse.stft.recommended_crop_hz;
 const durationS = Math.round(pulse.cwt.t_s[pulse.cwt.t_s.length - 1]);
 const ci = (r: [number, number]) => `${formatDecimal(r[0], 3)}–${formatDecimal(r[1], 3)}`;
+/* The fluid-bolus numbers are M1's, so they always carry its status. */
+const m1Status = `manuscript under revision (${M1.venueShort ?? venueInitials(M1.venue)})`;
+
+/* Image numbers: the 4D CT phase manifest (J1, Fig. 8, Case 1) */
+const im = imageManifest;
+const phaseCount = im.phases;
+const synthesizedCount = phaseCount - imageAcquired.length;
+const acquiredList = imageAcquired.map((a) => `P${a.phase}`).join(' and ');
+const cite = (p: { id: string; venue: string; volume?: string; article?: string; year: string }) =>
+  `${p.id}, ${venueInitials(p.venue)} ${[p.volume, p.article].filter(Boolean).join(', ')} (${p.year})`;
+const j1Cite = cite(J1);
 
 const title = 'Research';
 const description = `Three fronts of ${profile.name}'s work: physics-informed neural operators that return coronary pressure fields in ${inference}, diffusion-synthesized 4D coronary CT for time-resolved FFR, and wearable PPG biomarkers from blood viscosity to fluid status.`;
+
+const headLede =
+  'One question runs through my work: can the physics of coronary flow be made fast enough to use at the bedside? Three fronts answer it.';
+
+const close = {
+  line: 'Working on coronary physiology, physics-informed ML or wearable signals? Write to me.',
+  note: 'Each chapter above ends with its own link; for anything else, email is the fastest route. I reply from Seoul (UTC+9).',
+};
 
 const chapters = [
   { href: '#flow', label: 'Flow' },
@@ -83,31 +106,15 @@ const chapters = [
 ];
 ---
 
-<Base title={title} description={description} surface="film">
-  <header class="research-head">
-    <div class="wrap research-head__row">
-      <h1 class="t-display">Research</h1>
-      <div class="research-head__text">
-        <p class="t-prose">
-          One question runs through all of it: can the physics of coronary flow be made fast enough to use at the
-          bedside. Flow is the neural operator that returns a patient's pressure field in seconds. Image is the 4D CT
-          work that gives FFR a time axis. Pulse is the wearable line, from blood viscosity to fluid status, read from a
-          watch.
-        </p>
-        <nav class="research-head__nav" aria-label="Chapters">
-          <ol>
-            {
-              chapters.map((ch) => (
-                <li>
-                  <a href={ch.href}>{ch.label}</a>
-                </li>
-              ))
-            }
-          </ol>
-        </nav>
-      </div>
-    </div>
-  </header>
+<Base
+  title={title}
+  description={description}
+  surface="film"
+  close={close}
+  ogImage="/og/research.png"
+  ogAlt={`${profile.name}, Research: the page heading on film charcoal with its lede, "${headLede}"`}
+>
+  <PageHead heading="Research" lede={headLede} anchors={chapters} />
 
   <!-- ───────────────────────────── Flow ───────────────────────────── -->
   <Chapter
@@ -122,16 +129,15 @@ const chapters = [
           as="figure"
           class="flow-grid__viewer"
           tl={pino.case_id}
-          tr={`${nodes} nodes · ${pRange}`}
+          tr={`${nodes} nodes`}
           bl={`inference ${inference} · ${gpu}`}
           br={`FFR ${ffrCfd} CFD · ${ffrPino} PINO`}
         >
           <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
           <Fragment slot="what">Surface pressure, CFD against PINO</Fragment>
           <Fragment slot="result">
-            R² {formatDecimal(c.pressure_Pa.R2, 3)} · MAE {formatDecimal(c.pressure_Pa.MAE, 1)} Pa · {
-              formatInt(pino.triangleCount)
-            } triangles · {pino.mesh.streamlines} streamlines
+            <span class="rl">R² {formatDecimal(c.pressure_Pa.R2, 3)}, MAE {formatDecimal(c.pressure_Pa.MAE / 1000, 1)} kPa</span>
+            <span class="rl">{formatInt(pino.triangleCount)} triangles, {pino.mesh.streamlines} streamlines</span>
           </Fragment>
           <Fragment slot="consequence">
             Same vessel, same color scale; the right half of the wipe was computed in {inference}.
@@ -172,7 +178,7 @@ const chapters = [
       the diagnostic decision is hardest.
     </p>
     <div class="paper-grid">
-      <PaperFrame pub={C1} wide note="Published conference version of the operator; the journal manuscript is in preparation." />
+      <PaperFrame pub={C1} note="Published conference version of the operator; the journal manuscript is in preparation." />
       <PaperFrame
         pub={J4}
         note="Gray-zone FFR prediction from hemodynamic features, synthetic vessel models and biometric data."
@@ -186,22 +192,23 @@ const chapters = [
   <Chapter
     id="image"
     heading="Image"
-    lede="The figure from the 4D CT paper: a diffusion deformable model fills in the cardiac cycle between two acquired CT phases, and CFD on the result follows FFR through it."
+    lede={`${im.case} from the 4D CT paper through one cardiac cycle: ${numberWord(imageAcquired.length)} phases were acquired by CT, the diffusion deformable model synthesized the ${numberWord(synthesizedCount)} between them, and CFD solved every one.`}
     consequence="Two phases of CT become a whole cycle, and FFR stops being a single number."
   >
     <Fragment slot="artifact">
-      <PaperFrame
-        pub={J1}
-        wide
-        figure={{
-          src: '/media/papers/extracted/4dct-figure1.png',
-          alt: 'Figure 1 from the 4D coronary CT diffusion paper: the diffusion-deformation framework that synthesizes the cardiac cycle from two CT phases and feeds it to CFD for time-resolved FFR.',
-          width: 1499,
-          height: 967,
-          light: true,
-        }}
-        note="First-authored by T.H. Han. My part was the hemodynamic side: the CFD and FFR analysis on the synthesized 4D sequence."
-      />
+      <Frame as="figure" class="image-frame" tl={im.case} tr={`${im.source.paper_id} · ${figureLabel(im)}`}>
+        <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={im} />
+        <Fragment slot="what">Pressure and wall shear stress through one cardiac cycle</Fragment>
+        <Fragment slot="result">
+          <span class="rl">{phaseCount} phases, {acquiredList} acquired</span>
+          <span class="rl">4D CT-FFR accuracy {imageMetrics.ffrAccuracy} % against invasive FFR</span>
+          <span class="rl">synthesis PSNR {imageMetrics.psnr}, SSIM {imageMetrics.ssim}, Dice {imageMetrics.dice}</span>
+        </Fragment>
+        <Fragment slot="consequence">
+          {numberWordCap(imageAcquired.length)} acquired phases become {numberWord(phaseCount)}, and FFR can be read at
+          every one of them.
+        </Fragment>
+      </Frame>
     </Fragment>
 
     <h3 class="t-subheading">What this is</h3>
@@ -212,7 +219,28 @@ const chapters = [
       FFR analysis that turns the synthesized frames into time-resolved coronary physiology.
     </p>
 
-    <div class="paper-grid paper-grid--single">
+    <figure class="plate plate--chart">
+      <a class="plate__sheet" href={imageBase + im.supporting.fig9} aria-label="Open Fig. 9 at full size">
+        <img
+          src={imageBase + im.supporting.fig9}
+          width="1855"
+          height="728"
+          alt="Two charts over phases P0 to P9 for Case 1. Left: FFR of the synthesized sequence and of the ground truth, nearly overlapping, with bars of relative error per phase. Right: wall shear stress, synthesized against ground truth, with its relative errors. P0 and P5 are the acquired, ground-truth phases."
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+      <figcaption class="plate__caption">
+        Fig. 9, {j1Cite}. Phase-wise FFR and WSS, synthesized against ground truth; the bars give the relative error at
+        each synthesized phase.
+      </figcaption>
+    </figure>
+
+    <div class="paper-grid paper-grid--pair">
+      <PaperFrame
+        pub={J1}
+        note="First-authored by T.H. Han. My part was the hemodynamic side: the CFD and FFR analysis on the synthesized 4D sequence."
+      />
       <PaperFrame pub={C2} note="Proceedings companion to the journal paper: dynamic FFR derived from the synthesized 4D CT." />
     </div>
 
@@ -233,9 +261,8 @@ const chapters = [
           <SpectrogramDevelop client:visible manifestUrl={urls.pulseManifest} variant="stft" bare />
           <Fragment slot="what">Short-time Fourier transform of one recording</Fragment>
           <Fragment slot="result">
-            {durationS} s · {stftM.fs_hz} Hz PPG · {crop[0]}–{crop[1]} Hz shown · {formatInt(pulse.stft.rows)} × {
-              formatInt(pulse.stft.cols)
-            } · pre-bolus, development cohort
+            <span class="rl">{durationS} s of {stftM.fs_hz} Hz PPG, {crop[0]}–{crop[1]} Hz shown</span>
+            <span class="rl">{formatInt(pulse.stft.rows)} × {formatInt(pulse.stft.cols)}, pre-bolus, development cohort</span>
           </Fragment>
           <Fragment slot="consequence">The cardiac band is the bright line; the ensemble reads what happens around it.</Fragment>
         </Frame>
@@ -252,20 +279,26 @@ const chapters = [
       intravenous crystalloid bolus within 24 hours of emergency-department arrival in hemodynamically stable adults,
       with every input recording taken before the first bolus.
     </p>
-    <dl class="pulse-results t-mono">
-      <div>
-        <dt>Development, out-of-fold</dt>
-        <dd>
-          AUC {formatDecimal(dev.AUC, 3)} [{ci(dev.AUC_95CI)}] · n = {formatInt(devN)}
-        </dd>
-      </div>
-      <div>
-        <dt>Same-center temporal set</dt>
-        <dd>
-          AUC {formatDecimal(temporal.AUC, 3)} [{ci(temporal.AUC_95CI)}] · n = {formatInt(temporalN)}
-        </dd>
-      </div>
-    </dl>
+    <figure class="pulse-results">
+      <figcaption class="pulse-results__caption">
+        Fluid-bolus prediction at patient level, from {M1.id}, {m1Status}.
+      </figcaption>
+      <dl class="t-mono">
+        <div>
+          <dt>Development, out-of-fold</dt>
+          <dd>
+            AUC {formatDecimal(dev.AUC, 3)} [{ci(dev.AUC_95CI)}] · <span class="nowrap">n = {formatInt(devN)}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>Same-center temporal set</dt>
+          <dd>
+            AUC {formatDecimal(temporal.AUC, 3)} [{ci(temporal.AUC_95CI)}] ·{' '}
+            <span class="nowrap">n = {formatInt(temporalN)}</span>
+          </dd>
+        </div>
+      </dl>
+    </figure>
     <p class="t-prose">
       The development figure is internally selected: the ensemble weights and cutoff were chosen on those same
       predictions. The temporal set was scored with the model, weights and cutoff unchanged, which is why both numbers
@@ -273,7 +306,7 @@ const chapters = [
     </p>
 
     <div class="paper-grid paper-grid--single">
-      <PaperFrame pub={M1} note={`Manuscript under revision at ${M1.venue}.`} />
+      <PaperFrame pub={M1} note="The source of the fluid-bolus numbers above." />
     </div>
 
     <h3 class="t-subheading">Viscosity from the same signal</h3>
@@ -288,14 +321,6 @@ const chapters = [
     <div class="paper-grid paper-grid--single">
       <PaperFrame
         pub={J2}
-        wide
-        figure={{
-          src: '/media/papers/extracted/viscosity-000.png',
-          alt: 'Figure from the 2025 PPG-based blood viscosity paper: the physics-integrated workflow from smartwatch PPG to Carreau–Yasuda viscosity parameters.',
-          width: 1500,
-          height: 1321,
-          light: true,
-        }}
         note="Physics-constrained CNN-LSTM with a Carreau–Yasuda prior; 2026 Merit Academic Paper Award, School of Mechanical Engineering, Yonsei University."
       />
     </div>
@@ -306,47 +331,17 @@ const chapters = [
 </Base>
 
 <style>
-  .research-head {
-    padding-block: var(--section-pad) 0;
-  }
-  .research-head__row {
-    display: grid;
-    gap: var(--space-4);
-    align-items: end;
-  }
-  @media (min-width: 900px) {
-    .research-head__row {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: var(--space-6);
-    }
-  }
-  .research-head__text {
-    display: grid;
-    gap: var(--space-3);
-  }
-  .research-head__text .t-prose {
-    color: var(--ink-2);
-  }
-  .research-head__nav ol {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
-    counter-reset: none;
-  }
-  .research-head__nav a {
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: var(--size-ui);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.3em;
-  }
-
-  /* Flow artifact: viewer wide, curve beside it; stacked under 960px */
+  /*
+    Flow and Pulse artifacts: two frames side by side (stacked under 960px).
+    The grid row sets one height for both; each frame is a flex column whose
+    body takes the slack, so the two caption stacks start on one line and the
+    frames end on one line. No fixed heights.
+  */
   .flow-grid,
   .pulse-grid {
     display: grid;
     gap: var(--space-3);
-    align-items: start;
+    align-items: stretch;
   }
   @media (min-width: 960px) {
     .flow-grid,
@@ -354,10 +349,99 @@ const chapters = [
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     }
   }
+  .flow-grid > :global(.frame),
+  .pulse-grid > :global(.frame) {
+    display: flex;
+    flex-direction: column;
+  }
+  .flow-grid > :global(.frame > .frame__body),
+  .pulse-grid > :global(.frame > .frame__body) {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .flow-grid > :global(.frame > .frame__stack),
+  .pulse-grid > :global(.frame > .frame__stack) {
+    flex: none;
+  }
+  /*
+    Spectrograms: the plot holds the top of the body and the toolbar its
+    bottom, so in both frames Replay sits on the line above the caption.
+  */
+  .pulse-grid > :global(.frame > .frame__body) {
+    justify-content: flex-start;
+  }
+  .pulse-grid :global(.pulse--bare) {
+    flex: 1 0 auto;
+    align-content: space-between;
+  }
 
   /* The curve starts below the corner chrome instead of running under it. */
   .flow-grid :global(.flow-grid__curve > .frame__body) {
     padding-top: calc(var(--corner-inset) + 1.75rem);
+  }
+  /* The viewer frame carries bottom corner readouts: its stack clears them. */
+  .flow-grid :global(.flow-grid__viewer > .frame__stack) {
+    padding-bottom: calc(var(--corner-inset) + 2.5rem);
+  }
+  /* Replay sits in the same slot in both spectrograms: the right end of the toolbar, even after a wrap. */
+  .pulse-grid :global(.pulse__bar > .pulse__btn) {
+    margin-left: auto;
+  }
+
+  /* Image artifact: the phase scrubber at frame width. */
+  .image-frame {
+    margin: 0;
+  }
+
+  /*
+    Paper figure plates in the reading column. A raw paper figure is never
+    full width: it sits on the shared left edge, on a light plate with a hairline, capped near
+    560 px (a wide chart gets the reading measure), with an italic caption
+    that names the figure and the paper.
+  */
+  .plate {
+    display: grid;
+    gap: var(--space-2);
+    justify-self: start;
+    width: 100%;
+    max-width: 35rem;
+    margin: 0;
+  }
+  .plate--chart {
+    max-width: 50rem;
+  }
+  .plate__sheet {
+    display: block;
+    padding: var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--box);
+  }
+  .plate__sheet img {
+    display: block;
+    width: 100%;
+    height: auto;
+    mix-blend-mode: multiply;
+  }
+  a.plate__sheet {
+    cursor: zoom-in;
+  }
+  a.plate__sheet:focus-visible {
+    outline: var(--ring);
+    outline-offset: var(--ring-offset);
+  }
+  /* Fig. 1 keeps its black ground: a small film frame, never a light plate. */
+  /* The caption starts under the plate's left edge and keeps a reading measure. */
+  .plate__caption {
+    max-width: 62ch;
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
   }
 
   /* Under 640px two corner labels per edge collide; keep case id and FFR, drop the pair that repeats below */
@@ -368,29 +452,48 @@ const chapters = [
     }
   }
 
-  /* Paper frames: first-author work takes the wider column */
+  /*
+    Paper frames side by side: first-author work takes the wider column, a
+    co-authored pair splits evenly. Grid rows stretch both frames to one
+    height (PaperFrame grows its text body), so the pair ends on one line.
+  */
   .paper-grid {
     display: grid;
     gap: var(--space-3);
-    align-items: start;
+    align-items: stretch;
   }
   @media (min-width: 760px) {
     .paper-grid:not(.paper-grid--single) {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     }
+    .paper-grid.paper-grid--pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .pulse-results {
     display: grid;
+    gap: var(--space-1);
+    margin: 0;
+  }
+  .pulse-results__caption {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .pulse-results dl {
+    display: grid;
     gap: var(--space-2);
-    max-width: var(--measure);
+    margin: 0;
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
     padding-block: var(--space-2);
   }
-  .pulse-results > div {
+  .pulse-results dl > div {
     display: grid;
-    grid-template-columns: minmax(12rem, max-content) 1fr;
+    grid-template-columns: max-content minmax(0, 1fr);
     gap: var(--space-3);
   }
   .pulse-results dt {
@@ -400,8 +503,11 @@ const chapters = [
     margin: 0;
     color: var(--ink);
   }
+  .nowrap {
+    white-space: nowrap;
+  }
   @media (max-width: 560px) {
-    .pulse-results > div {
+    .pulse-results dl > div {
       grid-template-columns: 1fr;
       gap: 0.25rem;
     }

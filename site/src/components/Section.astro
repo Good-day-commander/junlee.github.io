@@ -7,8 +7,14 @@
   pads the page bottom.
   There is no kicker and no section number; the heading carries itself.
 
-    width 'text'   72rem column (default; prose, lists, tables)
-          'frame'  1280px column (frames and viewers)
+    width 'text'   prose, lists, tables (default)
+          'frame'  frames and viewers
+  Both widths share one left edge (see .wrap--text in global.css); text
+  sections constrain their measure, not their container.
+
+  The first section under a report page head (.page-head) binds to it with
+  a smaller top margin: the head already ends on a rule and its own padding,
+  so a full section-pad there read as a missing block.
 */
 export interface Props {
   heading: string;
@@ -43,6 +49,9 @@ const headingId = id ? `${id}-heading` : undefined;
   }
   .section__head > .t-heading {
     margin-top: var(--section-pad);
+  }
+  :global(.page-head) + .section .section__head > .t-heading {
+    margin-top: var(--space-5);
   }
   .section__head {
     display: grid;

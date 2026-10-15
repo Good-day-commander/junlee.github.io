@@ -6,7 +6,11 @@
 .root {
   position: relative;
   width: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  /* The rows layout below is a container query on this box, so it holds before hydration. */
+  container: vessel / inline-size;
   touch-action: pan-y;
   -webkit-user-select: none;
   user-select: none;
@@ -16,7 +20,22 @@
   height: 100%;
   min-height: 320px;
 }
-.root[data-mode='chapter'] {
+
+.layout {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The image: canvas, fallback, status and the wipe handle. */
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.root[data-mode='chapter'] .stage {
   aspect-ratio: 16 / 10;
 }
 
@@ -46,6 +65,19 @@
 }
 .root[data-mode='hero'] .fallback {
   object-position: 72% 50%;
+}
+
+/*
+  Chrome over the image (wide frames): a transparent layer the size of the
+  stage; only the controls take pointer events, so drags reach the canvas.
+*/
+.chrome {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.controls {
+  display: contents;
 }
 
 /* Wipe handle: a full-height hairline with a grip at mid-height */
@@ -139,6 +171,7 @@
   border: 1px solid var(--line);
   border-radius: 1px;
   box-sizing: content-box;
+  background: var(--cb-v);
 }
 .ticks {
   position: relative;
@@ -150,6 +183,7 @@
 .tick {
   position: absolute;
   right: 0;
+  top: calc((1 - var(--t)) * 100%);
   transform: translateY(-50%);
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -189,6 +223,7 @@
 .segment {
   position: absolute;
   display: inline-flex;
+  pointer-events: auto;
   margin: 0;
   padding: 0;
   border: 0;
@@ -273,6 +308,17 @@
   cursor: not-allowed;
 }
 
+/* Touch-sized segments wherever the toggle replaces the handle, and on coarse pointers. */
+.root[data-control='toggle'] .segBtn {
+  min-height: 2.75rem;
+  padding-inline: 0.85rem;
+}
+@media (pointer: coarse) {
+  .segBtn {
+    min-height: 2.75rem;
+  }
+}
+
 .note {
   position: absolute;
   left: 0.75rem;
@@ -317,6 +363,120 @@
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/*
+  Narrow chapter frames (< 640 px): the chrome leaves the image and stacks in
+  rows under it. Row 1 is a horizontal colorbar with its ticks beneath; row
+  2 holds the field toggle and the CFD | PINO two-state, wrapping between
+  the two groups only. The vessel keeps the whole stage.
+*/
+@container vessel (max-width: 639.98px) {
+  .root[data-mode='chapter'] .chrome {
+    position: static;
+    inset: auto;
+    flex: none;
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    pointer-events: auto;
+    border-top: 1px solid var(--line-soft);
+  }
+  /* Reserve the rows while the island loads so the frame does not grow under the reader. */
+  .root[data-mode='chapter'][data-status='loading'] .chrome {
+    min-height: 7rem;
+  }
+  .root[data-mode='chapter'] .colorbar {
+    position: static;
+    transform: none;
+    height: auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: 8px 1rem;
+    column-gap: 0.75rem;
+    row-gap: 0.35rem;
+    align-items: center;
+  }
+  .root[data-mode='chapter'] .cbLabel {
+    position: static;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  .root[data-mode='chapter'] .strip {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    height: 8px;
+    background: var(--cb-h);
+  }
+  .root[data-mode='chapter'] .ticks {
+    grid-column: 2;
+    grid-row: 2;
+    height: 1rem;
+  }
+  .root[data-mode='chapter'] .tick {
+    top: 0.2rem;
+    right: auto;
+    left: calc(var(--t) * 100%);
+    transform: translateX(-50%);
+  }
+  .root[data-mode='chapter'] .tick[data-edge='start'] {
+    transform: none;
+  }
+  .root[data-mode='chapter'] .tick[data-edge='end'] {
+    transform: translateX(-100%);
+  }
+  .root[data-mode='chapter'] .tick[data-over='true'] {
+    display: none;
+  }
+  .root[data-mode='chapter'] .tick::after {
+    top: -0.45rem;
+    right: auto;
+    left: 50%;
+    width: 1px;
+    height: 0.25rem;
+  }
+  .root[data-mode='chapter'] .tick[data-edge='start']::after {
+    left: 0;
+  }
+  .root[data-mode='chapter'] .tick[data-edge='end']::after {
+    left: auto;
+    right: 0;
+  }
+  .root[data-mode='chapter'] .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+  }
+  .root[data-mode='chapter'] .segment {
+    position: static;
+    transform: none;
+  }
+  .root[data-mode='chapter'] .segBtn {
+    min-height: 2.75rem;
+    padding: 0.45rem 0.7rem;
+  }
+  .root[data-mode='chapter'] .note {
+    position: static;
+    max-width: none;
+    font-size: 0.85rem;
+  }
+}
+
+/*
+  Hero on a phone: the colorbar spans the band between the top-right case
+  readout and the bottom-right develop readout instead of centring on the
+  frame, so a shorter portrait frame cannot push it under either.
+*/
+@container vessel (max-width: 639.98px) {
+  .root[data-mode='hero'] .colorbar {
+    top: 6.5rem;
+    bottom: 6rem;
+    height: auto;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

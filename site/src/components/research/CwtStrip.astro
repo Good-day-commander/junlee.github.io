@@ -20,8 +20,8 @@ const durationS = Math.round(pulse.cwt.t_s[pulse.cwt.t_s.length - 1]);
   <SpectrogramDevelop client:visible manifestUrl={urls.pulseManifest} variant="cwt" bare />
   <Fragment slot="what">Continuous wavelet transform</Fragment>
   <Fragment slot="result">
-    {wavelet} · {formatInt(m.n_scales)} scales · {fRange} · {formatInt(pulse.cwt.rows)} × {formatInt(pulse.cwt.cols)} ·
-    same {durationS} s recording
+    <span class="rl">{wavelet}, {formatInt(m.n_scales)} scales, {fRange}</span>
+    <span class="rl">{formatInt(pulse.cwt.rows)} × {formatInt(pulse.cwt.cols)}, same {durationS} s recording</span>
   </Fragment>
   <Fragment slot="consequence">The second representation the ensemble reads; two of its six configurations see this.</Fragment>
 </Frame>

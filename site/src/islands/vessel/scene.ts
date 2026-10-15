@@ -64,7 +64,15 @@ const TWO_PI = Math.PI * 2;
 const DRIFT_PERIOD_MS = 60_000;
 const FOV_DEG = 26;
 /** Landscape hero: roll of the chord below screen X (inlet upper left, outlet lower right). */
-const HERO_ROLL_DEG = 38;
+const HERO_ROLL_DEG = 52;
+/*
+  Hero crop: the last stretch of the chord past this fraction (beyond the
+  distal FFR probe, where pressure sits flat at the bottom of the range and
+  turbo's darkest stop reads as an unlit grey stub) is framed off the bottom
+  edge, the way a cine run crops the vessel at the detector edge. The mesh
+  is not cut; the camera simply frames the vessel up to here.
+*/
+const HERO_CROP = 0.88;
 const X = new Vector3(1, 0, 0);
 const Y = new Vector3(0, 1, 0);
 const Z = new Vector3(0, 0, 1);
@@ -93,10 +101,19 @@ export class VesselScene {
   /** Mesh positions, kept to re-derive the on-screen extents when the orientation changes. */
   private positions: Float32Array | null = null;
   private meshOffset = new Vector3();
+  private boxOffset = new Vector3();
+  private chordOffset = new Vector3();
   /** Bounding size of the vessel as shown, in pivot space: x across the frame, y up, z depth. */
   private extent = new Vector3(1, 1, 1);
   /** Centre of that box in pivot space (the drift axis passes through the origin, not this). */
   private center = new Vector3();
+  /** Hero framing: bounds of the vessel up to HERO_CROP along the chord, and the crop point, in pivot space. */
+  private keepMin = new Vector3();
+  private keepMax = new Vector3();
+  private cropPoint = new Vector3();
+  private keep: Uint8Array | null = null;
+  /** Centroid of the vessel's cross-section at the crop (raw mesh coordinates). */
+  private cropRaw = new Vector3();
   private portrait = false;
 
   private width = 1;
@@ -238,13 +255,36 @@ export class VesselScene {
     const basis = new Matrix4().makeBasis(a, b, nrm);
     this.qLandscape.setFromRotationMatrix(basis).invert();
 
-    // Landscape bounding box: its centre goes on the pivot origin so the
-    // drift axis (the chord) runs through the middle of the vessel.
+    // Pivot origin. Chapter: the landscape bounding-box centre, so the drift
+    // turns the vessel about its own middle and it stays centred. Hero: the
+    // chord's midpoint, so the drift axis is the chord itself and inlet and
+    // outlet hold still (the hero frames the outlet off the bottom edge, and
+    // that exit stays put through the whole revolution).
     const { min, max } = this.bounds(data.positions, this.qLandscape);
     const center = min.clone().add(max).multiplyScalar(0.5);
-    const offset = center.clone().negate().applyQuaternion(this.qLandscape.clone().invert());
+    this.boxOffset.copy(center).negate().applyQuaternion(this.qLandscape.clone().invert());
+    this.chordOffset.copy(inlet).add(outlet).multiplyScalar(-0.5);
+    const offset = this.mode === 'hero' ? this.chordOffset : this.boxOffset;
     this.positions = data.positions;
     this.meshOffset.copy(offset);
+    // Which vertices lie within the hero crop (chord fraction from the inlet ≤ HERO_CROP),
+    // and where the vessel itself (not the chord, which the body arcs away from) crosses it.
+    const len = outlet.distanceTo(inlet);
+    const keep = new Uint8Array(n);
+    const p = new Vector3();
+    const ring = new Vector3();
+    let ringN = 0;
+    for (let i = 0; i < n; i += 1) {
+      p.fromArray(data.positions, i * 3);
+      const t = p.clone().sub(inlet).dot(a) / len;
+      keep[i] = t <= HERO_CROP ? 1 : 0;
+      if (t > HERO_CROP - 0.02 && t <= HERO_CROP) {
+        ring.add(p);
+        ringN += 1;
+      }
+    }
+    this.keep = keep;
+    this.cropRaw.copy(ringN ? ring.divideScalar(ringN) : inlet.clone().lerp(outlet, HERO_CROP));
 
     const mesh = new Mesh(geometry, this.material);
     mesh.position.copy(offset);
@@ -427,12 +467,13 @@ export class VesselScene {
     }
   }
 
-  /** Axis-aligned bounds of the positions after rotation by q. */
-  private bounds(positions: Float32Array, q: Quaternion): { min: Vector3; max: Vector3 } {
+  /** Axis-aligned bounds of the positions after rotation by q (optionally only where keep[i] is set). */
+  private bounds(positions: Float32Array, q: Quaternion, keep?: Uint8Array): { min: Vector3; max: Vector3 } {
     const p = new Vector3();
     const min = new Vector3(Infinity, Infinity, Infinity);
     const max = new Vector3(-Infinity, -Infinity, -Infinity);
     for (let i = 0; i < positions.length; i += 3) {
+      if (keep && !keep[i / 3]) continue;
       p.fromArray(positions, i).applyQuaternion(q);
       min.min(p);
       max.max(p);
@@ -448,6 +489,10 @@ export class VesselScene {
   }
 
   private applyOrientation(): void {
+    if (this.mesh) {
+      this.meshOffset.copy(this.mode === 'hero' ? this.chordOffset : this.boxOffset);
+      this.mesh.position.copy(this.meshOffset);
+    }
     const rot = this.frameRotation();
     this.aligned.quaternion.copy(rot).multiply(this.qLandscape);
     // The chord in pivot space: +X in landscape, −Y in portrait (inlet at the top), rolled in the hero.
@@ -458,50 +503,59 @@ export class VesselScene {
       const off = this.meshOffset.clone().applyQuaternion(this.aligned.quaternion);
       this.extent.subVectors(max, min);
       this.center.copy(min).add(max).multiplyScalar(0.5).add(off);
+      if (this.keep) {
+        const k = this.bounds(this.positions, this.aligned.quaternion, this.keep);
+        this.keepMin.copy(k.min).add(off);
+        this.keepMax.copy(k.max).add(off);
+        this.cropPoint.copy(this.cropRaw).applyQuaternion(this.aligned.quaternion).add(off);
+      }
     }
   }
 
   /*
     Camera framing from the on-screen extents.
-      hero, landscape  rolled vessel spans ~55 % of the width from left-centre to the
-                       right edge and over half of the height; the lower left stays
-                       clear for the headline block
-      hero, portrait   centred, spans most of the width
-      chapter          centred, spans most of the frame
+      hero         the vessel up to HERO_CROP is framed from just under the
+                   top corner readouts down to the bottom edge, and the crop
+                   point sits on that edge, so the flat distal stub runs out
+                   of frame instead of ending as a grey cap inside it.
+                   Landscape: the rolled vessel opens from the upper left
+                   across ~70 % of the width and leaves the frame between the
+                   headline block and the bottom-right readout (~70 % x).
+                   Portrait: the inlet at the top, the vessel leaving the
+                   bottom edge between the CFD | PINO toggle and the readout.
+      chapter      centred, spans most of the frame
   */
   private frame(): void {
     const aspect = this.width / this.height;
-    const ext = { w: this.extent.x, h: this.extent.y };
-    let fracW: number;
-    let fracH: number;
-    let cx: number;
-    let cy = 0.5;
-    if (this.mode === 'hero' && !this.portrait) {
-      fracW = 0.58;
-      fracH = 0.76;
-      cx = 0.65;
-      cy = 0.52;
-    } else if (this.mode === 'hero') {
-      // Portrait: leave the right edge to the colorbar.
-      fracW = 0.74;
-      fracH = 0.72;
-      cx = 0.46;
-    } else {
-      fracW = 0.84;
-      fracH = 0.8;
-      cx = 0.5;
-    }
-    // Perspective enlarges the near half of a rotating vessel; keep a margin.
-    const margin = 0.95;
     const tanHalf = Math.tan((FOV_DEG * Math.PI) / 360);
-    const needW = ext.w / (fracW * margin);
-    const needH = ext.h / (fracH * margin);
-    const visibleW = Math.max(needW, needH * aspect);
-    const visibleH = visibleW / aspect;
-    const d = visibleW / (2 * tanHalf * aspect);
-    // Camera target: the vessel's centre pushed so the box lands at (cx, cy) of the frame.
-    const tx = this.center.x - (cx - 0.5) * visibleW;
-    const ty = this.center.y + (cy - 0.5) * visibleH;
+    let tx: number;
+    let ty: number;
+    let visibleH: number;
+    if (this.mode === 'hero' && this.keep) {
+      const top = this.portrait ? 0.24 : 0.12; // highest the vessel may reach, as a fraction from the top
+      const left = this.portrait ? 0.1 : 0.08; // leftmost it may reach, as a fraction from the left
+      const bottom = 1.03; // the kept box ends just past the bottom edge
+      const exitX = this.portrait ? 0.35 : 0.72; // where the crop point crosses the bottom edge
+      // Large enough that the kept vessel fits under `top` and right of `left`, whichever binds.
+      const byHeight = (this.keepMax.y - this.keepMin.y) / (bottom - top);
+      const byWidth = (this.cropPoint.x - this.keepMin.x) / (exitX - left) / aspect;
+      visibleH = Math.max(byHeight, byWidth);
+      const visibleW = visibleH * aspect;
+      tx = this.cropPoint.x - (exitX - 0.5) * visibleW;
+      ty = this.keepMin.y + (bottom - 0.5) * visibleH;
+    } else {
+      const fracW = 0.84;
+      const fracH = 0.8;
+      // Perspective enlarges the near half of a rotating vessel; keep a margin.
+      const margin = 0.95;
+      const needW = this.extent.x / (fracW * margin);
+      const needH = this.extent.y / (fracH * margin);
+      const visibleW = Math.max(needW, needH * aspect);
+      visibleH = visibleW / aspect;
+      tx = this.center.x;
+      ty = this.center.y;
+    }
+    const d = visibleH / (2 * tanHalf);
     this.camera.aspect = aspect;
     this.camera.position.set(tx, ty, d);
     this.camera.lookAt(tx, ty, 0);

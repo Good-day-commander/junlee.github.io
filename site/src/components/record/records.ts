@@ -34,9 +34,30 @@ export function dateKey(label: string, fallbackMonth: number): number {
   return year * 12 + month;
 }
 
+/*
+  One range rule for the whole site: an en dash, spaced only when an end
+  itself contains a space ("Mar. 2020 – Feb. 2022"), closed when both ends
+  are single tokens ("2022–2025", "2023–2024"). The en dash is never used as
+  a clause separator.
+*/
+export function range(a: string, b: string): string {
+  return /\s/.test(a) || /\s/.test(b) ? `${a} – ${b}` : `${a}–${b}`;
+}
+
+/** Re-set a range string from content.ts ("2022 – 2025") by the same rule. */
+export function normRange(label: string): string {
+  const parts = label.split(/\s*–\s*/);
+  return parts.length === 2 ? range(parts[0].trim(), parts[1].trim()) : label;
+}
+
 /** "Jun. 2022 – Feb. 2029", collapsing to one label when both ends are the same. */
 export function period(start: string, end: string): string {
-  return start === end ? start : `${start} – ${end}`;
+  return start === end ? start : range(start, end);
+}
+
+/** Sentence-case a lowercase field from content.ts ("poster" → "Poster"). */
+export function capitalize(s: string): string {
+  return s ? `${s.charAt(0).toUpperCase()}${s.slice(1)}` : s;
 }
 
 /* ---------- publications ---------- */
@@ -69,20 +90,13 @@ export function leads(p: Publication): boolean {
   return p.myRole === 'first' || p.myRole === 'co-first';
 }
 
-/** Figure plate per publication: only those with a figure on hand. Alt text names the figure, not the claim. */
+/**
+  Figure plate per publication: only where the figure is a result (C1's CFD
+  against PINO fields). Workflow flowcharts (J2, J4) are not plates anywhere
+  on the site (DESIGN.md, plate policy). Alt text names the figure, not the
+  claim.
+*/
 export const PLATES: Record<string, { src: string; width: number; height: number; alt: string }> = {
-  J2: {
-    src: '/media/papers/extracted/viscosity-000.png',
-    width: 1500,
-    height: 1321,
-    alt: 'Figure from the 2025 paper: the physics-integrated workflow from smartwatch PPG to patient-specific non-Newtonian blood viscosity.',
-  },
-  J4: {
-    src: '/media/papers/extracted/ffr-000.png',
-    width: 1505,
-    height: 1602,
-    alt: 'Figure from the 2022 paper: the gray-zone FFR prediction workflow combining hemodynamic features, synthetic vessel models and biometric data.',
-  },
   C1: {
     src: '/media/papers/extracted/pino-dmd2026.png',
     width: 578,
@@ -102,10 +116,15 @@ export const publicationCounts = {
 
 export type TalkYear = { year: string; items: Talk[] };
 
-/** Newest year first; inside a year International precedes Domestic, otherwise CV order. */
-export function talksByYear(): TalkYear[] {
+/**
+  Newest year first; inside a year International precedes Domestic, otherwise
+  CV order. Pass a role to keep only the talks I presented ('presenter') or
+  only those I co-authored.
+*/
+export function talksByYear(role?: Talk['role']): TalkYear[] {
   const order: Record<Talk['category'], number> = { International: 0, Domestic: 1 };
-  const sorted = [...talks].sort((a, b) => {
+  const pool = role ? talks.filter((t) => t.role === role) : talks;
+  const sorted = [...pool].sort((a, b) => {
     const dy = Number(b.year) - Number(a.year);
     return dy !== 0 ? dy : order[a.category] - order[b.category];
   });
@@ -163,7 +182,7 @@ export function patentFamilies(list: Patent[] = publicPatents): PatentFamily[] {
       members,
       jurisdictions: Array.from(new Set(members.map((p) => p.jurisdiction))),
       registered: members.some((p) => p.status === 'registered'),
-      yearLabel: earliest === latest ? String(latest) : `${earliest}–${latest}`,
+      yearLabel: earliest === latest ? String(latest) : range(String(earliest), String(latest)),
       latestYear: latest,
     };
   });

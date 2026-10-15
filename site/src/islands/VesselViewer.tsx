@@ -14,6 +14,9 @@
              developDelayMs  pause after first visibility before the develop
              fallbackSrc   static raster when WebGL is missing (default:
                            vessel-static.png next to the manifest)
+             control       'auto' (default): wipe handle on frames 640 px
+                           and wider, a two-state CFD | PINO toggle below;
+                           'handle' or 'toggle' forces one
     state    ViewerState { wipe, field, ready, webgl, develop, elapsedS,
              developDone, error? }
              wipe: handle position from the left edge; CFD is painted left
@@ -26,8 +29,14 @@
              (10 %), Home/End; role=slider with aria-valuenow 0..100
     canvas   pointer drag orbits; wheel is untouched so the page scrolls;
              vertical touch pans scroll the page (touch-action: pan-y)
-    narrow   under 560 px the handle gives way to a two-state CFD | PINO
-             toggle that tweens the wipe to either edge
+    narrow   under 640 px the handle gives way to a two-state CFD | PINO
+             toggle (44 px tall) that tweens the wipe to either edge. In
+             chapter mode the chrome also leaves the image: the colorbar
+             turns horizontal and sits in a row under the canvas, with the
+             field toggle and the two-state in a second row, so nothing is
+             printed over the vessel or over another control. The row
+             layout is a container query on the root, so the server HTML
+             already reserves its space.
     motion   develop 1.78 s on first visibility (snaps under reduced
              motion); idle drift one revolution per 60 s, paused offscreen,
              on document.hidden, during drags and under reduced motion
@@ -86,6 +95,8 @@ export interface VesselViewerProps {
   initialWipe?: number;
   developDelayMs?: number;
   fallbackSrc?: string;
+  /** Wipe control: 'auto' picks the handle at 640 px and wider, the two-state toggle below. */
+  control?: 'auto' | 'handle' | 'toggle';
   className?: string;
 }
 
@@ -97,7 +108,8 @@ const FIELDS: Array<{ id: ViewerField; label: string }> = [
   { id: 'speed', label: 'Speed' },
 ];
 
-const COMPACT_PX = 560;
+/* Matches the container query in viewer.module.css (rows layout below 640 px). */
+const COMPACT_PX = 640;
 const ORBIT_RAD_PER_PX = 0.005;
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -109,9 +121,11 @@ export function VesselViewer({
   initialWipe = 0.5,
   developDelayMs = 250,
   fallbackSrc,
+  control = 'auto',
   className,
 }: VesselViewerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<VesselScene | null>(null);
   const dataRef = useRef<VesselData | null>(null);
@@ -176,8 +190,9 @@ export function VesselViewer({
   /* Scene lifetime: renderer, observers, data. */
   useEffect(() => {
     const root = rootRef.current;
+    const stage = stageRef.current;
     const canvas = canvasRef.current;
-    if (!root || !canvas) return;
+    if (!root || !stage || !canvas) return;
     const ac = new AbortController();
     let cancelled = false;
 
@@ -219,13 +234,14 @@ export function VesselViewer({
     };
     rm.addEventListener('change', onReduced);
 
-    const ro = new ResizeObserver((entries) => {
-      const r = entries[0]?.contentRect;
-      if (!r) return;
-      setCompact(r.width < COMPACT_PX);
-      scene?.setSize(r.width, r.height, window.devicePixelRatio || 1);
+    // The root's width picks the layout; the stage (the canvas box) sizes the renderer.
+    const ro = new ResizeObserver(() => {
+      setCompact(root.clientWidth < COMPACT_PX);
+      const r = stage.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) scene?.setSize(r.width, r.height, window.devicePixelRatio || 1);
     });
     ro.observe(root);
+    ro.observe(stage);
 
     const syncActive = () => scene?.setActive(visibleRef.current && !document.hidden);
     const io = new IntersectionObserver(
@@ -277,17 +293,19 @@ export function VesselViewer({
     };
   }, [manifestUrl, mode, applyField, emit, maybeDevelop]);
 
+  const useToggle = control === 'toggle' || (control === 'auto' && compact);
+
   /* Narrow frames start on the PINO side so the develop is visible. */
   const compactInit = useRef(false);
   useEffect(() => {
-    if (!compact || compactInit.current) return;
+    if (!useToggle || compactInit.current) return;
     compactInit.current = true;
     if (live.current.wipe > 0 && live.current.wipe < 1) {
       sceneRef.current?.setWipe(0);
       setWipeState(0);
       emit({ wipe: 0 });
     }
-  }, [compact, emit]);
+  }, [useToggle, emit]);
 
   const setWipe = useCallback(
     (v: number) => {
@@ -312,12 +330,12 @@ export function VesselViewer({
   /* Handle drag */
   const onHandlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-    const root = rootRef.current;
-    if (!root) return;
+    const stage = stageRef.current;
+    if (!stage) return;
     e.preventDefault();
     e.stopPropagation();
     (e.currentTarget as HTMLDivElement).focus({ preventScroll: true });
-    const rect = root.getBoundingClientRect();
+    const rect = stage.getBoundingClientRect();
     const target = e.currentTarget;
     target.setPointerCapture(e.pointerId);
     setDragging('wipe');
@@ -372,8 +390,8 @@ export function VesselViewer({
     setWipe(next);
   };
 
-  /* Orbit drag anywhere else on the frame */
-  const onRootPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+  /* Orbit drag anywhere else on the image */
+  const onStagePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     const scene = sceneRef.current;
     if (!scene || status !== 'ready') return;
     if (e.button !== 0 && e.pointerType === 'mouse') return;
@@ -412,18 +430,22 @@ export function VesselViewer({
   };
 
   const legend: Legend | null = useMemo(
-    () => (manifest ? legendFor(field, manifest, mode === 'hero') : null),
-    [manifest, field, mode],
+    () => (manifest ? legendFor(field, manifest) : null),
+    [manifest, field],
   );
-  const gradient = useMemo(() => {
+  /* Both orientations: the strip is vertical over the image, horizontal in the rows layout. */
+  const gradients = useMemo(() => {
     if (!legend) return undefined;
-    return legend.colormap === 'diverging'
-      ? cssDivergingGradient(24, legend.overFraction, 'to top')
-      : cssGradient(legend.colormap, 24, 'to top');
+    const g = (dir: 'to top' | 'to right') =>
+      legend.colormap === 'diverging'
+        ? cssDivergingGradient(24, legend.overFraction, dir)
+        : cssGradient(legend.colormap, 24, dir);
+    return { v: g('to top'), h: g('to right') };
   }, [legend]);
 
-  const showHandle = status === 'ready' && field !== 'error' && !compact;
-  const showTwoState = status === 'ready' && field !== 'error' && compact;
+  const showHandle = status === 'ready' && field !== 'error' && !useToggle;
+  const showTwoState = status === 'ready' && field !== 'error' && useToggle;
+  const showFields = mode === 'chapter' && status === 'ready';
   const pct = Math.round(wipe * 100);
   const caseId = manifest?.case_id ?? 'PINO-DEMO-01';
   const nodes = manifest ? formatInt(manifest.vertexCount) : '8 649';
@@ -443,128 +465,153 @@ export function VesselViewer({
       data-status={status}
       data-dragging={dragging}
       data-field={field}
+      data-control={useToggle ? 'toggle' : 'handle'}
       role="group"
       aria-label={`${caseId} vessel viewer`}
       aria-busy={status === 'loading' || undefined}
-      onPointerDown={onRootPointerDown}
     >
-      <canvas ref={canvasRef} className={s.canvas} aria-hidden="true" />
-
       <p className={s.srOnly}>{srSummary}</p>
 
-      {status === 'nowebgl' && (
-        <img
-          className={s.fallback}
-          src={fallback}
-          alt={`${caseId}: vessel surface coloured by pressure ${pRange}, CFD on the left half and PINO on the right.`}
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = 'none';
-            setErrorText('WebGL is unavailable in this browser');
-            setStatus('error');
-          }}
-        />
-      )}
+      <div className={s.layout}>
+        <div ref={stageRef} className={s.stage} onPointerDown={onStagePointerDown}>
+          <canvas ref={canvasRef} className={s.canvas} aria-hidden="true" />
 
-      {status === 'loading' && (
-        <p className={s.status} aria-live="polite">
-          <strong>{caseId}</strong>
-          <br />
-          loading {nodes} nodes
-        </p>
-      )}
-      {status === 'error' && (
-        <p className={s.status} role="status">
-          <strong>{caseId}</strong>
-          <br />
-          {errorText ? `the vessel did not load: ${errorText}` : 'the vessel did not load'}
-          <br />
-          {pRange ? `surface pressure ${pRange}` : 'reload the page to try again'}
-        </p>
-      )}
+          {status === 'nowebgl' && (
+            <img
+              className={s.fallback}
+              src={fallback}
+              alt={`${caseId}: vessel surface coloured by pressure ${pRange}, CFD on the left half and PINO on the right.`}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+                setErrorText('WebGL is unavailable in this browser');
+                setStatus('error');
+              }}
+            />
+          )}
 
-      {showHandle && (
-        <div
-          className={s.handle}
-          role="slider"
-          tabIndex={0}
-          aria-label="CFD | PINO wipe"
-          aria-orientation="horizontal"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-          aria-valuetext={`CFD left ${pct} %, PINO right ${100 - pct} %`}
-          style={{ left: `${wipe * 100}%` } as CSSProperties}
-          onPointerDown={onHandlePointerDown}
-          onKeyDown={onHandleKeyDown}
-        >
-          <span className={s.grip} aria-hidden="true">
-            <span>CFD</span>
-            <span className={s.gripBar} />
-            <span>PINO</span>
-          </span>
-        </div>
-      )}
+          {status === 'loading' && (
+            <p className={s.status} aria-live="polite">
+              <strong>{caseId}</strong>
+              <br />
+              loading {nodes} nodes
+            </p>
+          )}
+          {status === 'error' && (
+            <p className={s.status} role="status">
+              <strong>{caseId}</strong>
+              <br />
+              {errorText ? `the vessel did not load: ${errorText}` : 'the vessel did not load'}
+              <br />
+              {pRange ? `surface pressure ${pRange}` : 'reload the page to try again'}
+            </p>
+          )}
 
-      {showTwoState && (
-        <fieldset className={`${s.segment} ${s.twoState}`}>
-          <legend>Shown field</legend>
-          <button
-            type="button"
-            className={s.segBtn}
-            aria-pressed={wipe >= 0.5}
-            onClick={() => onTwoState('cfd')}
-          >
-            CFD
-          </button>
-          <button
-            type="button"
-            className={s.segBtn}
-            aria-pressed={wipe < 0.5}
-            onClick={() => onTwoState('pino')}
-          >
-            PINO
-          </button>
-        </fieldset>
-      )}
-
-      {mode === 'chapter' && status === 'ready' && (
-        <fieldset className={`${s.segment} ${s.fields}`}>
-          <legend>Field</legend>
-          {FIELDS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              className={s.segBtn}
-              aria-pressed={field === f.id}
-              onClick={() => setField(f.id)}
+          {showHandle && (
+            <div
+              className={s.handle}
+              role="slider"
+              tabIndex={0}
+              aria-label="CFD | PINO wipe"
+              aria-orientation="horizontal"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={pct}
+              aria-valuetext={`CFD left ${pct} %, PINO right ${100 - pct} %`}
+              style={{ left: `${wipe * 100}%` } as CSSProperties}
+              onPointerDown={onHandlePointerDown}
+              onKeyDown={onHandleKeyDown}
             >
-              {f.label}
-            </button>
-          ))}
-        </fieldset>
-      )}
-      {mode === 'chapter' && status === 'ready' && field === 'speed' && (
-        <p className={s.note}>
-          Inlet and outlet caps are masked: the wall is no-slip, so surface speed is the first
-          interior node&rsquo;s, and cap vertices carry an interior value on a different range.
-        </p>
-      )}
-
-      {legend && gradient && (
-        <div className={s.colorbar} role="img" aria-label={`Colorbar: ${legend.summary}`}>
-          <span className={s.cbLabel}>
-            {legend.name} <span className={s.unit}>{legend.unit}</span>
-          </span>
-          <ol className={s.ticks} aria-hidden="true">
-            {legend.ticks.map((t) => (
-              <li key={t.t} className={s.tick} style={{ top: `${(1 - t.t) * 100}%` }}>
-                {t.text}
-              </li>
-            ))}
-          </ol>
-          <div className={s.strip} style={{ background: gradient }} />
+              <span className={s.grip} aria-hidden="true">
+                <span>CFD</span>
+                <span className={s.gripBar} />
+                <span>PINO</span>
+              </span>
+            </div>
+          )}
         </div>
-      )}
+
+        {/*
+          Chrome: over the image on wide frames (absolute, pointer-events
+          only on the controls); under it, in rows, on narrow chapter frames.
+        */}
+        <div className={s.chrome}>
+          {legend && gradients && (
+            <div
+              className={s.colorbar}
+              role="img"
+              aria-label={`Colorbar: ${legend.summary}`}
+              style={{ '--cb-v': gradients.v, '--cb-h': gradients.h } as CSSProperties}
+            >
+              <span className={s.cbLabel}>
+                {legend.name} <span className={s.unit}>{legend.unit}</span>
+              </span>
+              <ol className={s.ticks} aria-hidden="true">
+                {legend.ticks.map((t) => (
+                  <li
+                    key={t.t}
+                    className={s.tick}
+                    data-over={t.over ? 'true' : undefined}
+                    data-edge={t.t <= 0.001 ? 'start' : t.t >= 0.999 ? 'end' : undefined}
+                    style={{ '--t': t.t } as CSSProperties}
+                  >
+                    {t.text}
+                  </li>
+                ))}
+              </ol>
+              <div className={s.strip} />
+            </div>
+          )}
+
+          {(showFields || showTwoState) && (
+            <div className={s.controls}>
+              {showFields && (
+                <fieldset className={`${s.segment} ${s.fields}`}>
+                  <legend>Field</legend>
+                  {FIELDS.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      className={s.segBtn}
+                      aria-pressed={field === f.id}
+                      onClick={() => setField(f.id)}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </fieldset>
+              )}
+              {showTwoState && (
+                <fieldset className={`${s.segment} ${s.twoState}`}>
+                  <legend>Shown solution</legend>
+                  <button
+                    type="button"
+                    className={s.segBtn}
+                    aria-pressed={wipe >= 0.5}
+                    onClick={() => onTwoState('cfd')}
+                  >
+                    CFD
+                  </button>
+                  <button
+                    type="button"
+                    className={s.segBtn}
+                    aria-pressed={wipe < 0.5}
+                    onClick={() => onTwoState('pino')}
+                  >
+                    PINO
+                  </button>
+                </fieldset>
+              )}
+            </div>
+          )}
+
+          {mode === 'chapter' && status === 'ready' && field === 'speed' && (
+            <p className={s.note}>
+              Inlet and outlet caps are masked: the wall is no-slip, so surface speed is the first
+              interior node&rsquo;s, and cap vertices carry an interior value on a different range.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

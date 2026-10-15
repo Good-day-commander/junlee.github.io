@@ -3,6 +3,8 @@
   One research chapter: heading, one STIX lede, the artifact at frame width
   (the work leads), then the reading column, then a one-line consequence.
   No kicker, no number: the heading and the artifact carry the chapter.
+  The consequence line ends with a quiet "Discuss this work" mailto whose
+  subject names the chapter, so every front has its own way in.
 
     <Chapter id="flow" heading="Flow" lede="…" consequence="…">
       <Fragment slot="artifact">…frames and islands…</Fragment>
@@ -16,7 +18,12 @@ export interface Props {
   consequence: string;
 }
 
+import { profile } from '@/data/content';
+import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
+
 const { id, heading, lede, consequence } = Astro.props;
+const subject = encodeURIComponent(`${heading} work on hyeongjunlee.me`);
+const discuss = `mailto:${profile.email}?subject=${subject}`;
 ---
 
 <section class="chapter" id={id} aria-labelledby={`${id}-heading`}>
@@ -31,7 +38,12 @@ const { id, heading, lede, consequence } = Astro.props;
 
   <div class="chapter__read wrap wrap--text">
     <slot />
-    <p class="chapter__consequence">{consequence}</p>
+    <p class="chapter__consequence">
+      {consequence}{' '}
+      <a class="chapter__discuss" href={discuss}>
+        Discuss this work<span class="chapter__arrow" aria-hidden="true" set:html={arrowRight} />
+      </a>
+    </p>
   </div>
 </section>
 
@@ -41,6 +53,10 @@ const { id, heading, lede, consequence } = Astro.props;
   }
   .chapter:last-of-type {
     padding-bottom: var(--section-pad);
+  }
+  /* The first chapter binds to the page head's rule, so the Flow viewer starts inside the first viewport. */
+  :global(.page-head) + .chapter {
+    padding-top: var(--space-5);
   }
   .chapter__head {
     display: grid;
@@ -72,5 +88,36 @@ const { id, heading, lede, consequence } = Astro.props;
     color: var(--ink);
     padding-top: var(--space-3);
     border-top: 1px solid var(--line);
+  }
+  .chapter__discuss {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 0.35rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    line-height: 1.2;
+    color: var(--ink-2);
+    white-space: nowrap;
+    text-decoration-color: var(--line);
+  }
+  .chapter__discuss:hover {
+    color: var(--ink);
+    text-decoration-color: var(--signal);
+  }
+  .chapter__arrow {
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
+    color: var(--ink-3);
+    transition: color var(--duration-quick) var(--ease-out);
+  }
+  .chapter__arrow :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .chapter__discuss:hover .chapter__arrow {
+    color: var(--signal);
   }
 </style>

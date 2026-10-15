@@ -27,17 +27,13 @@
   font-variant-numeric: tabular-nums;
   fill: var(--ink-3);
 }
+/* Axis titles keep their case: s is a variable, Pd/Pa a ratio, mm a unit. */
 .axisLabel {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  fill: var(--ink-3);
-}
-.axisLabel .unit,
-.axisLabel.ratio {
-  text-transform: none;
   letter-spacing: 0;
+  text-transform: none;
+  fill: var(--ink-3);
 }
 .cfd {
   fill: none;
@@ -65,15 +61,6 @@
   font-variant-numeric: tabular-nums;
   fill: var(--ink-3);
 }
-.ffrValue {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
-  fill: var(--ink);
-}
-.ffrValue.isPino {
-  fill: var(--signal);
-}
 .wipeLine {
   stroke: var(--signal);
   stroke-width: 1;
@@ -89,18 +76,59 @@
   stroke: var(--signal);
   stroke-width: 1.5;
 }
-.wipeText {
+/*
+  Legend row beneath the plot: the FFR values keyed to the curves. Each item
+  is nowrap; the row wraps only between items and uses no separator glyphs,
+  so no line can start with one.
+*/
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 1.25rem;
+  row-gap: 0.35rem;
+  min-height: 1.5rem;
+  /* Aligned with the plot's left edge (PAD.left in FfrCurve.tsx), never with the frame border. */
+  padding: 0.5rem 0 0 46px;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
+  line-height: 1.3;
   font-variant-numeric: tabular-nums;
-  fill: var(--ink-2);
+  color: var(--ink-2);
 }
-.legend {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  fill: var(--ink-2);
+.legendLead {
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 0;
+  border-top: 1.5px solid currentColor;
+}
+.swatchCfd {
+  color: var(--ink);
+}
+.swatchPino {
+  color: var(--signal);
+}
+.keyValue {
+  color: var(--ink);
+}
+.keyValue.isPino {
+  color: var(--signal);
+}
+.station {
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--ink-3);
 }
 .status {
   position: absolute;

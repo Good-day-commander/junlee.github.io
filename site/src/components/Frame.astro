@@ -51,10 +51,10 @@ const hasStack = Astro.slots.has('what') || Astro.slots.has('result') || Astro.s
 
 /*
   Uppercase is chrome for short identifiers (C1, 2026, FLOW, PINO-DEMO-01).
-  Longer labels and anything carrying a unit after a number (kPa, mm, s)
-  stay as written so the unit survives.
+  Longer labels, anything carrying a unit after a number (kPa, mm, s) and
+  mixed-case terminology (SaMD) stay as written so the term survives.
 */
-const caps = (label: string) => label.length <= 14 && !/\d\s*[a-z]/.test(label);
+const caps = (label: string) => label.length <= 14 && !/\d\s*[a-z]/.test(label) && !/[a-z][A-Z]/.test(label);
 const cornerClass = (pos: string, label: string) =>
   ['frame__corner', `frame__corner--${pos}`, { 'frame__corner--caps': caps(label) }];
 const What = `h${headingLevel}` as 'h2' | 'h3' | 'h4';

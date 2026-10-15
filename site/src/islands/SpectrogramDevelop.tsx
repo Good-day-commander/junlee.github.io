@@ -62,14 +62,16 @@ type Phase = 'latent' | 'developing' | 'done';
 const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function methodLine(spec: GridSpec, variant: Variant): string | null {
+/* Transform parameters as separate legend cells (hairline-divided in CSS, no chained separators). */
+function methodParts(spec: GridSpec, variant: Variant): string[] | null {
   const m = spec.method;
   if (!m) return null;
+  const fs = m.fs_hz ? [`${m.fs_hz} Hz`] : [];
   if (variant === 'stft' && m.window && m.nperseg) {
-    return `${m.window} ${m.nperseg}${m.noverlap !== undefined ? ` · overlap ${m.noverlap}` : ''}${m.fs_hz ? ` · ${m.fs_hz} Hz` : ''}`;
+    return [`${m.window} ${m.nperseg}`, ...(m.noverlap !== undefined ? [`overlap ${m.noverlap}`] : []), ...fs];
   }
   if (variant === 'cwt' && m.wavelet) {
-    return `${m.wavelet === 'morl' ? 'morlet' : m.wavelet}${m.n_scales ? ` · ${m.n_scales} scales` : ''}${m.fs_hz ? ` · ${m.fs_hz} Hz` : ''}`;
+    return [m.wavelet === 'morl' ? 'morlet' : m.wavelet, ...(m.n_scales ? [`${m.n_scales} scales`] : []), ...fs];
   }
   return null;
 }
@@ -278,7 +280,7 @@ function SpectrogramCore({
   const fTicks = useMemo(() => (raster ? frequencyTicks(raster, 5) : []), [raster]);
   const tTicks = useMemo(() => (raster ? timeTicks(raster, 6) : []), [raster]);
 
-  const method = spec ? methodLine(spec, variant) : null;
+  const method = spec ? methodParts(spec, variant) : null;
   const frameLabel = label ?? `PPG · ${variant.toUpperCase()}`;
   const hasStack = Boolean(what || result || consequence);
   const stageAspect = aspect ?? (develop ? '16 / 9' : '16 / 6');
@@ -332,7 +334,7 @@ function SpectrogramCore({
             <div className="pulse__state" role="status">
               <p>
                 loading {variant}.bin
-                {spec ? ` · ${formatDecimal(spec.byteLength / 1024, 0)} kB` : ''}
+                {spec ? ` (${formatDecimal(spec.byteLength / 1024, 0)} kB)` : ''}
               </p>
             </div>
           )}
@@ -368,7 +370,15 @@ function SpectrogramCore({
             <span>{raster ? formatDecimal(raster.dbHi, 0) : '—'}</span>
             <span className="pulse__scale-unit">dB</span>
           </span>
-          {method && <span className="pulse__method">{method}</span>}
+          {method && (
+            <span className="pulse__method">
+              {method.map((part) => (
+                <span key={part} className="pulse__method-part">
+                  {part}
+                </span>
+              ))}
+            </span>
+          )}
         </div>
         {develop && (
           <button

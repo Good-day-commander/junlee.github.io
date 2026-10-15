@@ -1,21 +1,43 @@
 ---
 /*
-  /404 on film: one frame, one line, a link home. GitHub Pages serves this
-  file for every unknown address, so nothing here depends on the request.
+  /404 on film: one frame, one line, the ways back in (home, the three main
+  pages), then the shared Close so even a dead address leads to Email and
+  the CV. GitHub Pages serves this file for every unknown address, so
+  nothing here depends on the request; it is noindex and has no canonical.
 */
 import Base from '@/layouts/Base.astro';
 import Frame from '@/components/Frame.astro';
 import { profile } from '@/data/content';
 
 const host = profile.links.site.replace(/^https?:\/\//, '');
+const ways = [
+  { href: '/', label: 'Home' },
+  { href: '/research/', label: 'Research' },
+  { href: '/publications/', label: 'Publications' },
+  { href: '/cv/', label: 'CV' },
+];
 ---
 
-<Base title="Page not found" description="This address has no page on hyeongjunlee.me." surface="film">
+<Base
+  title="Page not found"
+  description="This address has no page on hyeongjunlee.me."
+  surface="film"
+  noindex
+  close={{ line: 'Looking for a paper, the CV or something else? Email me.' }}
+>
   <section class="lost wrap">
     <Frame as="div" tl="404" tr="No page" bl={host} br="No signal" padded class="lost__frame">
       <div class="lost__body">
         <h1 class="lost__line">No page at this address.</h1>
-        <a class="lost__home" href="/">Back to the home frame</a>
+        <ul class="lost__ways">
+          {
+            ways.map((w) => (
+              <li>
+                <a href={w.href}>{w.label}</a>
+              </li>
+            ))
+          }
+        </ul>
       </div>
     </Frame>
   </section>
@@ -23,10 +45,9 @@ const host = profile.links.site.replace(/^https?:\/\//, '');
 
 <style>
   .lost {
-    min-height: calc(100dvh - var(--nav-h) - 1px);
+    padding-block: var(--space-6) 0;
     display: grid;
     place-items: center;
-    padding-block: var(--space-6);
   }
   .lost :global(.lost__frame) {
     width: min(100%, 48rem);
@@ -52,7 +73,14 @@ const host = profile.links.site.replace(/^https?:\/\//, '');
     letter-spacing: -0.02em;
     max-width: 16ch;
   }
-  .lost__home {
+  .lost__ways {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 var(--space-3);
+  }
+  .lost__ways a {
+    display: inline-block;
     font-family: var(--font-ui);
     font-weight: 500;
     font-size: var(--size-ui);
@@ -60,8 +88,9 @@ const host = profile.links.site.replace(/^https?:\/\//, '');
     text-decoration-color: var(--line);
     padding-block: 0.5rem;
   }
-  .lost__home:hover {
+  .lost__ways a:hover {
     color: var(--ink);
+    text-decoration-color: var(--signal);
   }
   @media (max-width: 480px) {
     .lost :global(.lost__frame) {

@@ -3,6 +3,9 @@
   /publications: journal articles, peer-reviewed proceedings, under review.
   Every entry is read from content.ts; author role is the record's myRole,
   rank shows as frame size (first / co-first get the larger frame and plate).
+  Within each group the led work comes first, then the co-authored rows, so
+  rank reads top-down instead of zigzagging. The page ends with the shared
+  Close (rendered by Base) carrying this page's line.
 */
 import Base from '@/layouts/Base.astro';
 import Section from '@/components/Section.astro';
@@ -19,11 +22,19 @@ const lede = `${numberWordCap(journal)} SCIE journal ${journal === 1 ? 'article'
 const description = `Journal articles, peer-reviewed proceedings and manuscripts under review by ${profile.name}, with author role stated on each entry and BibTeX for every one.`;
 ---
 
-<Base title="Publications" description={description} surface="box">
+<Base
+  title="Publications"
+  description={description}
+  surface="box"
+  ogImage="/og/publications.png"
+  ogAlt={`${profile.name}, Publications: the page heading on light-box white with its lede, "${lede}"`}
+  close={{ line: 'Want a copy of any of these papers? Email me.', note: 'Email is the fastest route; I reply from Seoul (UTC+9).' }}
+>
   <PageHead heading="Publications" lede={lede} />
   {
     PUBLICATION_GROUPS.map((group) => {
-      const items = publicationsOf(group.type);
+      const all = publicationsOf(group.type);
+      const items = [...all.filter(leads), ...all.filter((p) => !leads(p))];
       if (items.length === 0) return null;
       return (
         <Section heading={group.heading} id={group.type} lede={group.note || undefined} class="pubs">
@@ -41,9 +52,6 @@ const description = `Journal articles, peer-reviewed proceedings and manuscripts
 </Base>
 
 <style>
-  :global(.page-head + .section.section) {
-    padding-top: var(--space-6);
-  }
   .pubs__list {
     display: grid;
     gap: var(--space-4);

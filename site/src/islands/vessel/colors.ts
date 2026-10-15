@@ -118,10 +118,12 @@ export function fieldColors(data: VesselData, field: ViewerField, reuse?: FieldC
   return { a, b, wipe: true };
 }
 
-/* Colorbar description for the DOM strip. t is the fraction along the bar from its bottom. */
+/* Colorbar description for the DOM strip. t is the fraction along the bar from its bottom (or left). */
 export interface LegendTick {
   t: number;
   text: string;
+  /** Labels the above-range band; a horizontal bar has no room for it and drops it. */
+  over?: boolean;
 }
 export interface Legend {
   field: ViewerField;
@@ -136,13 +138,19 @@ export interface Legend {
   summary: string;
 }
 
-export function legendFor(field: ViewerField, manifest: PinoManifest, hero: boolean): Legend {
+/*
+  One unit per quantity across the site: surface pressure is kPa at one
+  decimal in every readout and colorbar (hero, chapter, home front). Only
+  the error field stays in Pa: its range is a few hundred pascals and would
+  read as 0.x kPa.
+*/
+export function legendFor(field: ViewerField, manifest: PinoManifest): Legend {
   const r = manifest.ranges;
   if (field === 'pressure') {
     const [lo, hi] = r.p;
     const mid = (lo + hi) / 2;
-    const f = hero ? (v: number) => formatKpa(v, 1) : (v: number) => formatInt(v);
-    const unit = hero ? 'kPa' : 'Pa';
+    const f = (v: number) => formatKpa(v, 1);
+    const unit = 'kPa';
     return {
       field,
       colormap: 'turbo',
@@ -171,7 +179,7 @@ export function legendFor(field: ViewerField, manifest: PinoManifest, hero: bool
         { t: 0, text: txt(-m) },
         { t: main * 0.5, text: '0' },
         { t: main, text: txt(m) },
-        { t: main + over / 2, text: `> ${txt(m)}` },
+        { t: main + over / 2, text: `> ${txt(m)}`, over: true },
       ],
       overFraction: over,
       summary: `Pressure error PINO minus CFD on a symmetric range of ±${formatInt(m)} Pa; the throat exceeds +${formatInt(m)} Pa and is painted in the above-range color.`,

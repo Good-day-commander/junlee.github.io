@@ -3,7 +3,13 @@
   /cv: the CV as a page, in the PDF's order, generated from content.ts.
   Header without the phone number (the site is public). Prints as a
   document: box surface, no chrome, a page break before each section.
+
+  A sticky action bar sits under the nav for the whole length of the page:
+  Email (the page's one primary), CV (PDF) and LinkedIn, so the actions are
+  never off-screen on a four-page CV. The page ends with the shared Close
+  (rendered by Base); neither prints.
 */
+import { Image } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CvSection from '@/components/record/CvSection.astro';
@@ -22,8 +28,20 @@ import {
   type Publication,
   type Talk,
 } from '@/data/content';
-import { applicationLabel, awardPublication, citationLine, doiUrl, period, publicPatents } from '@/components/record/records';
-import arrowDown from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
+import {
+  applicationLabel,
+  awardPublication,
+  capitalize,
+  citationLine,
+  doiUrl,
+  normRange,
+  period,
+  publicPatents,
+} from '@/components/record/records';
+import envelope from '@phosphor-icons/core/assets/regular/envelope.svg?raw';
+import filePdf from '@phosphor-icons/core/assets/regular/file-pdf.svg?raw';
+import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
+import portrait from '@/assets/photos/profile-main.jpg';
 
 const PDF = '/uploads/resume.pdf';
 
@@ -58,9 +76,46 @@ const links = [
 const description = `Curriculum vitae of ${profile.name}: education, appointments, publications, presentations, patents, projects, awards, teaching and skills, with the PDF.`;
 ---
 
-<Base title="CV" description={description} surface="box">
+<Base
+  title="CV"
+  description={description}
+  surface="box"
+  ogImage="/og/cv.png"
+  ogAlt={`${profile.name}, curriculum vitae: the CV action bar with Email and CV (PDF), his portrait and the head of the CV on light-box white.`}
+  close={{
+    line: 'Questions about this CV, or a copy of a paper? Email me.',
+    note: 'Email is the fastest route; I reply from Seoul (UTC+9).',
+  }}
+>
+  <div class="cv-bar">
+    <div class="wrap cv-bar__row">
+      <p class="cv-bar__label">{profile.name}, CV</p>
+      <div class="cv-bar__actions">
+        <Button href={`mailto:${profile.email}`} size="compact">
+          Email
+          <span slot="icon" aria-hidden="true" set:html={envelope} />
+        </Button>
+        <Button variant="ghost" href={PDF} external size="compact">
+          CV (PDF)
+          <span slot="icon" aria-hidden="true" set:html={filePdf} />
+        </Button>
+        <a class="cv-bar__link" href={profile.links.linkedin} rel="me noopener">
+          LinkedIn<span class="cv-bar__icon" aria-hidden="true" set:html={arrowUpRight} />
+        </a>
+      </div>
+    </div>
+  </div>
   <article class="cv wrap wrap--text">
     <header class="cv-head">
+      <Image
+        src={portrait}
+        alt={`${profile.name}, portrait.`}
+        width={portrait.width}
+        height={portrait.height}
+        format="webp"
+        quality={85}
+        class="cv-head__portrait"
+      />
       <div class="cv-head__id">
         <h1 class="cv-head__name">{profile.name}</h1>
         <p class="cv-head__role">
@@ -87,15 +142,6 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
             <a class="t-mono" href={profile.links.site}>{profile.links.site.replace(/^https?:\/\//, '')}</a>
           </li>
         </ul>
-      </div>
-      <div class="cv-head__actions">
-        <Button variant="primary" href={PDF} external>
-          Download PDF
-          <Fragment slot="icon">
-            <span class="icon" aria-hidden="true" set:html={arrowDown} />
-          </Fragment>
-        </Button>
-        <p class="cv-head__hint">The web version omits the phone number. The PDF is the same CV, four pages.</p>
       </div>
     </header>
 
@@ -187,7 +233,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
                       <span class="cv-item__year t-mono">{t.year}</span> {t.title}
                     </p>
                     <p class="cv-item__meta">
-                      {`${t.note.replace(/\.$/, '')}. ${t.venue}, ${t.location}. ${t.format}${t.role === 'presenter' ? '; presented by H.J. Lee.' : '.'}`}
+                      {`${t.note.replace(/\.$/, '')}. ${t.venue}, ${t.location}. ${capitalize(t.format)}${t.role === 'presenter' ? '; presented by H.J. Lee.' : '.'}`}
                     </p>
                   </div>
                 </li>
@@ -239,7 +285,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
         awards.map((a) => {
           const pub = awardPublication(a.forPublication);
           return (
-            <div class="cv-row cv-row--tight">
+            <div class="cv-row">
               <p class="cv-row__period t-mono">{a.year}</p>
               <div class="cv-row__main">
                 <p class="cv-row__title">{a.title}</p>
@@ -256,8 +302,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     <CvSection heading="Fellowships and scholarships" id="fellowships" flow>
       {
         fellowships.map((f) => (
-          <div class="cv-row cv-row--tight">
-            <p class="cv-row__period t-mono">{f.period}</p>
+          <div class="cv-row">
+            <p class="cv-row__period t-mono">{normRange(f.period)}</p>
             <div class="cv-row__main">
               <p class="cv-row__title">{f.title}</p>
               <p class="cv-row__meta">{f.org}</p>
@@ -270,8 +316,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     <CvSection heading="Teaching" id="teaching" flow>
       {
         teaching.map((t) => (
-          <div class="cv-row cv-row--tight">
-            <p class="cv-row__period t-mono">{t.period}</p>
+          <div class="cv-row">
+            <p class="cv-row__period t-mono">{normRange(t.period)}</p>
             <div class="cv-row__main">
               <p class="cv-row__title">{t.role}</p>
               <p class="cv-row__meta">{t.org}</p>
@@ -307,7 +353,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     .nav,
     .footer,
     .skip-link,
-    .cv-head__actions {
+    .cv-bar,
+    .cv-head__portrait {
       display: none !important;
     }
     .cv {
@@ -323,14 +370,74 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
 </style>
 
 <style>
+  /* Under the sticky nav and bar, anchors land below both. */
+  :global(html:has(.cv-bar)) {
+    scroll-padding-top: calc(var(--nav-h) + 3.5rem);
+  }
+  .cv-bar {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 40;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .cv-bar__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+    min-height: 3rem;
+    padding-block: 0.4rem;
+  }
+  .cv-bar__label {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ink-2);
+  }
+  .cv-bar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+  }
+  .cv-bar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding-block: 0.4rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ink);
+    text-decoration-color: var(--line);
+  }
+  .cv-bar__link:hover {
+    text-decoration-color: var(--signal);
+  }
+  .cv-bar__icon {
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
+    color: var(--ink-3);
+  }
+  .cv-bar__icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .cv-bar__link:hover .cv-bar__icon {
+    color: var(--signal);
+  }
+
   .cv {
-    padding-block: var(--space-6) var(--section-pad);
+    padding-block: var(--space-5) 0;
   }
 
   /* Header */
   .cv-head {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
     padding-bottom: var(--space-4);
@@ -371,23 +478,15 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   .cv-head__contact .t-mono {
     font-size: var(--size-ui);
   }
-  .cv-head__actions {
-    display: grid;
-    gap: var(--space-1);
-    justify-items: end;
-    max-width: 16rem;
-  }
-  .cv-head__hint {
-    font-family: var(--font-text);
-    font-style: italic;
-    font-size: 0.9rem;
-    line-height: 1.45;
-    color: var(--ink-3);
-    text-align: right;
-    text-wrap: pretty;
-  }
-  .icon {
-    display: inline-flex;
+  /* ID portrait, used small beside the name; never printed (the PDF has none). */
+  .cv-head :global(.cv-head__portrait) {
+    width: 6rem;
+    height: 6rem;
+    object-fit: cover;
+    object-position: 50% 28%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-1);
   }
 
   /* Prose */
@@ -404,10 +503,6 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     display: grid;
     grid-template-columns: 11rem minmax(0, 1fr);
     gap: var(--space-3);
-  }
-  .cv-row--tight {
-    /* "Mar. 2020 - Feb. 2022" in 0.8rem mono needs ~10.1rem; nowrap below. */
-    grid-template-columns: 10.5rem minmax(0, 1fr);
   }
   .cv-row__period {
     color: var(--ink-2);
@@ -553,16 +648,16 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   @media (max-width: 760px) {
     .cv-head {
       grid-template-columns: 1fr;
+      gap: var(--space-3);
     }
-    .cv-head__actions {
-      justify-items: start;
-      max-width: none;
+    .cv-head :global(.cv-head__portrait) {
+      width: 4.5rem;
+      height: 4.5rem;
     }
-    .cv-head__hint {
-      text-align: left;
+    .cv-bar__label {
+      display: none;
     }
     .cv-row,
-    .cv-row--tight,
     .cv-skills__group {
       grid-template-columns: 1fr;
       gap: 0.25rem;
@@ -600,9 +695,6 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     .cv-row {
       grid-template-columns: 9rem minmax(0, 1fr);
       gap: 0.75rem;
-    }
-    .cv-row--tight {
-      grid-template-columns: 9rem minmax(0, 1fr);
     }
     .cv-list,
     .cv-group {

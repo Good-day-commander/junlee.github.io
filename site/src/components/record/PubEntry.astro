@@ -5,9 +5,11 @@
   co-authored work a compact ruled row. Every string comes from content.ts;
   the BibTeX is generated from the same record at build time.
 
-  Copy BibTeX: the entry itself sits in a <details> so it is readable and
-  selectable without JavaScript; the button copies that text and confirms
-  inline for two seconds.
+  One anatomy for a paper, the same as /research and home: title (linked to
+  the DOI), authors, venue line, then the DOI and the role mark on one row
+  with a quiet "Email for a copy". One BibTeX control: a disclosure whose
+  panel holds the entry (readable and selectable without JavaScript) and the
+  Copy action, which confirms inline for two seconds.
 */
 import type { Publication } from '@/data/content';
 import Frame from '@/components/Frame.astro';
@@ -15,6 +17,7 @@ import RoleMark from '@/components/RoleMark.astro';
 import Button from '@/components/Button.astro';
 import Authors from './Authors.astro';
 import { bibtex } from './bibtex';
+import { profile } from '@/data/content';
 import { citationLine, doiUrl, leads, PLATES } from './records';
 
 export interface Props {
@@ -27,7 +30,18 @@ const doi = doiUrl(pub);
 const bib = bibtex(pub);
 const cite = citationLine(pub);
 const published = pub.year !== '';
-const corner = published ? pub.year : pub.status;
+const askHref = `mailto:${profile.email}?subject=${encodeURIComponent(`Copy of ${pub.id}: ${pub.title}`)}`;
+/* One status label site-wide for a manuscript: "under revision (EAAI)", printed once, in the corner. */
+const corner = published ? pub.year : `under revision (${pub.venueShort ?? pub.venue})`;
+/* Plate caption: names the paper the figure comes from ("Figure from J2, CMPB 265 (2025)."). */
+/* Short venue: a trailing "(DMD2026)" when the venue carries one, else venueShort, else the initials (CMPB). */
+const venueName = pub.venueShort ?? pub.venue;
+const shortVenue =
+  /\(([A-Z][^)]*)\)\s*$/.exec(venueName)?.[1] ??
+  pub.venueShort ??
+  pub.venue.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('');
+const showYear = Boolean(pub.year) && !shortVenue.includes(pub.year);
+const plateCaption = `Figure from ${pub.id}, ${shortVenue}${pub.volume ? ` ${pub.volume}` : ''}${showYear ? ` (${pub.year})` : ''}.`;
 ---
 
 {
@@ -36,31 +50,42 @@ const corner = published ? pub.year : pub.status;
       <div class:list={['pub__grid', { 'pub__grid--plate': Boolean(plate) }]}>
         {plate && (
           <figure class="pub__plate">
-            <img src={plate.src} alt={plate.alt} width={plate.width} height={plate.height} loading="lazy" decoding="async" />
+            <div class="pub__sheet">
+              <img src={plate.src} alt={plate.alt} width={plate.width} height={plate.height} loading="lazy" decoding="async" />
+            </div>
+            <figcaption class="pub__plate-caption">{plateCaption}</figcaption>
           </figure>
         )}
         <div class="pub__text">
-          <h3 class="pub__title pub__title--lead">{pub.title}</h3>
-          <Authors authors={pub.authors} />
-          <p class="pub__cite t-mono">{cite}</p>
-          {!published && <p class="pub__status t-caption">{pub.status}</p>}
-          <div class="pub__actions">
-            <RoleMark role={pub.myRole} />
-            {doi && (
-              <a class="pub__doi t-mono" href={doi} rel="noopener">
-                doi.org/{pub.doi}
-              </a>
-            )}
-            <div class="pub__bib" aria-live="polite">
-              <Button variant="ghost" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
-                Copy BibTeX
-              </Button>
-            </div>
+          <div class="pub__head">
+            <h3 class="pub__title pub__title--lead">
+              {doi ? <a href={doi} rel="noopener">{pub.title}</a> : pub.title}
+            </h3>
+            <Authors authors={pub.authors} />
           </div>
-          <details class="pub__details" id={`bib-${pub.id}`}>
-            <summary>BibTeX</summary>
-            <pre class="t-mono" tabindex="0">{bib}</pre>
-          </details>
+          <div class="pub__meta">
+            <p class="pub__cite t-mono">{cite}</p>
+            <div class="pub__actions">
+              {doi && (
+                <a class="pub__doi t-mono" href={doi} rel="noopener">
+                  doi:{pub.doi}
+                </a>
+              )}
+              <RoleMark role={pub.myRole} />
+              <a class="pub__ask" href={askHref}>Email for a copy</a>
+            </div>
+            <details class="pub__details" id={`bib-${pub.id}`}>
+              <summary>BibTeX</summary>
+              <div class="pub__panel">
+                <div class="pub__bib" aria-live="polite">
+                  <Button variant="ghost" size="compact" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
+                    Copy BibTeX
+                  </Button>
+                </div>
+                <pre class="t-mono" tabindex="0">{bib}</pre>
+              </div>
+            </details>
+          </div>
         </div>
       </div>
     </Frame>
@@ -70,25 +95,28 @@ const corner = published ? pub.year : pub.status;
         {pub.id}
       </span>
       <div class="pub__text">
-        <h3 class="pub__title">{pub.title}</h3>
+        <h3 class="pub__title">{doi ? <a href={doi} rel="noopener">{pub.title}</a> : pub.title}</h3>
         <Authors authors={pub.authors} />
         <p class="pub__cite t-mono">{cite}</p>
         <div class="pub__actions">
-          <RoleMark role={pub.myRole} />
           {doi && (
             <a class="pub__doi t-mono" href={doi} rel="noopener">
-              doi.org/{pub.doi}
+              doi:{pub.doi}
             </a>
           )}
-          <div class="pub__bib" aria-live="polite">
-            <Button variant="ghost" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
-              Copy BibTeX
-            </Button>
-          </div>
+          <RoleMark role={pub.myRole} />
+          <a class="pub__ask" href={askHref}>Email for a copy</a>
         </div>
         <details class="pub__details" id={`bib-${pub.id}`}>
           <summary>BibTeX</summary>
-          <pre class="t-mono" tabindex="0">{bib}</pre>
+          <div class="pub__panel">
+            <div class="pub__bib" aria-live="polite">
+              <Button variant="ghost" size="compact" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
+                Copy BibTeX
+              </Button>
+            </div>
+            <pre class="t-mono" tabindex="0">{bib}</pre>
+          </div>
         </details>
       </div>
     </article>
@@ -106,54 +134,115 @@ const corner = published ? pub.year : pub.status;
     display: grid;
     gap: var(--space-4);
   }
+  /*
+    Figure plates: a paper figure is capped near 560 px and centred on a
+    light plate with a hairline, never stretched; the italic caption names
+    the paper. The plate column holds up to 35rem so flowchart text stays
+    legible; the text takes the rest.
+  */
   .pub__grid--plate {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-columns: minmax(0, 35rem) minmax(0, 1fr);
     align-items: start;
   }
   .pub__plate {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
     margin: 0;
+  }
+  .pub__sheet {
+    width: 100%;
+    max-width: 35rem;
+    padding: var(--space-2);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: white;
-    padding: var(--space-1);
   }
   .pub__plate img {
+    display: block;
     width: 100%;
     height: auto;
-    max-height: 26rem;
+    max-height: min(32rem, 60vh);
     object-fit: contain;
   }
-  .pub__text {
+  .pub__plate-caption {
+    width: 100%;
+    max-width: 35rem;
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .pub__text,
+  .pub__head,
+  .pub__meta {
     display: grid;
     gap: var(--space-2);
+    align-content: start;
     min-width: 0;
+  }
+  /*
+    A lead without a plate splits on wide screens: title and authors on the
+    left, citation, role, DOI and BibTeX on the right, so the frame is not
+    half empty.
+  */
+  @media (min-width: 961px) {
+    .pub__grid:not(.pub__grid--plate) .pub__text {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--space-6);
+    }
+    .pub__grid:not(.pub__grid--plate) .pub__meta {
+      padding-top: 0.35rem;
+    }
   }
   .pub__title {
     font-family: var(--font-display);
     font-weight: 600;
     font-size: 1.125rem;
-    line-height: 1.3;
+    line-height: 1.35;
     letter-spacing: -0.01em;
     text-wrap: balance;
     max-width: 40ch;
   }
   .pub__title--lead {
     font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
-    line-height: 1.2;
+    line-height: 1.32;
     letter-spacing: -0.015em;
   }
   .pub__cite {
     color: var(--ink-2);
     text-wrap: pretty;
   }
-  .pub__status {
-    color: var(--ink-2);
-  }
   .pub__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-1) var(--space-3);
+    margin-top: var(--space-1);
+  }
+  .pub__title a {
+    color: inherit;
+    text-decoration-color: var(--line);
+  }
+  .pub__title a:hover {
+    text-decoration-color: var(--signal);
+  }
+  .pub__ask {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ink-2);
+    text-decoration-color: var(--line);
+  }
+  .pub__ask:hover {
+    color: var(--ink);
+    text-decoration-color: var(--signal);
+  }
+  .pub__panel {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
     margin-top: var(--space-1);
   }
   .pub__doi {
@@ -171,10 +260,7 @@ const corner = published ? pub.year : pub.status;
     border-color: var(--ink-3);
     color: var(--ink-2);
   }
-  .pub :global(.pub__copy) {
-    min-height: 2rem;
-    padding: 0.3rem 0.7rem;
-    font-size: 0.85rem;
+  .pub__bib :global(.pub__copy) {
     min-width: 7.5rem;
   }
   .pub__details {
@@ -210,7 +296,7 @@ const corner = published ? pub.year : pub.status;
     color: var(--ink);
   }
   .pub__details pre {
-    margin-top: var(--space-1);
+    justify-self: stretch;
     padding: var(--space-2);
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -238,10 +324,12 @@ const corner = published ? pub.year : pub.status;
     padding-top: 0.3rem;
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 960px) {
     .pub__grid--plate {
       grid-template-columns: 1fr;
     }
+  }
+  @media (max-width: 760px) {
     .pub__plate img {
       max-height: 18rem;
     }
@@ -264,7 +352,7 @@ const corner = published ? pub.year : pub.status;
   const COPIED_MS = 2000;
 
   /* Clipboard API only; when it is unavailable the label points at the
-     <details> below, whose <pre> selects as one block for a manual copy. */
+     <pre> under the button, which selects as one block for a manual copy. */
   async function copyText(text: string): Promise<boolean> {
     try {
       await navigator.clipboard.writeText(text);
@@ -284,7 +372,7 @@ const corner = published ? pub.year : pub.status;
     let timer: ReturnType<typeof setTimeout> | undefined;
     button.addEventListener('click', async () => {
       const ok = await copyText(source.textContent ?? '');
-      label.textContent = ok ? 'Copied' : 'Copy failed, open BibTeX below';
+      label.textContent = ok ? 'Copied' : 'Copy failed; select the entry below';
       wrap.dataset.state = ok ? 'copied' : 'failed';
       clearTimeout(timer);
       timer = setTimeout(() => {

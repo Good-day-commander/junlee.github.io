@@ -1,18 +1,19 @@
 ---
 /*
-  Site footer: email, Google Scholar, LinkedIn, ORCID (all from content.ts),
-  then a one-line colophon. External links carry the Phosphor arrow-up-right
-  glyph inline; this is the icon pattern for the rest of the site
-  (import the SVG with ?raw, inline it with set:html, size it with CSS).
+  Site footer: a ruled colophon row. Every page now ends with the Close
+  (components/Close.astro), which carries Email, CV (PDF), the address and
+  Google Scholar / LinkedIn / ORCID directly above this row, so the footer
+  does not print those links a second time. It holds the name and lab, the
+  four pages and a way back to the top of a long page.
 */
 import { profile } from '@/data/content';
-import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
-import envelope from '@phosphor-icons/core/assets/regular/envelope.svg?raw';
+import arrowUp from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 
-const external = [
-  { label: 'Google Scholar', href: profile.links.scholar },
-  { label: 'LinkedIn', href: profile.links.linkedin },
-  { label: 'ORCID', href: profile.links.orcid },
+const pages = [
+  { href: '/research/', label: 'Research' },
+  { href: '/publications/', label: 'Publications' },
+  { href: '/record/', label: 'Record' },
+  { href: '/cv/', label: 'CV' },
 ];
 
 const year = new Date().getFullYear();
@@ -20,86 +21,88 @@ const year = new Date().getFullYear();
 
 <footer class="footer">
   <div class="wrap footer__row">
-    <ul class="footer__links">
-      <li>
-        <a class="footer__link footer__email" href={`mailto:${profile.email}`}>
-          <span class="icon" aria-hidden="true" set:html={envelope} />
-          <span class="t-mono">{profile.email}</span>
-        </a>
-      </li>
-      {
-        external.map((link) => (
-          <li>
-            <a class="footer__link" href={link.href} rel="me noopener">
-              <span>{link.label}</span>
-              <span class="icon" aria-hidden="true" set:html={arrowUpRight} />
-            </a>
-          </li>
-        ))
-      }
-    </ul>
     <p class="footer__colophon">
-      {profile.name}, {profile.lab}, {profile.university}. Set in Archivo, STIX Two Text and JetBrains Mono;
-      built with Astro. <span class="num">{year}</span>.
+      <span class="num">©&nbsp;{year}</span>
+      {profile.name}, {profile.lab}, {profile.university}
     </p>
+    <nav class="footer__nav" aria-label="Footer">
+      <ul>
+        {
+          pages.map((p) => (
+            <li>
+              <a class="footer__link" href={p.href}>
+                {p.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="footer__link footer__top" href="#main">
+            Top
+            <span class="icon" aria-hidden="true" set:html={arrowUp} />
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </footer>
 
 <style>
   .footer {
     border-top: 1px solid var(--line);
-    padding-block: var(--space-5) var(--space-4);
+    padding-block: var(--space-3);
     color: var(--ink-2);
   }
   .footer__row {
-    display: grid;
-    gap: var(--space-3);
-  }
-  .footer__links {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-4);
+  }
+  .footer__colophon {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--ink-3);
+    text-wrap: pretty;
+  }
+  .footer__colophon .num {
+    margin-right: 0.35rem;
+  }
+  .footer__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
   }
   .footer__link {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
     font-family: var(--font-ui);
     font-weight: 500;
-    font-size: var(--size-ui);
+    font-size: 0.85rem;
     line-height: 1.2;
-    color: var(--ink);
+    color: var(--ink-2);
     text-decoration: none;
-    padding-block: 0.5rem;
+    padding-block: 0.6rem;
     border-bottom: 1px solid transparent;
-    transition: border-color var(--duration-quick) var(--ease-out);
+    transition:
+      color var(--duration-quick) var(--ease-out),
+      border-color var(--duration-quick) var(--ease-out);
   }
   .footer__link:hover {
+    color: var(--ink);
     border-bottom-color: var(--signal);
-  }
-  .footer__email .t-mono {
-    font-size: var(--size-ui);
   }
   .icon {
     display: inline-flex;
     width: 1em;
     height: 1em;
     color: var(--ink-3);
-    transition: color var(--duration-quick) var(--ease-out);
   }
   .icon :global(svg) {
     width: 100%;
     height: 100%;
-  }
-  .footer__link:hover .icon {
-    color: var(--signal);
-  }
-  .footer__colophon {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--ink-3);
-    max-width: 72ch;
-    text-wrap: pretty;
   }
 </style>
