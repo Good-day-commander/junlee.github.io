@@ -54,9 +54,11 @@ export interface Props {
   graph?: JsonLdNode[];
   noindex?: boolean;
   footer?: { omit?: string[]; links?: boolean };
+  /** Column width: 'text' (50rem, default) or 'record' (60rem, the CV). */
+  width?: 'text' | 'record';
 }
 
-const { title, description, ogImage, ogAlt: ogAltProp, graph, noindex = false, footer = {} } = Astro.props;
+const { title, description, ogImage, ogAlt: ogAltProp, graph, noindex = false, footer = {}, width = 'text' } = Astro.props;
 
 const site = Astro.site ?? new URL(profile.links.site);
 const canonical = new URL(Astro.url.pathname, site);
@@ -73,7 +75,7 @@ const ogAlt =
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-width={width}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

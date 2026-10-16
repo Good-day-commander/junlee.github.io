@@ -77,7 +77,8 @@
   --space-6: 4rem;
   --section-pad: clamp(4rem, 9vw, 7rem);
   --gutter: clamp(1rem, 3vw, 2.5rem);
-  --width-frame: 1120px; /* narrower, centred column: the home read as left-heavy on wide monitors at 1280 */
+  --width-frame: 50rem; /* one centred column (800px): text, plates and tables share it (owner, 2026-10-17) */
+  --width-record: 60rem; /* the CV's denser rows get 960px */
   --width-text: 72rem;
   --nav-h: 3rem;
   --radius: 2px;

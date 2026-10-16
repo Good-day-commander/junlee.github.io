@@ -30,7 +30,7 @@ import { formatDecimal, formatMm, formatSeconds } from '@/lib/format';
 import { pino, pulse, urls } from '@/components/research/data';
 import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockwise.svg?raw';
 import Button from '@/components/Button.astro';
-import { flow, fronts, image, pulseFacts, researchClosing, researchLine, timingLine } from '@/lib/schema';
+import { flow, fronts, image, pulseFacts, researchClosing, researchLine } from '@/lib/schema';
 import centerline from '../../public/data/pino/centerline.json';
 
 /* Extent of the Pd/Pa curve's s axis, so the static HTML carries the plate's range. */
@@ -67,11 +67,11 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
   </header>
 
   <!-- ───────────────────────────── Flow ───────────────────────────── -->
-  <Chapter id="flow" heading="Flow" claim={fronts[0].row} meta={timingLine}>
+  <Chapter id="flow" heading="Flow" claim={fronts[0].row}>
     <Fragment slot="artifact">
       <div class="art-grid">
         <figure class="art">
-          <Frame plate class="art__frame art__frame--viewer" tl="Surface pressure">
+          <Frame plate class="art__frame art__frame--viewer">
             <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
           </Frame>
           <figcaption class="art__caption">
@@ -80,12 +80,7 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
           </figcaption>
         </figure>
         <figure class="art">
-          <Frame
-            plate
-            class="art__frame art__frame--curve"
-            tl="Pd / Pa along s"
-            tr={`probes ${formatMm(probes.proximal.s_mm)} · ${formatMm(probes.distal.s_mm)}`}
-          >
+          <Frame plate class="art__frame art__frame--curve">
             <FfrCurve client:visible centerlineUrl={urls.centerline} mode="chapter" />
           </Frame>
           <figcaption class="art__caption">
@@ -117,7 +112,7 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
   <Chapter id="image" heading="Image" claim={fronts[1].row}>
     <Fragment slot="artifact">
       <figure class="art">
-        <Frame plate class="art__frame" tr={`${im.source.paper_id} · ${figureLabel(im)}`}>
+        <Frame plate class="art__frame">
           <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={im} />
         </Frame>
         <figcaption class="art__caption">
@@ -154,7 +149,7 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     <Fragment slot="artifact">
       <div class="art-grid">
         <figure class="art">
-          <Frame plate class="art__frame art__frame--stft" tl="PPG · STFT">
+          <Frame plate class="art__frame art__frame--stft">
             <SpectrogramDevelop
               recordingS={pulseFacts.durationS}
               client:visible
@@ -253,11 +248,6 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     gap: var(--space-3);
     align-items: stretch;
   }
-  @media (min-width: 960px) {
-    .art-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    }
-  }
   :global(.art) {
     display: grid;
     grid-template-rows: 1fr auto;
@@ -275,9 +265,8 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     flex-direction: column;
     justify-content: center;
   }
-  /* The curve starts below the corner chrome instead of running under it. */
   :global(.art) :global(.art__frame--curve > .frame__body) {
-    padding-top: calc(var(--corner-inset) + 1.75rem);
+    padding-top: var(--space-2);
   }
   /* Spectrograms: the plot holds the top of the body and the toolbar its bottom. */
   .art-grid :global(.art__frame--stft > .frame__body),
@@ -304,14 +293,14 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     font-size: 0.95rem;
     line-height: 1.5;
     color: var(--ink-2);
-    max-width: 62ch;
+    max-width: 72ch;
     text-wrap: pretty;
   }
-  /* Under 640px two corner labels per edge collide; keep the case id. */
-  @media (max-width: 640px) {
-    :global(.art__frame--viewer .frame__corner--tr) {
-      display: none;
-    }
+  /* Numbers inside a caption read in the caption's own face; mono is for tables and chrome. */
+  :global(.art__caption .num) {
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
   }
 
   .r-more {

@@ -23,13 +23,7 @@
 .root[data-compact='true'] {
   padding: calc(var(--corner-inset, 0.5rem) + 1.75rem) var(--space-2) var(--space-2);
 }
-@media (min-width: 960px) {
-  .root[data-compact='false'] {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: var(--space-5);
-    align-items: start;
-  }
-}
+/* Plate above, panel below at every width: the chapter column is 800px (owner, 2026-10-17). */
 
 .main {
   display: grid;

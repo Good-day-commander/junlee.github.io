@@ -45,8 +45,10 @@ import { plateSentence } from '@/lib/schema';
   */
   .home-plate > :global(.home-plate__frame) {
     position: relative;
-    height: min(44vh, 30rem);
-    min-height: 18rem;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    max-height: 60vh;
+    min-height: 16rem;
     overflow: hidden;
     isolation: isolate;
   }
@@ -76,7 +78,7 @@ import { plateSentence } from '@/lib/schema';
     font-size: 1rem;
     line-height: 1.5;
     color: var(--ink-2);
-    max-width: 62ch;
+    max-width: 72ch;
     text-wrap: pretty;
   }
   .home-plate__pair {

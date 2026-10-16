@@ -101,7 +101,7 @@ const shortVenue = (venue: string) =>
   /* Capability rows: the name (the row's link), one clause; rows, not frames. */
   .caps__row {
     display: grid;
-    grid-template-columns: 15rem minmax(0, 1fr);
+    grid-template-columns: 11rem minmax(0, 1fr);
     gap: 0.25rem var(--space-3);
     align-items: baseline;
     padding-block: 0.65rem;
@@ -142,9 +142,10 @@ const shortVenue = (venue: string) =>
     Selected papers, newest first: year, title, then venue, role mark and
     DOI in fixed-width columns so they align from row to row.
   */
+  /* One text column: year, then title with its venue, role and DOI on a line under it. */
   .sel__row {
     display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr) 5.5rem 8.5rem 15.5rem;
+    grid-template-columns: 3rem minmax(0, 1fr);
     gap: 0.25rem var(--space-3);
     align-items: baseline;
     padding-block: 0.6rem;
@@ -162,7 +163,11 @@ const shortVenue = (venue: string) =>
     text-wrap: pretty;
   }
   .sel__meta {
-    display: contents;
+    grid-column: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem var(--space-2);
   }
   .sel__meta > :global(.rolemark) {
     justify-self: start;
@@ -184,19 +189,6 @@ const shortVenue = (venue: string) =>
     .caps__row {
       grid-template-columns: minmax(0, 1fr);
       gap: 0.2rem;
-    }
-  }
-  /* Under 1100px the three fixed columns would starve the title; they drop under it. */
-  @media (max-width: 1099px) {
-    .sel__row {
-      grid-template-columns: 3rem minmax(0, 1fr);
-    }
-    .sel__meta {
-      grid-column: 2;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.35rem var(--space-2);
     }
   }
 </style>

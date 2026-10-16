@@ -248,6 +248,9 @@
     holds --measure, rows and tables hold their own ch caps), so headings,
     prose, lists and frames all share one edge.
   */
+  html[data-width='record'] {
+    --width-frame: var(--width-record);
+  }
   .wrap {
     width: 100%;
     max-width: var(--width-frame);
