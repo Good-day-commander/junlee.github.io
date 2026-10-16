@@ -187,7 +187,6 @@
     font-family: var(--font-text);
     font-size: var(--size-prose);
     line-height: var(--leading-prose);
-    max-width: var(--measure);
     text-wrap: pretty;
   }
   .t-prose em,

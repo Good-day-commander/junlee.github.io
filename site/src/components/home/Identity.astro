@@ -62,7 +62,7 @@ const links = [
 <style>
   .identity {
     display: grid;
-    grid-template-columns: 6rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 6rem;
     gap: var(--space-2) var(--space-4);
     align-items: start;
     padding-block: var(--space-4) var(--space-3);
@@ -76,6 +76,7 @@ const links = [
     border-radius: var(--radius);
     background: var(--bg-1);
     margin-top: 0.35rem;
+    order: 2; /* text first, so every text block on the page starts at the same left edge */
   }
   .identity__text {
     display: grid;
@@ -108,7 +109,6 @@ const links = [
     font-size: 1.125rem;
     line-height: 1.5;
     color: var(--ink);
-    max-width: 68ch;
     text-wrap: pretty;
   }
   .identity__links {
@@ -131,7 +131,7 @@ const links = [
   /* Phones: the portrait sits beside the name; the lines below run the full width. */
   @media (max-width: 640px) {
     .identity {
-      grid-template-columns: 4rem minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) 4rem;
       column-gap: var(--space-2);
       padding-block: var(--space-3) var(--space-2);
     }
@@ -139,11 +139,16 @@ const links = [
       width: 4rem;
       height: 4rem;
       margin-top: 0;
+      order: 0;
+      grid-column: 2;
+      grid-row: 1;
     }
     .identity__text {
       display: contents;
     }
     .identity__name {
+      grid-column: 1;
+      grid-row: 1;
       align-self: center;
     }
     .identity__role,
