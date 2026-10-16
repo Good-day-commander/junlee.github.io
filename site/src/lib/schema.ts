@@ -257,7 +257,7 @@ export const timingItems = [`CFD up to ${flow.cfdMaxMin} min on ${flow.cfdCores}
 export const timingLine = timingItems.join(' · ');
 
 /** The home plate's STIX line (device-agnostic: phones show a toggle, not a handle). */
-export const plateSentence = `One artery, solved twice: CFD on one side of the line, the neural operator on the other. FFR ${flow.ffrCfd2} and ${flow.ffrPino2}; ${flow.cfdMaxMin} minutes on ${flow.cfdCores} cores against ${formatDecimal(pino.timing.pino.inference_ms_median / 1000, 2)} seconds.`;
+export const plateSentence = `CFD: FFR ${flow.ffrCfd2}, up to ${flow.cfdMaxMin} minutes on ${flow.cfdCores} CPU cores. PINO: FFR ${flow.ffrPino2}, ${formatDecimal(pino.timing.pino.inference_ms_median / 1000, 2)} seconds on one GPU.`;
 
 /*
   The identity block's three mono proof lines (home, index.md, llms.txt):
@@ -443,7 +443,7 @@ export const capabilities: { id: string; name: string; href: string; row: string
 ];
 
 /** The research page's one-line header and its closing row (page and research.md). */
-export const researchLine = `Three worked examples with public data, from a practice that spans ${listAnd(profile.fields)}.`;
+export const researchLine = 'Three examples with public data.';
 export const researchClosing = 'The valve, infection-control, urodynamics and glaucoma work has no public data yet.';
 
 /** Home "Selected": the first-author journal paper, the first-author DMD 2026 proceedings paper, the co-first journal paper; newest first. */

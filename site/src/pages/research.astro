@@ -75,8 +75,7 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
             <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
           </Frame>
           <figcaption class="art__caption">
-            Surface pressure, CFD left and PINO right; slide or toggle to compare. Pressure R²
-            <span class="num">{formatDecimal(c.pressure_Pa.R2, 3)}</span>.
+            CFD left, PINO right. Pressure R² <span class="num">{formatDecimal(c.pressure_Pa.R2, 3)}</span>.
           </figcaption>
         </figure>
         <figure class="art">
@@ -84,8 +83,8 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
             <FfrCurve client:visible centerlineUrl={urls.centerline} mode="chapter" />
           </Frame>
           <figcaption class="art__caption">
-            Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span> from the inlet; at the probe planes CFD and PINO are
-            <span class="num">{flow.ffrDelta}</span> apart.
+            Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span> from the inlet. CFD and PINO differ by
+            <span class="num">{flow.ffrDelta}</span> at the distal probe.
           </figcaption>
         </figure>
       </div>
