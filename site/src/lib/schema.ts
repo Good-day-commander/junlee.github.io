@@ -257,7 +257,7 @@ export const timingItems = [`CFD up to ${flow.cfdMaxMin} min on ${flow.cfdCores}
 export const timingLine = timingItems.join(' · ');
 
 /** The home plate's STIX line (device-agnostic: phones show a toggle, not a handle). */
-export const plateSentence = `The same vessel solved twice. CFD took up to ${flow.cfdMaxMin} minutes on ${flow.cfdCores} cores. The neural operator took ${formatDecimal(pino.timing.pino.inference_ms_median / 1000, 2)} seconds. Slide or toggle to compare.`;
+export const plateSentence = `One artery, solved twice: CFD on one side of the line, the neural operator on the other. FFR ${flow.ffrCfd2} and ${flow.ffrPino2}; ${flow.cfdMaxMin} minutes on ${flow.cfdCores} cores against ${formatDecimal(pino.timing.pino.inference_ms_median / 1000, 2)} seconds.`;
 
 /*
   The identity block's three mono proof lines (home, index.md, llms.txt):
@@ -420,25 +420,25 @@ export const capabilities: { id: string; name: string; href: string; row: string
     id: 'simulation',
     name: 'Simulation',
     href: '/research/#flow',
-    row: `CFD and lattice Boltzmann since ${firstYear}, coronaries to valves.`,
+    row: `CFD of a patient's own vessels from CT, read out as FFR and wall shear stress; also applied to a tricuspid valve device.`,
   },
   {
     id: 'ai',
     name: 'Physics-informed AI',
     href: '/research/#image',
-    row: `Neural operators in ${flow.inference}; diffusion-synthesized 4D CT.`,
+    row: `Neural operators trained on CFD return an unseen vessel's pressure field in ${flow.inference}, not ${flow.cfdMaxMin} minutes; diffusion-synthesized 4D CT gives FFR across the cardiac cycle.`,
   },
   {
     id: 'biosignals',
     name: 'Wearable biosignals',
     href: '/research/#pulse',
-    row: `PPG for viscosity, blood pressure, glucose; fluid-bolus AUC ${pulseFacts.devAuc}, ${pulseFacts.status}.`,
+    row: `Smartwatch PPG, read by deep learning, gives blood viscosity and predicts a fluid bolus within 24 h (AUC ${pulseFacts.devAuc}, ${pulseFacts.status}); patents cover blood pressure, glucose and glaucoma.`,
   },
   {
     id: 'devices',
     name: 'Devices and translation',
     href: '/cv/#patents',
-    row: `FFR simulator, tricuspid implant, infection-control tunnel, urodynamics; ${counts.patents} patents, ${counts.patentsRegistered} registered.`,
+    row: `A point-of-care FFR simulator, an implantable tricuspid device, a negative-pressure tunnel and AI urodynamics; ${counts.patents} patents, ${counts.patentsRegistered} registered; CARDIOS and EASYCHECK carry parts of this work.`,
   },
 ];
 
@@ -637,8 +637,6 @@ export function homeMarkdown(): string {
   return [
     ...identityMd(),
     '## The plate',
-    '',
-    `\`${plateCaption}\``,
     '',
     plateSentence,
     '',

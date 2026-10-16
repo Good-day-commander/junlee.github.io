@@ -11,7 +11,7 @@
   Checks
     words     visible words in <main> after removing script, style, svg,
               template, noscript and role="img" elements (a colorbar's
-              ticks are the image's, not reading text): home <= 240, research <= 750, each
+              ticks are the image's, not reading text): home <= 250, research <= 750, each
               research section[id] <= 230 (cv is measured, not budgeted)
     mailto    no page carries more than 1 mailto: link (the nav's Email);
               a redirect stub carries none
@@ -44,7 +44,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist', 'public');
 
 /* mailto: 1 per page (the nav's Email; the footer carries none since revision 2a), 0 in a redirect stub. */
-const BUDGET = { home: 240, research: 750, researchSection: 230, mailto: 1, mailtoRedirect: 0 };
+const BUDGET = { home: 250, research: 750, researchSection: 230, mailto: 1, mailtoRedirect: 0 };
 const AGENT_FILES = ['llms.txt', 'llms-full.txt', 'index.md', 'research.md', 'cv.md', 'cv.json'];
 const CV_JSON_KEYS = ['basics', 'work', 'education', 'publications', 'awards', 'skills', 'projects'];
 

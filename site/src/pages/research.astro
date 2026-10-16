@@ -71,7 +71,7 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     <Fragment slot="artifact">
       <div class="art-grid">
         <figure class="art">
-          <Frame plate class="art__frame art__frame--viewer" tl={flow.caseId} tr={`${flow.nodes} nodes`}>
+          <Frame plate class="art__frame art__frame--viewer" tl="Surface pressure">
             <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
           </Frame>
           <figcaption class="art__caption">
@@ -117,7 +117,7 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
   <Chapter id="image" heading="Image" claim={fronts[1].row}>
     <Fragment slot="artifact">
       <figure class="art">
-        <Frame plate class="art__frame" tl={im.case} tr={`${im.source.paper_id} · ${figureLabel(im)}`}>
+        <Frame plate class="art__frame" tr={`${im.source.paper_id} · ${figureLabel(im)}`}>
           <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={im} />
         </Frame>
         <figcaption class="art__caption">

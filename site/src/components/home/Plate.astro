@@ -21,10 +21,7 @@
 import Frame from '@/components/Frame.astro';
 import HeroViewer from './HeroViewer';
 import { DEFAULT_SUMMARY, DEFAULT_MANIFEST_URL } from '@/islands/vessel/summary';
-import { plateCaptionItems, plateSentence } from '@/lib/schema';
-
-/* Whole items (the FFR pair is one item); the separator keeps a no-break space before it, so a line never starts with one. */
-const captionLines = [plateCaptionItems];
+import { plateSentence } from '@/lib/schema';
 ---
 
 <section class="home-plate wrap" aria-label="Live plate: CFD against the neural operator on one patient vessel">
@@ -32,18 +29,6 @@ const captionLines = [plateCaptionItems];
     <HeroViewer client:visible quiet manifestUrl={DEFAULT_MANIFEST_URL} summary={DEFAULT_SUMMARY} />
   </Frame>
   <div class="home-plate__under">
-    <p class="home-plate__caption t-mono">
-      {
-        captionLines.map((line) => (
-          <span class="home-plate__cap-line">
-            {line.map((item, i) => (
-              <><span class="home-plate__pair">{item}{i < line.length - 1 && " ·"}</span>{" "}</>
-            ))}
-
-          </span>
-        ))
-      }
-    </p>
     <p class="home-plate__line">{plateSentence}</p>
   </div>
 </section>

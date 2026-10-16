@@ -257,8 +257,9 @@ export function VesselViewer({
         });
         scene.setReducedMotion(rm.matches);
         scene.setWipe(live.current.wipe);
+        // Still vessel everywhere (owner, 2026-10-17): no idle drift on the home plate or the chapter viewer.
+        scene.setDrift(false);
         if (quiet) {
-          scene.setDrift(false);
           // The stretch past the distal FFR probe sits on the floor of the range (a grey stub): cropped on the plate.
           scene.setClipDistal(true);
         }
