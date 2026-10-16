@@ -1,0 +1,196 @@
+---
+/*
+  The first thing on the home page: who this is. A small portrait plate
+  with a hairline, the name as the page's h1, one Archivo line (role, lab,
+  university, then the four fields), the owner's tagline in STIX, three
+  mono proof lines (contract revision 2a: first-author papers and the paper
+  award; the PINO cohort and CFD against PINO time; patent, project and
+  award counts, the project and award counts linked to the CV, the patent
+  count plain because the Devices row is home's one link to /cv/#patents),
+  and one mono link row (LinkedIn, Google Scholar, ORCID). No Email and no
+  CV here: the nav carries both, so the first viewport shows each action
+  once. Home's footer drops its link row, so this is the page's only one.
+
+  Every string comes from content.ts (profile.role, lab, university,
+  fields, tagline, links) or lib/schema.ts proofLines, the same helper
+  /index.md and /llms.txt print; swapping the tagline is one edit there.
+*/
+import { Image } from 'astro:assets';
+import { profile } from '@/data/content';
+import { proofLines } from '@/lib/schema';
+import portrait from '@/assets/photos/profile-main.jpg';
+
+const links = [
+  { label: 'LinkedIn', href: profile.links.linkedin, me: true },
+  { label: 'Google Scholar', href: profile.links.scholar, me: true },
+  { label: 'ORCID', href: profile.links.orcid, me: true },
+];
+---
+
+<header class="identity wrap" aria-labelledby="identity-name">
+  <Image
+    src={portrait}
+    alt={`${profile.name}, portrait.`}
+    width={96}
+    height={96}
+    densities={[1, 2]}
+    format="webp"
+    quality={85}
+    loading="eager"
+    class="identity__portrait"
+  />
+  <div class="identity__text">
+    <h1 id="identity-name" class="identity__name">{profile.name}</h1>
+    <p class="identity__role">
+      <span>{profile.role} · {profile.lab}, {profile.university}</span>
+      <span class="identity__fields">{profile.fields.map((f, i) => <><span class="identity__item">{f}{i < profile.fields.length - 1 && " ·"}</span>{" "}</>)}</span>
+    </p>
+    <p class="identity__tagline">{profile.tagline}</p>
+    <ul class="identity__proofs t-mono" aria-label="Record in brief">
+      {
+        proofLines.map((line) => (
+          <li class="identity__proof">
+            {line.map((item, i) => (
+              /* The separator rides inside the nowrap item, so a line breaks only after a dot, never before one. */
+              <><span class="identity__item">{item.href ? <a href={item.href}>{item.text}</a> : item.text}{i < line.length - 1 && <span class="identity__sep" aria-hidden="true">{" ·"}</span>}</span>{" "}</>
+            ))}
+          </li>
+        ))
+      }
+    </ul>
+    <ul class="identity__links t-mono">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} rel="me noopener">
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</header>
+
+<style>
+  .identity {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    align-items: start;
+    padding-block: var(--space-4) var(--space-3);
+  }
+  .identity :global(.identity__portrait) {
+    width: 6rem;
+    height: 6rem;
+    object-fit: cover;
+    object-position: 50% 28%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-1);
+    margin-top: 0.35rem;
+  }
+  .identity__text {
+    display: grid;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+  .identity__name {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 92;
+    font-weight: 600;
+    font-size: clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .identity__role {
+    display: grid;
+    gap: 0.1rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--size-ui);
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .identity__fields {
+    color: var(--ink-2);
+  }
+  .identity__tagline {
+    font-family: var(--font-text);
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+  /* Proof lines: each item stays whole; a line breaks only at a separator. */
+  .identity__proofs {
+    display: grid;
+    gap: 0.15rem;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .identity__item {
+    white-space: nowrap;
+  }
+  .identity__sep {
+    color: var(--ink-3);
+  }
+  .identity__proofs a {
+    color: var(--ink);
+    text-decoration-color: var(--line);
+  }
+  .identity__proofs a:hover {
+    text-decoration-color: var(--signal);
+  }
+  .identity__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
+  }
+  .identity__links a {
+    display: inline-block;
+    padding-block: 0.4rem;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    transition: border-color var(--duration-quick) var(--ease-out);
+  }
+  .identity__links a:hover {
+    border-bottom-color: var(--signal);
+  }
+
+  /* Phones: the portrait sits beside the name; the lines below run the full width. */
+  @media (max-width: 640px) {
+    /* Each proof reads as its own group when the lines wrap. */
+    .identity__proofs {
+      gap: 0.45rem;
+    }
+    .identity {
+      grid-template-columns: 4rem minmax(0, 1fr);
+      column-gap: var(--space-2);
+      padding-block: var(--space-3) var(--space-2);
+    }
+    .identity :global(.identity__portrait) {
+      width: 4rem;
+      height: 4rem;
+      margin-top: 0;
+    }
+    .identity__text {
+      display: contents;
+    }
+    .identity__name {
+      align-self: center;
+    }
+    .identity__role,
+    .identity__tagline,
+    .identity__proofs,
+    .identity__links {
+      grid-column: 1 / -1;
+    }
+    .identity__tagline {
+      font-size: 1.0625rem;
+    }
+  }
+</style>

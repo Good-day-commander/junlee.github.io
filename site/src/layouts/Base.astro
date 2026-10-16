@@ -1,72 +1,91 @@
 ---
 /*
-  HTML shell for every page. Owned by SCAFFOLD; pages pass props, never edit.
+  HTML shell for every page. Pages pass props, never edit.
 
-  surface   'film' (dark data surfaces: /, /research)
-            'box'  (light report surfaces: /publications, /record, /cv)
+  Theme follows the system: the light box is the default ground, and
+  prefers-color-scheme: dark switches the page to film (tokens.css). Data
+  plates (.plate) are film in both schemes. There is no per-page surface
+  and no manual toggle.
+
   ogImage   absolute path under public/, e.g. '/og.png'. When omitted,
-            /og.png (the 1200x630 hero capture made by `pnpm og`) is used.
-  jsonLd    structured data object, serialised into one <script type="application/ld+json">.
-            The home page passes the Person record; other pages pass nothing.
+            /og.png (the 1200x630 home capture made by `pnpm og`) is used.
+  graph     JSON-LD @graph nodes for components/JsonLd.astro (built in
+            lib/schema.ts). When omitted, JsonLd picks the graph by path and
+            falls back to Person + WebSite, so every page carries one block.
   ogAlt     alt text for the share image when a page passes its own image.
   noindex   true on /404: robots noindex, and no canonical or og:url.
-  close     props for the shared Close (components/Close.astro) that ends
-            every page inside <main>; pass a page's own line here, or false
-            to omit it. Pages never render the Close themselves.
+  footer    props for components/Footer.astro: { omit: ['LinkedIn'] } on
+            /cv/ (the action bar carries it), { links: false } on home (the
+            identity block carries the row).
+
+  Every page leads to email, the CV and LinkedIn: the nav (Email action,
+  CV page) on every page, LinkedIn in the footer row, the identity block
+  (home) or the action bar (/cv/); pages add no contact block of their
+  own.
+
+  Fonts: Archivo stays variable because the display type uses the wdth 92
+  axis (static Archivo only ships the normal width); its latin subset is the
+  instanced file (wght 400-600, wdth 92-100) declared in styles/fonts.css. Only the two faces of
+  the first viewport's identity block are preloaded (Archivo for the name,
+  STIX for the tagline); every face is font-display: swap (fontsource).
 */
-import '@fontsource-variable/archivo/wdth.css';
+import '@/styles/fonts.css';
 import '@fontsource/stix-two-text/400.css';
 import '@fontsource/stix-two-text/400-italic.css';
 import '@fontsource/stix-two-text/600.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '@/styles/global.css';
+import archivoLatin from '@/assets/fonts/archivo-latin-wght400-600-wdth92-100.woff2?url';
+import stixLatin from '@fontsource/stix-two-text/files/stix-two-text-latin-400-normal.woff2?url';
 
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
-import Close from '@/components/Close.astro';
-import type { Props as CloseProps } from '@/components/Close.astro';
 import { profile } from '@/data/content';
 import appleTouchIcon from '@/assets/brand/apple-touch-icon.png';
 import favicon32 from '@/assets/brand/favicon-32.png';
+import JsonLd from '@/components/JsonLd.astro';
+import { markdownTwin, type JsonLdNode } from '@/lib/schema';
 
 export interface Props {
   title: string;
   description: string;
-  surface: 'film' | 'box';
   ogImage?: string;
   ogAlt?: string;
-  jsonLd?: Record<string, unknown>;
+  graph?: JsonLdNode[];
   noindex?: boolean;
-  close?: CloseProps | false;
+  footer?: { omit?: string[]; links?: boolean };
 }
 
-const { title, description, surface, ogImage, ogAlt: ogAltProp, jsonLd, noindex = false, close = {} } = Astro.props;
+const { title, description, ogImage, ogAlt: ogAltProp, graph, noindex = false, footer = {} } = Astro.props;
 
 const site = Astro.site ?? new URL(profile.links.site);
 const canonical = new URL(Astro.url.pathname, site);
 const isHome = Astro.url.pathname === '/';
+/* The page's markdown twin (/index.md, /research.md, /cv.md); null where none exists. */
+const mdTwin = markdownTwin(Astro.url.pathname);
 const pageTitle = isHome ? `${profile.name} · ${title}` : `${title} · ${profile.name}`;
 
 const ogPath = ogImage ?? '/og.png';
 const ogUrl = new URL(ogPath, site).href;
 const ogAlt =
   ogAltProp ??
-  `${profile.name}: a patient-specific coronary vessel painted with its pressure field, beside the headline "Coronary physics, fast enough for the clinic."`;
-
-// sRGB approximations of --film-0 and --box for the browser chrome.
-const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
+  `${profile.name}: his name, role and fields beside a patient-specific vessel painted with its pressure field, CFD against the neural operator.`;
 ---
 
 <!doctype html>
-<html lang="en" data-surface={surface}>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical.href} />}
-    <meta name="theme-color" content={themeColor} />
-    <meta name="color-scheme" content={surface === 'film' ? 'dark' : 'light'} />
+    <meta name="color-scheme" content="light dark" />
+    {/* sRGB approximations of --box and --film-0 for the browser chrome. */}
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f8f6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1b1f" />
+    <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={stixLatin} as="font" type="font/woff2" crossorigin />
     <meta name="author" content={profile.name} />
     <meta property="og:type" content={isHome ? 'profile' : 'website'} />
     <meta property="og:site_name" content={profile.name} />
@@ -87,16 +106,17 @@ const themeColor = surface === 'film' ? '#1a1b1f' : '#f9f8f6';
     <link rel="apple-touch-icon" href={appleTouchIcon.src} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="generator" content={Astro.generator} />
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {mdTwin && <link rel="alternate" type="text/markdown" href={mdTwin} />}
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <JsonLd graph={graph} />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <Nav />
     <main id="main" tabindex="-1">
       <slot />
-      {close !== false && <Close {...close} />}
     </main>
-    <Footer />
+    <Footer {...footer} />
   </body>
 </html>
 

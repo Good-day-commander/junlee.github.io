@@ -1,123 +1,95 @@
 ---
 /*
-  One research chapter: heading, one STIX lede, the artifact at frame width
-  (the work leads), then the reading column, then a one-line consequence.
-  No kicker, no number: the heading and the artifact carry the chapter.
-  The consequence line ends with a quiet "Discuss this work" mailto whose
-  subject names the chapter, so every front has its own way in.
+  One research chapter (contract revision 2): a header row (the chapter
+  name and one claim carrying its number), the artifact at frame width,
+  then the reading column: one paragraph, the metrics table and the
+  citation line. No consequence line and no per-chapter mail link; the
+  nav and the footer carry the contact routes.
 
-    <Chapter id="flow" heading="Flow" lede="…" consequence="…">
-      <Fragment slot="artifact">…frames and islands…</Fragment>
-      …reading column (paragraphs, tables, paper frames)…
+    <Chapter id="flow" heading="Flow" claim="…">
+      <Fragment slot="artifact">…plates…</Fragment>
+      …paragraph, MetricsTable, Cite…
     </Chapter>
 */
 export interface Props {
   id: string;
   heading: string;
-  lede: string;
-  consequence: string;
+  claim: string;
+  /** Optional mono line under the claim (Flow: CFD time against PINO time). */
+  meta?: string;
 }
 
-import { profile } from '@/data/content';
-import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
-
-const { id, heading, lede, consequence } = Astro.props;
-const subject = encodeURIComponent(`${heading} work on hyeongjunlee.me`);
-const discuss = `mailto:${profile.email}?subject=${subject}`;
+const { id, heading, claim, meta } = Astro.props;
 ---
 
 <section class="chapter" id={id} aria-labelledby={`${id}-heading`}>
   <header class="chapter__head wrap">
-    <h2 id={`${id}-heading`} class="t-heading">{heading}</h2>
-    <p class="chapter__lede t-prose">{lede}</p>
+    <h2 id={`${id}-heading`} class="chapter__name">{heading}</h2>
+    <div class="chapter__lead">
+      <p class="chapter__claim">{claim}</p>
+      {meta && <p class="chapter__meta t-mono">{meta}</p>}
+    </div>
   </header>
 
   <div class="chapter__artifact wrap">
     <slot name="artifact" />
   </div>
 
-  <div class="chapter__read wrap wrap--text">
+  <div class="chapter__read wrap">
     <slot />
-    <p class="chapter__consequence">
-      {consequence}{' '}
-      <a class="chapter__discuss" href={discuss}>
-        Discuss this work<span class="chapter__arrow" aria-hidden="true" set:html={arrowRight} />
-      </a>
-    </p>
   </div>
 </section>
 
 <style>
   .chapter {
-    padding-block: var(--section-pad) 0;
-  }
-  .chapter:last-of-type {
-    padding-bottom: var(--section-pad);
-  }
-  /* The first chapter binds to the page head's rule, so the Flow viewer starts inside the first viewport. */
-  :global(.page-head) + .chapter {
-    padding-top: var(--space-5);
+    padding-top: var(--space-6);
   }
   .chapter__head {
     display: grid;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: var(--space-1) var(--space-3);
+    align-items: baseline;
+    margin-bottom: var(--space-3);
   }
-  .chapter__head > .t-heading {
-    max-width: 28ch;
+  .chapter__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-heading);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
   }
-  .chapter__lede {
+  .chapter__claim {
+    font-family: var(--font-text);
+    font-size: 1.1875rem;
+    line-height: 1.45;
+    color: var(--ink);
+    max-width: 58ch;
+    text-wrap: pretty;
+  }
+  .chapter__lead {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .chapter__meta {
     color: var(--ink-2);
   }
   .chapter__artifact {
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-4);
   }
   .chapter__read {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-3);
+    justify-items: start;
   }
-  .chapter__read > :global(.t-prose + .t-prose) {
-    margin-top: calc(-1 * var(--space-2));
-  }
-  .chapter__consequence {
-    font-family: var(--font-text);
-    font-size: 1.25rem;
-    line-height: 1.45;
-    max-width: var(--measure);
-    text-wrap: pretty;
-    color: var(--ink);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--line);
-  }
-  .chapter__discuss {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-left: 0.35rem;
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: var(--size-ui);
-    line-height: 1.2;
-    color: var(--ink-2);
-    white-space: nowrap;
-    text-decoration-color: var(--line);
-  }
-  .chapter__discuss:hover {
-    color: var(--ink);
-    text-decoration-color: var(--signal);
-  }
-  .chapter__arrow {
-    display: inline-flex;
-    width: 1em;
-    height: 1em;
-    color: var(--ink-3);
-    transition: color var(--duration-quick) var(--ease-out);
-  }
-  .chapter__arrow :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
-  .chapter__discuss:hover .chapter__arrow {
-    color: var(--signal);
+  @media (max-width: 640px) {
+    .chapter {
+      padding-top: var(--space-5);
+    }
+    .chapter__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .chapter__claim {
+      font-size: 1.0625rem;
+    }
   }
 </style>

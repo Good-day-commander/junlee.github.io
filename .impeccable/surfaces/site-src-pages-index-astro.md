@@ -34,3 +34,27 @@ FIRST VIEWPORT: Full-viewport cine frame on film charcoal. The vessel (WebGL, re
 FORM: Coronary angiogram light box / cine frame, candidate 6 of 7 on the ordered list, seed key 6687f113, code-led (build path delegated by the owner; code-led chosen because the artifact is live WebGL data).
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+## Revision 2 (2026-10-16): read mode, light box default, dense record
+
+Trigger: peer review (verbose, duplicated actions, unclear identity, inconsistent theme, dark readability, agent-readability).
+
+VISITOR MODE: / becomes Read (identity first); /research stays Experience; /cv is Read.
+
+FIRST VIEWPORT (replaces the earlier clause): Light-box ground. Thin top chrome: name, Research, CV, and a single Email action in signal. Identity block first: portrait plate (small, hairline), h1 = the name, one Archivo line (postdoc · Multiscale Fluid Dynamics Lab, Yonsei University · computational hemodynamics · physics-informed AI · wearable biosignals · medical devices), one STIX sentence in the owner's voice (profile.tagline), one mono link row (CV (PDF) · LinkedIn · Google Scholar · ORCID). Below it, inside the same viewport at 1440×900, the cine frame: the real vessel on film, pressure-painted, with the CFD | PINO wipe handle and the vertical colorbar; no corner readouts; one mono caption under the frame carrying case id, FFR CFD/PINO and the 1.78 s. On phones: identity block, then the frame in portrait, then the rows.
+
+OWN-WORLD (theme clause added): the page ground follows the system scheme (light box by default, film under prefers-color-scheme: dark); plates are always film. Ink, line and signal tokens are the same family in both. In dark, secondary ink is no lighter than 0.80 and mono never below 13 px.
+
+DENSITY: report surfaces (CV) are dense: rows, not frames; one entry ≈ two lines; section gaps halved. Home is two screens at most. Research chapters carry one artifact, one paragraph, one table, one citation line each.
+
+RETIRED: the three-tier "what / result / consequence" label stack; the Close block; per-chapter mail links; the Led, About, Applied and Fronts sections of the home page.
+
+UNCHANGED: cine-frame world (seed 6687f113, candidate 6), hairline frames with mono corner chrome on plates, the colormaps, the type trio, the single left edge, rectangular bordered buttons, signal red reserved for probes, active states and the one primary action.
+
+## Revision 2a (2026-10-16): proofs in the identity block
+
+The identity block carries three mono proof lines (first-author papers and award; PINO cohort and CFD-vs-PINO time; patents, projects, awards counts) between the tagline and the link row, so the first viewport answers who, where, what, three proofs and contact. The link row is LinkedIn · Google Scholar · ORCID; Email and CV live in the nav only. The footer link row has no Email.
+
+## Revision 2b (2026-10-17): one action word per viewport
+
+Peer verification measured every scroll position: the sticky nav meets the footer in the last viewport of every page, so the footer row is LinkedIn · Google Scholar · ORCID only (no Email, no CV (PDF)); the PDF is reached from the CV page's action bar and is linked from llms.txt, cv.md and cv.json. The home plate caption is one mono line (case id, node count, FFR CFD and PINO); the 1.78 s and the 35-minute CFD bound live in proof line 2 and in the sentence under the plate. Proof line 3 is plain text. The research closing row is plain text. The CV page's contact row prints only; on screen the nav and footer carry those links. No home link repeats a target.

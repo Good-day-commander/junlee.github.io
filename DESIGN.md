@@ -1,14 +1,14 @@
 ---
 name: hyeongjunlee.me
-description: A cath-lab cine frame on film charcoal; the research is the image inside it, read in bone ink with one clinical red.
+description: A light box with film plates on it; the research is the image on the film, read in one ink family with one clinical red. Revision 2b (2026-10-17).
 colors:
   film-0: "oklch(0.15 0.008 250)"
   film-1: "oklch(0.21 0.008 250)"
   film-2: "oklch(0.28 0.01 250)"
   film-line: "oklch(0.38 0.01 250)"
   bone: "oklch(0.94 0.006 85)"
-  bone-2: "oklch(0.74 0.012 85)"
-  bone-3: "oklch(0.6 0.012 85)"
+  bone-2: "oklch(0.8 0.012 85)"
+  bone-3: "oklch(0.64 0.012 85)"
   box: "oklch(0.975 0.004 85)"
   box-2: "oklch(0.94 0.006 85)"
   box-3: "oklch(0.9 0.008 85)"
@@ -21,12 +21,12 @@ colors:
   signal-hover: "oklch(0.46 0.19 27)"
   signal-soft: "oklch(0.62 0.21 27 / 0.18)"
 typography:
-  display:
+  name:
     fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
-    fontSize: "clamp(2.4rem, 5.4vw, 5.5rem)"
+    fontSize: "clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem)"
     fontWeight: 600
-    lineHeight: 0.98
-    letterSpacing: "-0.02em"
+    lineHeight: 1
+    letterSpacing: "-0.025em"
     fontVariation: "'wdth' 92"
   display-page:
     fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
@@ -47,6 +47,11 @@ typography:
     fontWeight: 600
     lineHeight: 1.3
     letterSpacing: "-0.01em"
+  row-title:
+    fontFamily: "Archivo Variable, Archivo, system-ui, sans-serif"
+    fontSize: "0.975rem"
+    fontWeight: 600
+    lineHeight: 1.35
   body:
     fontFamily: "STIX Two Text, Times New Roman, Georgia, serif"
     fontSize: "1.0625rem"
@@ -65,14 +70,14 @@ typography:
     lineHeight: 1.3
   mono:
     fontFamily: "JetBrains Mono Variable, JetBrains Mono, ui-monospace, Menlo, Consolas, monospace"
-    fontSize: "0.8rem"
+    fontSize: "0.8rem (light box), 0.8125rem (film)"
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: "0"
     fontFeature: "tabular-nums"
   label:
     fontFamily: "JetBrains Mono Variable, JetBrains Mono, ui-monospace, Menlo, Consolas, monospace"
-    fontSize: "0.75rem"
+    fontSize: "0.75rem (light box), 0.8125rem (film)"
     fontWeight: 400
     lineHeight: 1.3
     letterSpacing: "0.08em"
@@ -86,7 +91,6 @@ spacing:
   space-4: "2rem"
   space-5: "3rem"
   space-6: "4rem"
-  section-pad: "clamp(4rem, 9vw, 7rem)"
   gutter: "clamp(1rem, 3vw, 2.5rem)"
   corner-inset: "0.5rem"
   nav-h: "3rem"
@@ -103,54 +107,61 @@ components:
     textColor: "{colors.bone}"
   button-ghost:
     backgroundColor: "transparent"
-    textColor: "{colors.bone}"
+    textColor: "{colors.box-ink}"
     typography: "{typography.ui}"
     rounded: "{rounded.base}"
     padding: "0.6rem 1.1rem"
     height: "2.75rem"
   button-ghost-hover:
-    backgroundColor: "{colors.bone}"
-    textColor: "{colors.film-0}"
-  frame:
+    backgroundColor: "{colors.box-ink}"
+    textColor: "{colors.box}"
+  button-compact:
+    typography: "{typography.ui}"
+    rounded: "{rounded.base}"
+    padding: "0.3rem 0.7rem"
+    height: "2rem"
+  nav:
+    backgroundColor: "{colors.box}"
+    height: "{spacing.nav-h}"
+  nav-link:
+    textColor: "{colors.box-ink-2}"
+    typography: "{typography.ui}"
+    padding: "0.9rem 0"
+  nav-link-current:
+    textColor: "{colors.box-ink}"
+  nav-email:
+    backgroundColor: "{colors.signal-fill}"
+    textColor: "{colors.bone}"
+    rounded: "{rounded.base}"
+    padding: "0.3rem 0.7rem"
+    height: "2rem"
+  identity-portrait:
+    rounded: "{rounded.base}"
+    width: "6rem"
+    height: "6rem"
+  identity-link:
+    textColor: "{colors.box-ink}"
+    typography: "{typography.mono}"
+    padding: "0.4rem 0"
+  footer:
+    backgroundColor: "{colors.box}"
+    padding: "1.5rem 0 2rem"
+  footer-link:
+    textColor: "{colors.box-ink}"
+    typography: "{typography.mono}"
+    padding: "0.45rem 0"
+  plate:
+    backgroundColor: "{colors.film-0}"
+    textColor: "{colors.bone}"
+    rounded: "{rounded.base}"
+  home-plate:
     backgroundColor: "{colors.film-0}"
     rounded: "{rounded.base}"
-  frame-panel:
-    backgroundColor: "{colors.film-1}"
-    rounded: "{rounded.base}"
-  frame-padded-body:
-    padding: "2rem 1.5rem"
-  frame-stack:
-    padding: "1rem 1.5rem 1.75rem"
+    height: "min(44vh, 30rem)"
   corner-readout:
     textColor: "{colors.bone-3}"
     typography: "{typography.label}"
     padding: "0.1rem 0.25rem"
-  nav:
-    backgroundColor: "{colors.film-0}"
-    height: "{spacing.nav-h}"
-  nav-link:
-    textColor: "{colors.bone-2}"
-    typography: "{typography.ui}"
-    padding: "0.9rem 0"
-  nav-link-current:
-    textColor: "{colors.bone}"
-  rolemark:
-    backgroundColor: "transparent"
-    textColor: "{colors.bone-2}"
-    rounded: "{rounded.base}"
-    padding: "0 0.5rem"
-    height: "1.5rem"
-  rolemark-first:
-    textColor: "{colors.bone}"
-  rolemark-co-first:
-    textColor: "{colors.bone}"
-  tag:
-    backgroundColor: "transparent"
-    textColor: "{colors.bone-2}"
-    typography: "{typography.label}"
-    rounded: "{rounded.base}"
-    padding: "0 0.4rem"
-    height: "1.25rem"
   colorbar-strip:
     width: "10px"
     height: "min(56%, 320px)"
@@ -170,64 +181,35 @@ components:
     typography: "{typography.label}"
     rounded: "{rounded.base}"
     padding: "0.3rem 0.55rem"
-  button-compact:
-    typography: "{typography.ui}"
-    rounded: "{rounded.base}"
-    padding: "0.3rem 0.7rem"
-    height: "2rem"
-  nav-action-primary:
-    backgroundColor: "{colors.signal-fill}"
-    textColor: "{colors.bone}"
-    rounded: "{rounded.base}"
-    padding: "0.3rem 0.7rem"
-    height: "2rem"
-  nav-action-ghost:
+  rolemark:
     backgroundColor: "transparent"
-    textColor: "{colors.bone}"
+    textColor: "{colors.box-ink-2}"
     rounded: "{rounded.base}"
-    padding: "0.3rem 0.7rem"
-    height: "2rem"
-  nav-menu-summary:
-    textColor: "{colors.bone-2}"
-    typography: "{typography.ui}"
-    padding: "0.3rem 0.1rem 0.3rem 0.4rem"
-    height: "2rem"
-  close-line:
-    typography: "{typography.body}"
-    fontSize: "clamp(1.5rem, 1.2rem + 1.2vw, 2.125rem)"
-    width: "30ch"
-  about-portrait:
+    padding: "0 0.5rem"
+    height: "1.5rem"
+  rolemark-first:
+    textColor: "{colors.box-ink}"
+  rolemark-co-first:
+    textColor: "{colors.box-ink}"
+  tag:
+    backgroundColor: "transparent"
+    textColor: "{colors.box-ink-2}"
+    typography: "{typography.label}"
     rounded: "{rounded.base}"
-    width: "10rem"
-    height: "10rem"
-  photo-plate:
-    backgroundColor: "{colors.film-1}"
-    rounded: "{rounded.base}"
+    padding: "0 0.4rem"
+    height: "1.25rem"
+  cv-row:
+    typography: "{typography.row-title}"
+    padding: "0.3rem 0"
   cv-action-bar:
     backgroundColor: "{colors.box}"
-    height: "3.5rem"
+    height: "2.75rem"
+  metrics-table:
+    typography: "{typography.mono}"
+    padding: "0.45rem 1.5rem 0.45rem 0"
   scrubber-plate:
     backgroundColor: "{colors.box}"
     rounded: "{rounded.base}"
-  scrubber-grip:
-    backgroundColor: "{colors.film-0}"
-    textColor: "{colors.bone}"
-    typography: "{typography.label}"
-    rounded: "{rounded.base}"
-    padding: "0.3rem 0.55rem"
-  scrubber-tick-acquired:
-    backgroundColor: "{colors.bone}"
-    height: "1rem"
-  scrubber-tick:
-    backgroundColor: "{colors.bone-3}"
-    height: "0.5rem"
-  legend-ramp:
-    rounded: "{rounded.base}"
-    width: "6rem"
-    height: "0.5rem"
-  section-heading:
-    typography: "{typography.headline}"
-    width: "28ch"
   skip-link:
     backgroundColor: "{colors.signal-fill}"
     textColor: "{colors.bone}"
@@ -238,222 +220,319 @@ components:
 
 # Design System: hyeongjunlee.me
 
+Revision 2b (2026-10-17). This file describes what is built. The direction contract is `.impeccable/surfaces/site-src-pages-index-astro.md` (its Revision 2 block, as amended by Revisions 2a and 2b, governs); the machine-readable twin of this file is `.impeccable/design.json`.
+
 ## Overview
 
-**Creative North Star: "The Angiographic Reading Room"**
+**Creative North Star: "The Light Box and the Film"**
 
-The site is a cath-lab cine frame and the research is the image inside it. Every surface is read the way a cardiologist reads a run: a hairline-bordered frame, mono readouts pinned in the corners, the data filling the middle, and a fixed caption beneath it saying what it is, what it measured, and what follows. Nothing decorative competes with the vessel, the FFR curve or the spectrogram; UI chrome is thin, mono and tinted so it reads as instrument markings rather than interface.
+The world is the cath-lab reading room: a light box with angiographic film clipped to it. The page is the light box, white and quiet, carrying who he is and the record in rows. The research is the film: every data artifact (the vessel viewer, the FFR curve, the spectrograms, the CT phase scrubber) is a dark film plate with a hairline and mono corner chrome, sitting on the box. Nothing decorative competes with the plates; UI chrome is thin and mono, so it reads as instrument marking rather than interface.
 
-Two surfaces share one ink and one accent. The data surfaces (`/`, `/research`) sit on film charcoal: a cool near-black that is never pure, under a single static grain sheet. The report surfaces (`/publications`, `/record`, `/cv`) sit on light-box white with the same bone-tinted ink family inverted and the same clinical red. Components never read the raw film or box values; they read semantic aliases (`--bg`, `--ink`, `--line`) that the `<html data-surface>` attribute resolves, so one component works unchanged on both surfaces.
+Three pages. `/` is a Read surface, identity first: name, role, the four fields, the owner's one sentence, three proof lines, a link row, then one quiet live plate inside the same 1440×900 viewport, then rows of work and three selected papers. `/research` is an Experience surface: three worked examples with data (Flow, Image, Pulse), one artifact, one paragraph, one table and one citation line each. `/cv` is the whole record, dense: rows, not frames. `/publications` and `/record` are meta-refresh redirects to `/cv/#publications` and `/cv/#talks`.
 
-Rank is carried by border ink and by frame size, never by weight, fill or color flooding. First-author work gets the larger frame and the signal-red border on its role mark; co-authored work gets a compact ruled row and a hairline. Type weight stays even across the hierarchy (one display weight, 600) so the eye ranks by geometry, not by shouting.
+The ground follows the system scheme. The light box is the default; `prefers-color-scheme: dark` turns the whole page to film. Plates are film in both schemes, so in dark mode a plate is film on film, separated by its hairline. There is no manual toggle and no per-page surface switch. Components read semantic aliases only (`--bg`, `--ink`, `--line` and their tiers), which the scheme resolves for the page and the `.plate` scope re-declares to film for a plate.
+
+Rank is carried by border ink, never by weight, fill or color flooding. First-author work carries a primary-ink border on its role mark; co-first a secondary-ink border; co-authored a hairline. Signal never marks rank. Type weight stays even (one heading weight, 600), so the eye ranks by geometry.
 
 **Key Characteristics:**
-- Film charcoal and light-box white as two surfaces of one world; identical ink roles and one red on both.
-- Frame, not card: hairline border, 2px radius, mono corner chrome, three-tier caption stack (what / result / consequence).
-- Three faces with fixed jobs: Archivo (width 92) for display and UI, STIX Two Text for reading, JetBrains Mono for every number, unit, identifier and readout.
-- Flat throughout; depth is a hairline, a tonal step or a fixed grain, never a shadow or gradient.
-- Signal red is reserved: probes, the PINO trace, active underlines, focus rings, selection and the one primary action per page.
-- Motion is physical evidence: the PINO layer develops over the measured 1.78 s, the vessel drifts one revolution per 60 s, and both stop under reduced motion.
+- Light box by default, film under the dark scheme; data plates are film in both. One ink family per ground, one clinical red on both.
+- Identity first: the name is the h1; the plate is the one live proof in the first viewport, quiet (pressure only, the CFD | PINO wipe, the colorbar).
+- Rows, not frames, for everything that is a record: capability rows and selected papers on home, dense CV rows on /cv.
+- Three faces with fixed jobs: Archivo (width 92 for the name and page titles) for naming and UI, STIX Two Text for reading, JetBrains Mono for every number, unit, identifier and link row.
+- Flat throughout; depth is a hairline or a one-step tonal lift, plus one static grain sheet on a film page.
+- Signal red is reserved: probes, the PINO trace, active underlines, focus rings, selection, the hover state of icons and underlines, and the one primary action (the nav's Email).
+- Motion is physical evidence: the PINO layer develops over the measured 1.78 s once, and everything stops under reduced motion.
 
 ## Colors
 
-A two-ink palette: a tinted near-black and a tinted bone, swapped between the two surfaces, with a single clinical red that both surfaces share.
+Two inks (a tinted near-black and a tinted bone) on two grounds, with one clinical red shared by both.
 
 ### Primary
-- **Clinical Signal** (`signal`): the one red. Used as a stroke and a state, not as a fill: the PINO curve, the probe markers, the active nav underline, the first-author role-mark border, link hover underlines, the focus ring, the caret and form accent, and the hero's counting readout. On ~1% of any screen.
-- **Signal Fill** (`signal-fill`): the darker step of the same hue that sits under bone text. The primary button (Email) and the skip link only; `signal` itself falls short of AA under bone text and is never used as a text ground.
-- **Signal Hover** (`signal-hover`): primary-button hover.
-- **Signal Soft** (`signal-soft`): 18% alpha of the signal; text selection highlight on both surfaces.
+- **Clinical Signal** (`signal`): the one red, used as a stroke and a state: the PINO curve, the probe markers, the current-page underline in the nav, link-underline and icon hover, the focus ring, the caret and form accent, the pressed segment underline. On about 1% of any screen.
+- **Signal Fill** (`signal-fill`): the darker step under bone text. The nav's Email action and the skip link only; `signal` itself falls short of AA under bone text and is never a text ground.
+- **Signal Hover** (`signal-hover`): primary-action hover.
+- **Signal Soft** (`signal-soft`): 18% alpha; text selection on both grounds.
 
-### Neutral: Film (data surfaces)
-- **Film 0** (`film-0`): page ground on `/` and `/research`, and the ground of every frame on film. Cool, never pure black.
-- **Film 1** (`film-1`): one raised step. Panel frames, the spectrogram stage, the BibTeX block.
-- **Film 2** (`film-2`): second step; scrollbar thumb.
-- **Film Line** (`film-line`): every hairline on film: frame borders, rules, table rules, nav and footer edges. A 55% alpha of it (`--line-soft`) draws chart grids and table row rules.
-- **Bone** (`bone`): primary ink on film, the wipe seam, the CFD trace, the playhead. Tinted warm, never gray.
-- **Bone 2** (`bone-2`): secondary ink: ledes, captions, nav links at rest, colorbar ticks, cite lines.
-- **Bone 3** (`bone-3`): tertiary ink: corner chrome, labels, axis ticks, icon glyphs at rest, colophon. Held at 0.60 lightness because 0.56 fell below 4.5:1 over the viewer ground.
+### Neutral: Light Box (the default page ground)
+- **Box** (`box`): page ground in the light scheme; also the light box inside a film plate (the phase scrubber's sheet).
+- **Box 2 / Box 3** (`box-2`, `box-3`): one and two tonal steps up (image placeholders, raised panels).
+- **Box Ink / Box Ink 2 / Box Ink 3** (`box-ink`, `box-ink-2`, `box-ink-3`): primary, secondary and tertiary ink on the box.
+- **Box Line** (`box-line`): every hairline on the box; its 60% alpha (`--line-soft`) draws row and table rules.
 
-### Neutral: Light Box (report surfaces)
-- **Box** (`box`): page ground on `/publications`, `/record`, `/cv`; also the light box inside a film frame: the phase scrubber's plate and the Fig. 9 result plate on `/research#image`.
-- **Box 2 / Box 3** (`box-2`, `box-3`): the raised steps on light box, mirroring film-1 / film-2.
-- **Box Ink / Box Ink 2 / Box Ink 3** (`box-ink`, `box-ink-2`, `box-ink-3`): the cool near-black ink family on light box, in the same three tiers as bone.
-- **Box Line** (`box-line`): every hairline on light box; scrollbar thumb on light box.
+### Neutral: Film (the dark page ground, and every plate)
+- **Film 0** (`film-0`): page ground under the dark scheme and the ground of every plate in both schemes. Cool, never pure black.
+- **Film 1** (`film-1`): one raised step (the spectrogram stage, the BibTeX panel on a film page).
+- **Film 2** (`film-2`): scrollbar thumb on film.
+- **Film Line** (`film-line`): every hairline on film; its 55% alpha draws chart grids and row rules.
+- **Bone** (`bone`): primary ink on film; the wipe seam, the CFD trace, the playhead.
+- **Bone 2** (`bone-2`, 0.80): secondary ink on film: captions, nav links at rest, colorbar ticks, cite lines. Held at 0.80 or lighter (the round-2 0.74 read poorly in dark).
+- **Bone 3** (`bone-3`, 0.64): tertiary ink on film: corner chrome, axis ticks, icons at rest, the colophon. 0.64 clears 4.5:1 on film-0 and film-1 (5.85:1 and 5.26:1); 0.60 gave 4.49:1 on film-1.
 
 ### Data colormaps (not UI colors)
-Field colors are never drawn from the UI palette. They are implemented once in `site/src/lib/colormaps.ts` and shared by every viewer and colorbar:
+Field colors are never drawn from the UI palette. They live once in `site/src/lib/colormaps.ts` and are shared by every viewer and colorbar:
 - **turbo** paints pressure (CFD and PINO on one shared range).
-- **diverging** (Moreland cool-warm: blue, bone-gray, red) paints signed pressure error symmetric about zero; values past +absMax take a distinct above-range yellow (`rgb(255 214 0)`) so the throat reads as a different ink, not a saturated end.
-- **viridis** paints near-wall speed and spectrograms.
-Masked regions (vessel inlet/outlet caps) are painted in the bone-3 tint so they read as chrome, not data.
+- **diverging** (Moreland cool-warm: blue, bone-gray, red) paints the signed pressure error PINO − CFD on a fixed symmetric scale: ±(the 99th percentile of |p_err|, rounded up to 0.5 kPa). Values past +scale take the above-range yellow (`rgb(255 214 0)`), so the throat reads as a different ink, not a saturated end.
+- **viridis** paints near-wall speed and the spectrograms.
+Masked regions (inlet and outlet caps) are painted in a bone tint so they read as chrome; the viewer still holds the round-2 bone-3 value (sRGB 120 116 109, oklch 0.56) in `islands/vessel/colors.ts`, not the current 0.64 (recorded drift, see Revisions).
 
-**Paper-native colormap (the phase scrubber).** The 4D CT frames on the Image front are the authors' own renders from J1 (Fig. 8, Case 1), painted in ParaView's cool-to-warm map: pressure 70–130 mmHg and wall shear stress 0–5 Pa, both blue to red. The site never recolors a paper raster, so the scrubber is the one place pressure is not turbo. Its legend reproduces the paper's ramp with the site's `diverging` map (the same Moreland cool-warm), sampled at 16 stops as a CSS gradient, with the unit and range in mono (a second kPa reading, one decimal, follows the mmHg range). The above-range yellow is not used there: the renders have no above-range band.
+**Paper-native colormap (the phase scrubber).** The 4D CT frames are the authors' renders from J1 (Fig. 8, Case 1) in ParaView's cool-to-warm map. The site never recolors a paper raster; the scrubber's legend reproduces that ramp with the site's `diverging` map sampled at 16 stops, with the mmHg range and its kPa reading in mono.
 
 ### Named Rules
-**The Two-Ink Rule.** Each surface has exactly one ink family (bone on film, box-ink on light box) in three tiers, plus the one signal red. No other UI color exists; colormaps belong to the data, not the chrome.
+**The Two-Ink Rule.** Each ground has exactly one ink family in three tiers (box-ink on the light box, bone on film), plus the one signal red. No other UI color exists; colormaps belong to the data.
 
-**The Alias Rule.** Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. Raw `film-*` and `box-*` values are set once per surface in tokens.css and referenced directly only when an element must hold the opposite surface inside a frame (the paper plate).
+**The Alias Rule.** Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme. Raw `film-*` and `box-*` values are referenced directly only where an element must hold the other ground inside a plate (the scrubber's light-box sheet).
 
-**The Light-Box Rule.** White inside a film frame is the light box of the world, never a bare rectangle: it carries a 1px hairline and mono corner chrome or a caption, and holds only a raster that came from the paper or the data. Paper rasters on the light box are composited with `mix-blend-mode: multiply`, so the figure's own white becomes the box ground instead of a second rectangle.
+**The Plate Rule.** A plate is any Frame that holds a viewer, a chart, a spectrogram or a CT frame (`<Frame plate>`). It is film in both schemes: dark film on the light box, film on film (separated by its hairline) in dark. Nothing that is not data sits on film.
 
-**The Signal-Is-A-Stroke Rule.** Signal red is a border, underline, ring, curve or counting numeral. It is a fill only on the primary button and skip link, and then as `signal-fill`, never as `signal`.
+**The Light-Box Rule.** White inside a film plate is the light box of the world, never a bare rectangle: it carries a hairline and mono corner chrome or a caption, and holds only a raster from the paper or the data, composited with `mix-blend-mode: multiply` so the figure's own white becomes the box ground.
+
+**The Signal-Is-A-Stroke Rule.** Signal red is a border, underline, ring, curve or icon state. It is a fill only on the nav's Email action and the skip link, and then as `signal-fill`.
+
+## Theme
+
+- `:root` holds the light-box aliases and `color-scheme: light`. `@media (prefers-color-scheme: dark)` swaps them for film, sets `color-scheme: dark` and raises mono and label type to 13px (`0.8125rem`). There is no toggle and no `data-surface` attribute.
+- `.plate` (in `tokens.css`) carries the film aliases, `color-scheme: dark` and the 13px mono and label sizes in both schemes.
+- `<meta name="color-scheme" content="light dark">` and two `theme-color` metas (`#f9f8f6` light, `#1a1b1f` dark).
+- Selection, caret, focus ring, form accent and scrollbar are themed from the palette in both schemes.
+- **The Dark Floor Rule.** On film, secondary ink is no darker than 0.80 lightness and mono and label type never fall below 13px. Every text and ground pair holds at least 4.5:1 in both schemes.
+- **The One Grain Rule.** A film page (the dark scheme) carries exactly one grain layer, applied by `body::after`: a static feTurbulence sheet tiled at 256px at 5% opacity, never animated, removed in print. The light box carries none, and plates add none of their own.
 
 ## Typography
 
-**Display Font:** Archivo Variable at width 92 (with Archivo, system-ui, sans-serif)
+**Display Font:** Archivo Variable (with Archivo, system-ui, sans-serif)
 **Body Font:** STIX Two Text (with Times New Roman, Georgia, serif)
 **Label/Mono Font:** JetBrains Mono Variable (with JetBrains Mono, ui-monospace, Menlo, Consolas, monospace)
 
-**Character:** A compressed grotesk for headings and controls, a narrow scientific serif for reading, and a mono for everything numeric. The pairing reads as a journal article clipped to an instrument panel: the mono does the measuring, the serif does the arguing, the grotesk does the naming. All three faces are self-hosted through fontsource and imported in `Base.astro`.
+**Character:** a compressed grotesk for names and controls, a narrow scientific serif for reading, a mono for everything measured. The mono does the measuring, the serif does the arguing, the grotesk does the naming. All three are self-hosted. Archivo stays variable because the name and page titles use the `wdth` 92 axis; its latin subset ships instanced to the ranges the site sets (wght 400–600, wdth 92–100; `scripts/instance-archivo.py`, declared in `src/styles/fonts.css`). Only Archivo latin and STIX latin 400 are preloaded. Every face is `font-display: swap`; fonts are never inlined into CSS as data URLs.
 
 ### Hierarchy
-- **Display** (600, `clamp(2.4rem, 5.4vw, 5.5rem)`, 0.98, -0.02em, width 92): the hero headline only, capped at 15ch.
-- **Display (page)** (600, `clamp(2.25rem, 1.6rem + 3vw, 4rem)`, 1.0, -0.025em, width 92): the h1 of each report surface, capped at 20ch.
-- **Headline** (600, `clamp(1.75rem, 1.35rem + 1.2vw, 2.25rem)`, 1.1, -0.015em): section and chapter headings, capped at 28ch.
-- **Title** (600, 1.25rem, 1.3, -0.01em): the "what" line of a frame stack; subheadings. Lead publication titles step to `clamp(1.375rem, 1.1rem + 1vw, 1.75rem)`; row titles hold 1.125rem.
-- **Body** (STIX 400, 1.0625rem, 1.65): ledes, reading column, the hero role line, frame consequences (at 1rem / 1.5). Measure 60ch, which STIX renders as roughly 72-78 characters.
-- **Caption** (STIX italic, 0.95rem, 1.5, ink-2): figure captions, table captions, viewer notes, publication status lines.
-- **UI** (Archivo 500, 0.95rem, 1.3): nav, buttons, footer links, anchors, details summaries. Compact variants hold 0.85rem (segmented controls, Copy BibTeX) and 0.875rem (nav under 480px).
-- **Mono** (JetBrains Mono 400, 0.8rem, 1.4, tabular): result lines, citation lines, DOIs, status readouts, the develop readout, the scrubber readout and legend, BibTeX.
-- **Label** (JetBrains Mono, 0.75rem, 1.3, 0.08em, uppercase, ink-3): corner chrome, colorbar labels, tags, axis labels, method lines. Corner chrome is uppercase only for identifiers of 14 characters or fewer carrying no unit; anything with a unit (kPa, mm, s, Pd/Pa) keeps its case and tracks at 0.04em.
+- **Name** (Archivo 600, width 92, `clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem)`, 1.0, -0.025em): the home h1, the owner's name.
+- **Display (page)** (Archivo 600, width 92, `clamp(2.25rem, 1.6rem + 3vw, 4rem)`, 1.0, -0.025em): the h1 of /research. The CV's h1 (the name) holds `clamp(2rem, 1.5rem + 1.8vw, 2.75rem)`.
+- **Headline** (600, `clamp(1.75rem, 1.35rem + 1.2vw, 2.25rem)`, 1.1, -0.015em): the chapter names on /research.
+- **Title** (600, 1.25rem, 1.3, -0.01em): home section headings (Work, Selected) and CV section headings, each over a hairline.
+- **Row title** (600, 0.975–1.0625rem, 1.35–1.4): capability names, selected-paper titles, CV entry titles.
+- **Body** (STIX 400, 1.0625rem, 1.65): the tagline (1.125rem, 1.5), capability clauses (1.5), research paragraphs (60ch measure), the research lede.
+- **Caption** (STIX italic, 0.95rem, 1.5, ink-2): figure and table captions, at most 18 words.
+- **UI** (Archivo 500, 0.95rem, 1.3): nav, buttons, the identity role line. Compact controls hold 0.85rem; the nav drops to 0.875rem under 480px.
+- **Mono** (JetBrains Mono 400, 0.8rem on the box, 0.8125rem on film, 1.4, tabular): the identity and footer link rows, the plate caption, the counts line, citation and DOI lines, years, venues, metrics tables, BibTeX.
+- **Label** (JetBrains Mono, 0.75rem on the box, 0.8125rem on film, 0.08em, uppercase, ink-3): corner chrome, colorbar labels, tags, the wipe grip. Corner chrome is uppercase only for unit-free identifiers of 14 characters or fewer; anything with a unit keeps its case and tracks at 0.04em.
 
 ### Numbers, units and labels
-Every figure on a page is computed from `content.ts` or a data manifest and formatted by `site/src/lib/format.ts`; none is typed twice.
-- **Joins:** value and unit are joined by a narrow no-break space (U+202F), which also groups thousands (8 649 nodes); negatives take a true minus (−); ranges take an en dash and one trailing unit (10.7–13.0 kPa).
-- **Pressure:** kPa at one decimal (13.0 kPa). Where the source unit is mmHg (the phase scrubber), the mmHg range leads and the kPa reading follows at one decimal in ink-3.
-- **FFR (Pd/Pa):** two decimals in readouts, the FFR curve key and prose (CFD 0.83 · PINO 0.82); three decimals in the metrics table's case column and for the CFD–PINO difference; the cohort MAE at four.
-- **Time and length:** seconds at two decimals (1.78 s), millimetres at one.
-- **Manuscript status:** one label site-wide, lowercase with the venue's short form, "under revision (EAAI)", printed once per entry: in the year corner on the home Led frames and on /publications, and as the venue line of the /research PaperFrame (the short form wrapped in an `abbr` carrying the full venue). Never a tag, never repeated in the same entry.
-- **DOI:** `doi:` lowercase with no space, then the identifier (doi:10.1115/DMD2026-1091), in mono, linked to doi.org; on the PaperFrame row it is trailed by the arrow-up-right icon.
-- **Counts in prose:** spelled as words by `numberWord` in ledes ("sixteen patent filings", "seven funded projects"); numerals stay for readouts, tables, corners and lists.
+Every figure is computed from `content.ts` or a data manifest through `site/src/lib/schema.ts` and `site/src/lib/format.ts`; none is typed in a component, and the markdown twins and `llms*.txt` read the same values.
+- **Joins:** value and unit are joined by a narrow no-break space (U+202F), which also groups thousands (8 649 nodes); negatives take a true minus; ranges take an en dash and one trailing unit (10.7–13.0 kPa).
+- **Pressure:** kPa at one decimal. Where the source unit is mmHg (the scrubber), the mmHg range leads and the kPa reading follows.
+- **FFR (Pd/Pa):** two decimals in captions, readouts and the curve key (CFD 0.83 · PINO 0.82); three in the metrics table and for the CFD–PINO difference; the cohort MAE at four.
+- **Time and length:** seconds at two decimals (1.78 s), millimetres at one.
+- **CFD reference time:** "CFD up to 35 min on 64 CPU cores", a measured bound from the owner (content.ts `cfdReference`); never converted, extrapolated or turned into a speed-up factor above "≈1,000×".
+- **PINO metrics label:** "current model, 85 cases, 10-fold CV", always.
+- **Manuscript status:** one label, "under revision (EAAI)", printed once per entry.
+- **DOI:** `doi:` lowercase with no space, then the identifier, in mono, linked to doi.org.
 
 ### Named Rules
-**The Mono Number Rule.** Every measured number, unit, identifier, DOI, list year and readout is set in JetBrains Mono with tabular numerals; `code`, `time` and `data` elements inherit it globally. Two exceptions keep a sentence whole: counts in running prose are spelled as words, and a date inside a STIX sentence (the Ph.D. date in About) keeps the sentence's serif. A measured value in Archivo or STIX is a defect.
+**The Mono Number Rule.** Every measured number, unit, identifier, DOI, year and readout is set in JetBrains Mono with tabular numerals; `code`, `time` and `data` inherit it globally. A measured value in Archivo or STIX running text is wrapped in `.num`.
 
-**The One Formatter Rule.** A precision is a property of the quantity, not of the page: kPa at one decimal, FFR at two (three in the metrics table), seconds at two, mm at one, all through `lib/format.ts`. Two renderings of one value at different precisions on the same surface are a defect.
+**The One Formatter Rule.** A precision is a property of the quantity, not of the page: kPa at one decimal, FFR at two (three in the metrics table), seconds at two, mm at one.
 
-**The Even Weight Rule.** Headings carry one weight (600) and body one weight (400). Rank is carried by size, measure and border ink, never by bolding.
+**The Even Weight Rule.** Headings carry one weight (600), UI 500, body 400. Rank is carried by size, measure and border ink, never by bolding.
 
-**The Unit Keeps Its Case Rule.** Uppercase is chrome for short identifiers (C1, 2026, FLOW, PINO-DEMO-01) and for tags; units and ratios are never uppercased and never tracked.
+**The Unit Keeps Its Case Rule.** Uppercase is chrome for short identifiers (C1, PINO-DEMO-01) and tags; units and ratios are never uppercased or tracked.
 
 ## Layout
 
-One container, centered at 1280px with a fluid gutter (`clamp(1rem, 3vw, 2.5rem)`), for everything: frames, viewers, nav, footer, page heads, section headings, prose, lists and tables. The text width variant keeps the same 1280px box; text narrows by measure, not by container: prose holds 60ch, plate captions and the "my part" lines 62ch, rows and tables their own ch caps. (`--width-text: 72rem` is still declared in tokens.css but no container reads it.) The page is a flex column (`min-height: 100dvh`) with a 3rem top chrome, a flexible `main`, and a ruled footer.
+One container, centered at 1280px with a fluid gutter (`clamp(1rem, 3vw, 2.5rem)`), for everything: nav, identity, plates, rows, chapters, tables and footer. Text narrows by measure, never by a narrower box: prose 60ch, captions 62ch, capability clauses 64ch, the tagline 68ch, citation lines 72ch. The page is a flex column (`min-height: 100dvh`): the 3rem sticky nav, a flexible `main`, the footer.
 
-Vertical rhythm is on an 8px base (`space-1` 0.5rem through `space-6` 4rem). Sections carry their own top padding (`section-pad`, `clamp(4rem, 9vw, 7rem)`) on the heading so a heading binds to the content below it rather than the block above; consecutive sections therefore share one `section-pad`, and only the last section pads the page bottom. A section head is a grid with a 1rem gap and a 2rem margin below. Chapters on `/research` follow the same rhythm with the artifact at frame width above the reading column, a 3rem gap after the artifact, and a one-line ruled consequence closing each chapter.
+Vertical rhythm is on an 8px base (`space-1` 0.5rem to `space-6` 4rem). Home sections pad 2rem above a Title heading with a hairline under it; research chapters pad 4rem (3rem under 640px); CV sections pad 1.5rem (at most 40px between sections).
 
-The first viewport on `/` is one grid cell shared by a full-height frame (`100dvh` minus nav and padding) and the headline block pinned to its bottom-left corner (max 44rem, padded by corner-inset plus 1.5rem). Corner readouts are capped at 46% of the frame width. The signature wipe hairline starts at 56% so it never overprints the display type. Below 900px the frame goes portrait (3/4, max 72dvh) and the headline moves below it; the wipe becomes a two-state toggle. The /cv page adds a sticky action bar directly under the nav (top: nav-h), and `scroll-padding-top` grows by its height so anchors land clear of both. The Three Fronts strip is a two-column grid with a 1rem gap in which Flow spans both columns as a 21/9 cine frame and Image and Pulse share the second row; below 1024px it collapses to one column and Flow becomes 4/3. Publication plates split 5fr/7fr and stack under 760px. The nav never collapses to a hamburger: from 760px down the four page links fold into an inline "Menu" disclosure while Email and CV (PDF) stay in the 3rem row.
+- **Home first viewport (1440×900):** nav, identity block, the plate (capped at `min(44vh, 30rem)`), its mono caption line and the STIX line all end above 900px. On phones the identity block comes first, then the plate in portrait (3/4, at most 64svh), then the rows.
+- **Home budget:** at most 240 visible words in `<main>` and two screens at 1440×900 (the build's budget gate counts words).
+- **Research:** the h1 and one line; per chapter a header row (an 8rem name column and the claim, with an optional mono line), the artifact at frame width (two plates at 7fr/5fr from 960px), then the reading column: one paragraph, the metrics table, one citation line. A plain-text closing row under the chapters. At most 750 words in `<main>` and 230 per chapter.
+- **CV:** a sticky action bar under the nav (`top: var(--nav-h)`), `scroll-padding-top` grown by its height so anchors land clear of both; the header (an 80px portrait, the name as h1, the intro line, two role lines; the mono contact row in print only) over a primary-ink rule, then the `#interests` anchor (the intro line) and nine sections with anchors: `#education`, `#appointments`, `#publications`, `#talks`, `#patents`, `#projects`, `#awards`, `#teaching`, `#skills`.
 
 ### Named Rules
-**The One Left Edge Rule.** Every column starts where the frames, nav and footer start. Headings, prose, plates, captions and the Close all sit on that edge; a centered narrower text box, a centered plate or an indented caption breaks it. Measure is the only thing that narrows text.
+**The One Left Edge Rule.** Every column starts where the nav, plates and footer start. Measure is the only thing that narrows text; a centered narrower box, a centered plate or an indented caption breaks the rule.
+
+**The One Target Rule.** A link target appears once per page in the human layer, and an action word once per viewport. Home links each capability row to its own target and nothing repeats one; the sticky nav carries Email and CV on every page, so no footer, identity block, closing row or proof line repeats them. A page carries exactly one `mailto:` (the nav's), a redirect stub none; `scripts/budget.mjs` fails the build otherwise.
+
+**The Two Things Rule.** The human layer is short and uneven: two big things (the identity block and the plate on home; the artifacts on research), everything else as rows and counts. The machine layer (markdown twins, `llms.txt`, `llms-full.txt`, `cv.json`, JSON-LD) is complete.
 
 ## Elevation & Depth
 
-The system is flat. There are no drop shadows, no glows, no gradients, no blur and no translucency on any surface. Depth is conveyed three ways: a 1px hairline in the surface's line color (frames, rules, tables, nav and footer edges), a one-step tonal lift to `--bg-1` for a panel or a stage inside a frame, and a single static feTurbulence grain sheet at 5% opacity fixed over film surfaces (never animated, removed in print). The hero frame isolates its own stacking context so the headline block and the viewer chrome layer by z-index, not by shadow.
+The system is flat: no drop shadows, glows, gradients (outside colorbars and legend ramps, which draw a colormap), blur or translucent panels. Depth is a 1px hairline in the ground's line color, a one-step tonal lift to `--bg-1`, or the film plate itself against the light box.
 
 ### Named Rules
-**The Hairline-Not-Shadow Rule.** Separation is a 1px line or a tonal step. A `box-shadow` that leaves a surface is a defect; the only `box-shadow` in the build is an inset 2px underline on a pressed segmented button, which is an underline by another property, not an elevation.
-
-**The One Grain Rule.** Film surfaces carry exactly one grain layer, applied by `body::after` at 256px tiling and 5% opacity. Nothing else textures a surface.
+**The Hairline-Not-Shadow Rule.** Separation is a 1px line or a tonal step. The only `box-shadow` in the build is the inset 2px signal underline on a pressed segmented button, an underline by another property.
 
 ## Shapes
 
-Rectangles with a 2px radius (`rounded.base`) on everything that has an edge: frames, buttons, role marks, tags, the wipe grip, the BibTeX block, the focus ring. The colorbar strip takes 1px; segmented controls round only their outer corners so the group reads as one instrument. Borders are 1px everywhere; a stronger edge is a change of ink (hairline to ink-2 to ink to signal), never a thicker stroke. Charts use `shape-rendering: crispEdges` on grids and axes, 1.5px round-joined strokes for the CFD and PINO traces, and 2/3 dashed hairlines for probes. The details disclosure caret is a 0.4rem bordered square rotated 45 degrees, not a glyph. External-link, email and PDF icons are Phosphor regular SVGs inlined at 1em (footer) or 1.125em (buttons) and sized to the text.
+Rectangles with a 2px radius (`rounded.base`) on everything with an edge: plates, buttons, role marks, tags, the wipe grip, the portrait, the focus ring. The colorbar strip takes 1px. Borders are 1px everywhere; a stronger edge is a change of ink (hairline, ink-2, ink, signal), never a thicker stroke. Charts use `shape-rendering: crispEdges` on grids and axes, 1.5px round-joined strokes for the CFD and PINO traces, and 2/3 dashed hairlines for probes. Icons are Phosphor regular SVGs inlined at 1em (links) or 1.125em (buttons): arrow-up-right on off-site links, file-pdf on Download PDF; never a glyph character or an icon font.
 
 ## Components
 
-### Buttons
-Rectangular actions, bordered, filled on hover, with a visible ring on focus. One primary per page.
-- **Shape:** 2px radius, 1px border, min-height 2.75rem, padding 0.6rem 1.1rem, Archivo 500 at 0.95rem, 0.5rem gap to an optional 1.125em icon.
-- **Primary:** `signal-fill` ground and border, bone text; hover deepens to `signal-hover`. Used for Email only, everywhere it appears (nav, hero, Close, /cv bar).
-- **Ghost:** transparent ground, border and text in the surface ink; hover inverts to ink ground with background-colored text. Used for CV (PDF), Copy BibTeX, Replay, Play/Pause. "CV (PDF)" is the one label for the PDF action on every surface.
-- **Compact** (`size="compact"`, min-height 2rem, 0.3rem 0.7rem, 0.85rem): the nav actions, the /cv action bar and Copy BibTeX; the Copy BibTeX ghost borrows the signal border for two seconds in its copied state.
-- **States:** 150ms ease-out transitions on background, border and color; `:active` drops 1px (disabled under reduced motion); disabled at 50% opacity; `:focus-visible` draws the global 2px signal ring at 2px offset.
+### Navigation (`components/Nav.astro`)
+- A 3rem sticky ruled band on `--bg`, the same four items on every page and at every width: the name (home link, Archivo 500 0.95rem, -0.01em), **Research** and **CV** (ink-2, 1.5rem gap, 0.9rem vertical padding), and **Email** (compact primary, `mailto:` from `profile.email`), the page's one primary action.
+- No menu disclosure and no hamburger: the row fits a 390px phone (gaps 1rem and type 0.875rem under 480px).
+- States: hover raises to ink; the current page holds ink and a 2px signal underline on the band's bottom edge; 150ms ease-out.
 
-### Frame
-The signature container; the world's replacement for the card.
-- **Border:** 1px in `--line`, 2px radius, ground `--bg` (or `--bg-1` as a panel).
-- **Corner chrome:** up to four absolutely positioned mono labels inset by `--corner-inset` (0.5rem by default, 0.6rem on lead publications, 0.875rem on the hero), 0.75rem, ink-3, 0.04em tracking, non-interactive. Short unit-free identifiers take uppercase and 0.08em. Readouts that need two lines (hero name and fronts, case line, FFR and inference lines) reuse the same corner classes with a 0.2rem row gap and read in ink-2, with the live counting numeral in signal.
-- **Body:** optional aspect ratio (16/9, 4/3, 21/9, 3/4 on the portrait hero); `padded` bodies clear the corners with `calc(corner-inset + 1.5rem)` top and bottom and 1.5rem sides.
-- **Stack:** the fixed three-tier caption under a 1px top rule, 0.35rem row gap, padded 1rem 1.5rem and corner-inset plus 1.25rem at the bottom: **what** (Title, Archivo 600 1.25rem), **result** (Mono 0.8rem, primary ink, every figure from the manifest or content data), **consequence** (STIX 1rem / 1.5, ink-2). On the wide Flow frame the stack runs as three columns. A result that carries more than one measurement is two or three short stacked lines (`.frame__result .rl`, display block), never a chain of middle dots; a line holds at most one `·`.
-- **Rank:** first and co-first work gets a lead frame with a plate; co-authored work gets no frame, only a ruled row with a 3.5rem mono id column.
-- **My part:** each home Led frame ends on one first-person sentence of what was mine, pinned to the frame's foot under a 1px top rule (62ch) so paired frames end on one line; a co-authored /research PaperFrame carries the same sentence as its note ("My part was the hemodynamic side...").
+### Footer (`components/Footer.astro`)
+The ending every page shares. Above it a 3rem gap and a full-bleed hairline; inside the container: one STIX line in ink at 1.125rem ("Open to collaboration, positions and paper requests."), the mono link row, and a mono colophon in ink-3: `Updated <build date>` and the host. The link row is LinkedIn · Google Scholar · ORCID only (Revision 2b), each link a 1px `--line` bottom border at 0.45rem block padding, turning signal on hover: no Email (the sticky nav's is on screen in the last viewport) and no CV (PDF) (the PDF is reached from the /cv/ action bar and linked from llms.txt, cv.md and cv.json). Two props keep the last viewport free of repeats: `omit` drops labels (`/cv/` passes `['LinkedIn']`, since its sticky action bar carries LinkedIn, so its row is Google Scholar · ORCID) and `links: false` drops the row (home passes it, since the identity block carries the row, so its footer is the STIX line and the colophon). Pages pass them through the `footer` prop of `layouts/Base.astro`. Hidden in print.
 
-### Corner readouts and colorbar
-- **Colorbar:** a 10px vertical strip bordered in `--line` at the frame's right edge (0.75rem in), `min(56%, 320px)` tall (60% / 280px in chapter frames), gradient sampled from the field's colormap at 16 stops; mono ticks in ink-2 at 0.75rem to its left with 0.3rem ink-3 tick marks; an uppercase label above with the unit in its own case and ink-2. The diverging bar appends an 8% above-range band.
-- **Readouts:** mono, tabular, inset 0.75-1rem; loading and error states are mono 0.8rem in ink-3 with emphasis in ink-2 at normal weight.
+### Identity block (`components/home/Identity.astro`)
+The first thing on home. A two-column grid on the left edge (a 6rem portrait column, then the text; gap 1rem 2rem; 2rem above, 1.5rem below):
+- **Portrait:** 96px square plate, 1px `--line` hairline, 2px radius, `object-position: 50% 28%`, `--bg-1` while loading; the ID photograph, never hero material.
+- **Name:** the page's `<h1>`, Name type.
+- **Role line:** Archivo 500 at UI size: role · lab, university in ink, then the four fields (computational hemodynamics · physics-informed AI · wearable biosignals · medical devices, `profile.fields`) in ink-2 on a second line.
+- **Tagline:** `profile.tagline` in STIX 1.125rem / 1.5, ink, 68ch; swapped in one edit in content.ts.
+- **Proof lines (Revisions 2a and 2b):** three mono lines in ink-2 (separators ink-3, line height 1.5, 0.15rem apart) between the tagline and the link row, from `lib/schema.ts` `proofLines` (the same helper `/index.md`, `/llms.txt` and the `llms-full.txt` In brief block print): first-author papers by short venue and year, newest first, plus the Merit Academic Paper Award; PINO, the cohort with its folds, the CFD bound (`CFD up to 35 min on 64 CPU cores`) and the GPU time (`1.78 s on one GPU`); the patent, project and award counts. All three lines are plain text (Revision 2b): the counts are read, not clicked, and the nav's CV reaches every section. Each item is a nowrap span carrying its trailing separator (a no-break space before the dot), so a line wraps only after a separator; under 640px the lines sit 0.45rem apart so each proof reads as its own group when it wraps. The machine layer prints the project count with its role ("7 funded projects (participating researcher)").
+- **Link row:** mono, LinkedIn · Google Scholar · ORCID (`rel="me noopener"`), each with a 1px `--line` bottom border at 0.4rem block padding that turns signal on hover. No Email and no CV here; the nav carries both. It is home's only link row (the home footer drops its own).
+- **Phones (≤640px):** the portrait drops to 4rem beside the name; the role line, tagline (1.0625rem), proof lines and link row run the full width.
+
+### Plate (`components/home/Plate.astro`, `components/home/HeroViewer.tsx`)
+The one live proof on home, directly under the identity block.
+- A `Frame plate` holding the VesselViewer in quiet mode, hydrated `client:visible` and preloading nothing; height `min(44vh, 30rem)`, at least 18rem. Under 900px it goes portrait (3/4, at most 64svh).
+- **Quiet viewer:** the pressure field only, the CFD | PINO wipe handle centred (a two-state toggle on frames under 640px), the vertical colorbar with five ticks, the develop once (snapped under reduced motion); no field toggle, no orbit, no drift, no corner readouts, no FFR curve; the vessel is cropped at the distal FFR probe plane and fitted to its bounding box.
+- **Caption (Astro, so the numbers are in the server HTML):** one mono line in ink-2 from `plateCaptionItems`, `PINO-DEMO-01 · 8 649 nodes · FFR CFD 0.83 · PINO 0.82`, each value pair a nowrap item (Revision 2b: case id, node count and FFR only; the 1.78 s and the 35-minute CFD bound are in proof line 2 and the sentence below, so the plate carries no timing line; `timingItems` / `timingLine` feed the Flow chapter's mono header line and the agent files); then, 0.35rem below, one STIX line (1rem, ink-2, 62ch), `plateSentence`: "The same vessel solved twice. CFD took up to 35 minutes on 64 cores. The neural operator took 1.78 seconds. Slide or toggle to compare." (numbers interpolated). No link: the Simulation row links to the Flow chapter.
+- **Data:** the quiet plate downloads the manifest and `vessel.bin.gz` only (geometry, indices, both pressure fields, region; the error field is derived); the speed arrays are a second file the home never requests.
+
+### Home rows (`pages/index.astro`)
+- **Work:** four capability rows (Simulation to `/research/#flow`, Physics-informed AI to `/research/#image`, Wearable biosignals to `/research/#pulse`, Devices and translation to `/cv/#patents`), organ-agnostic, one computed number each (since 2020; 1.78 s; the fluid-bolus AUC with its EAAI status; the patent count), kept short to fit the 240-word budget. A 15rem name column (Archivo 600, 1.0625rem; the underlined name is the row's link, no arrow) and one STIX clause in ink-2 (64ch); one column under 900px; rows ruled in `--line-soft`.
+- **Selected:** three rows, newest first (the first-author DMD 2026 proceedings paper, the first-author journal paper, the co-first journal paper): a grid of mono year (3.5rem), title (Archivo 600, 1rem, 68ch), short venue (5.5rem), role mark (8.5rem) and `doi:` (15.5rem), so venue, mark and DOI align across rows; under 1100px they drop under the title.
+- **Counts line:** retired from home in revision 2a; the patent, project and award counts are the identity block's third proof line (the full counts stay in llms.txt and the CV).
+
+### Frame and corner chrome (`components/Frame.astro`)
+- 1px `--line` border, 2px radius, ground `--bg` (`--bg-1` as a panel). `plate` adds the `.plate` scope.
+- Corner chrome: up to four absolutely positioned mono labels inset by `--corner-inset` (0.5rem), label size, ink-3, 0.04em tracking, non-interactive; short unit-free identifiers take uppercase and 0.08em.
+- The Frame is for plates (and the 404's no-signal frame). Records are never framed.
+
+### Colorbar
+- A 10px strip bordered in `--line` at the plate's right edge (0.75rem in), `min(56%, 320px)` tall (`min(60%, 280px)` in chapter plates), the field's colormap sampled at 24 stops.
+- **Five ticks** on every bar, at 0, ¼, ½, ¾ and 1 of the main band, mono in ink-2 with 0.3rem ink-3 tick marks; an uppercase label above with the unit in its own case. The error bar is symmetric (−x, −x/2, 0, +x/2, +x), its label `error · PINO − CFD · ±x.x kPa` stacked on two lines, and an 8% above-range band with its own label when any node lies past +x.
+- In a chapter plate under 640px the bar leaves the image and runs horizontally in a row under the canvas, ticks beneath, with the controls in a second row.
 
 ### Wipe handle and segmented control
-- **Wipe handle:** a full-height 1px hairline at 38% ink over the vessel with a 16px hit zone; a grip at mid-height (18% on the hero) in mono uppercase label type, 1px ink border, `--bg` ground, 0.3rem 0.55rem padding, labelled CFD | PINO with a 1px ink-3 bar between. Border turns signal on hover and while dragging; focus draws the ring.
-- **Segmented control:** adjoining 1px-bordered buttons on `--bg`, 2rem tall, Archivo 500 0.85rem, ink-2 text, radius only on the group's outer corners, overlapping by 1px. Hover raises to ink text and ink-3 border; pressed takes ink text, ink border and a 2px signal underline (inset). Used for the field toggle (pressure | error | speed) and the narrow-screen two-state wipe.
+- **Wipe handle:** a full-height 1px hairline at 38% ink over the vessel with a 16px hit zone; a grip (mono label type, 1px ink border, `--bg` ground, 0.3rem 0.55rem) labelled CFD | PINO with a 1px ink-3 bar between, riding at 88% of the height on the quiet plate. Border turns signal on hover and while dragging; focus draws the ring. A `role="slider"` with arrows, Shift+arrows, PageUp/Down, Home/End.
+- **Segmented control:** adjoining 1px-bordered buttons on `--bg`, 2rem tall (2.75rem where it replaces the handle and on coarse pointers), Archivo 500 0.85rem, ink-2, radius on the group's outer corners only. Pressed: ink text, ink border, a 2px inset signal underline. Used for the field toggle (Pressure | Error | Speed) on /research and the two-state wipe on narrow frames. One mono line under the field toggle says what the Error or Speed field shows.
+
+### Research chapter (`components/research/Chapter.astro`, `MetricsTable.astro`, `Cite.astro`)
+- **Header row:** the chapter name (Headline) in an 8rem column and one STIX claim (1.1875rem, 58ch) carrying its number; Flow adds the mono timing line.
+- **Artifact:** the chapter's plates with STIX italic captions (at most 18 words).
+- **Paragraph:** one, at most 70 words.
+- **Metrics table:** an italic STIX caption above (the label convention or the manuscript status), a mono table ruled top and bottom in `--line`, row rules in `--line-soft`, no fills, header ink-3, row heads ink-2, values ink. Under 600px the metric labels and column heads wrap (about 18ch) and each value keeps its readings whole (a paired value breaks only at its middle dot), so every column fits a 390px phone without scrolling.
+- **Citation line:** under a hairline, the title (Archivo 600, linked to the DOI), then one mono line: short venue (an `abbr` with the full venue), year or manuscript status, the role mark, `doi:`.
+- **Closing row:** 4rem under the last chapter, a hairline and one STIX line in ink-2 (prose size, 72ch), `researchClosing`: "The valve, infection-control, urodynamics and glaucoma work has no public data yet." Plain text with no link (Revision 2b): the nav's CV shares that viewport. Only `research.md` adds "It is listed on the CV" with a link to `/cv/#patents`.
+- **Captions in use:** the Flow viewer, "Surface pressure, CFD left and PINO right; slide or toggle to compare. Pressure R² …"; the FFR curve, "Pd/Pa along the vessel, 0 to <s max> mm from the inlet; at the probe planes CFD and PINO are <Δ> apart" (corner chrome `Pd / Pa along s` and the two probe positions).
+- **Pulse:** the STFT and CWT plates develop side by side and share one Replay (a compact ghost with the arrow-counter-clockwise icon, `aria-label="Replay both spectrograms"`) under the pair; it is `hidden` until the islands hydrate and dispatches `spectrogram:replay` for `replayGroup="pulse"`, so neither plate carries its own button. Each plate takes `recordingS` from the pulse manifest for its accessible name ("STFT spectrogram of a <n> s smartwatch PPG recording, …").
+
+### CV rows (`pages/cv.astro`, `components/record/*`)
+Rows, not frames; one entry is about two lines; section gaps 1.5rem; one left edge; at most 5 screens at 1440×900. Short for people, complete for agents: the appointment bullets and the patent inventors are not printed on the page (each bullet restates a [J#]/[C#] row); cv.md, llms-full.txt and cv.json carry them.
+- **Section:** a Title heading over a 1px primary-ink rule, a page break before it in print.
+- **Period rows** (education, appointments, projects, awards, teaching): a 10.5rem mono period column and the row (Archivo 600 title with the institution inline in STIX ink-2 after a middle dot; meta lines in STIX ink-2, no measure cap, so a funded project is its title over one funder · program · grant line). One column under 760px.
+- **Publications** (`PubEntry`): a 2.5rem mono id column, then the title (linked to the DOI), the author list, and one mono line: citation (the short venue, so the proceedings drop the conference location), role mark, `doi:` and the BibTeX disclosure (Copy action and the entry). Median row at most 64px.
+- **Header:** an 80px portrait (hairline, 2px radius) beside the name (h1), the intro line (`interestsLine`, "I work across …", STIX 1.125rem / 1.45, ink, 68ch, `id="interests"`), the role line in ink and the concurrent appointment in ink-2. The mono contact row (email, LinkedIn, Google Scholar, ORCID, host) is `display: none` on screen and prints (Revision 2b): on screen the nav carries Email and the footer Google Scholar and ORCID.
+- **Talks:** one table row each (2.5rem year, flexible title, 7.5rem venue, 15rem format · role), grouped International then Domestic under a mono counts line: mono year, the title (Archivo 600 0.975rem with no measure cap, so a long title wraps only at its column edge; the author line in STIX ink-3 only where it is not "H.J. Lee et al."), the short venue in mono (an `abbr` whose title carries the full venue and location), and format · role in mono. The three talk photographs sit in one 120px row (96px under 760px) at the top of the section, captions in mono.
+- **Patents:** one row each: a mono id column, the title, then status (an ink-bordered REGISTERED tag with the registration number, or "pending, filed <year>") and the application number in mono, right-aligned (under the title under 760px). No inventor line.
+- **Action bar:** sticky under the nav, on the left edge: Download PDF (compact ghost with the file-pdf icon) and LinkedIn (text link with the arrow-up-right icon); no label (the nav name and the h1 already say whose CV it is). It is the human layer's only link to the PDF. Hidden in print.
+
+### Buttons (`components/Button.astro`)
+- **Shape:** 2px radius, 1px border, min-height 2.75rem, padding 0.6rem 1.1rem, Archivo 500 0.95rem, 0.5rem gap to an optional 1.125em icon. Compact: 2rem, 0.3rem 0.7rem, 0.85rem.
+- **Primary:** `signal-fill` ground and border, bone text; hover deepens to `signal-hover`. The nav's Email only.
+- **Ghost:** transparent, border and text in the ground's ink; hover inverts. Download PDF, Copy BibTeX, Replay, Play/Pause.
+- **States:** 150ms ease-out on background, border and color; `:active` drops 1px (not under reduced motion); disabled at 50% opacity; `:focus-visible` draws the 2px signal ring at 2px offset.
 
 ### Role mark and tag
-- **RoleMark:** bordered, never filled; Archivo 500 at 0.75rem, 1.5rem tall, 0 0.5rem padding, 2px radius. Rank by border ink: first author takes a signal border and primary ink, co-first an ink border and primary ink, co-author a hairline and secondary ink. The label comes from content data and is never inferred.
-- **Tag:** mono uppercase label at 0.75rem with 0.08em tracking, 1.25rem tall, hairline border, ink-2; `ink` tone (ink-2 border, primary ink) for firm neutral states and `signal` tone (signal border, primary ink) for the state the reader is looking for (REGISTERED, on the registration-number row of a patent frame). This is the only uppercase permitted outside frame corners. Talks are grouped Presented / Co-authored, so no presenter tag is needed; the INTL / DOMESTIC tag follows the venue line.
+- **RoleMark:** bordered, never filled; Archivo 500 0.75rem, 1.5rem tall. First author: primary-ink border, primary ink. Co-first: secondary-ink border, primary ink. Co-author: hairline, secondary ink. Never signal (revision 2a). The label comes from content data and is never inferred.
+- **Tag:** mono uppercase label, 1.25rem tall, hairline border, ink-2; the ink tone (primary-ink border, primary ink) marks REGISTERED on a patent row.
 
-**The One Anatomy Rule.** A paper reads the same on every page (home Led, /research PaperFrame, /publications PubEntry): title (linked to the DOI when one exists), authors, venue line in mono, then the DOI and the role mark on one row. A role mark, tag or corner label never sits directly above a heading at any width; that is the eyebrow the craft floor bans. The same holds for patents (REGISTERED sits beside "Registered No.") and talk rows (tags after the venue, on mobile too). Each /publications entry has one BibTeX control, a disclosure whose panel holds the Copy action and the entry; "Email for a copy" (mailto, subject naming the paper id) sits on the DOI row.
-
-### Navigation
-- **Style:** a 3rem sticky ruled band on `--bg`; name at left in Archivo 500 0.95rem with -0.01em tracking, four links (Research / Publications / Record / CV) in ink-2 with a 1.5rem gap and 0.9rem vertical padding, then the two actions after a 1px line divider: **Email** (compact primary, mailto) and **CV (PDF)** (compact ghost, opens the PDF). The actions are omitted on /cv only, where the action bar carries them.
-- **Menu disclosure (760px and below):** the four links fold into a `<details>` "Menu" (Archivo 500 0.85rem, ink-2, the rotated-square caret) placed after the actions; open, the links run as an inline strip positioned under the band with its own bottom hairline. Escape or a click outside closes it. Under 360px the ghost CV action drops and Email stays. No hamburger icon, no modal, no focus trap.
-- **States:** hover raises to ink; the current page holds ink and a 2px signal underline on the band's bottom edge; 150ms ease-out.
-- **Page heads and anchors:** report surfaces open with the page display, a STIX lede in ink-2 and an optional row of in-page anchors (Archivo 500, ink-2, 1px line underline turning signal on hover) above a 1px rule.
-
-### Close (the ending of every page)
-- **Placement:** `components/Close.astro`, rendered by `Base.astro` at the end of `<main>` on every page, so no surface ends on a list. A page passes its own line, an optional note and one optional note link (`close` prop), or `false` to omit it.
-- **Anatomy:** a hairline on the content edge (the footer owns the full-bleed rule), then from 900px a two-column grid (the text and a 32rem action column, bottom-aligned). Left: one STIX line at `clamp(1.5rem, 1.2rem + 1.2vw, 2.125rem)`, line-height 1.3, capped at 30ch (an `h2` at weight 400) and a STIX note in ink-2, both in the first person ("Write to me about a collaboration, a position, or a copy of a paper." / "Email is the fastest route; I reply from Seoul (UTC+9)."). Right: the Email primary (envelope icon) and CV (PDF) ghost (file-pdf icon) buttons, then the address and Google Scholar / LinkedIn / ORCID as mono links, each profile link trailed by the Phosphor arrow-up-right icon at 0.95em in ink-3 that turns signal on hover. LinkedIn always reads `profile.links.linkedin`. Padding: section-pad above, space-6 below. Hidden in print.
-- **Footer:** below the Close, a slim ruled colophon row (year, name, lab and university; the four pages; Top), so the contact routes are never printed twice.
-- **Chapter links:** each /research chapter's consequence line ends in a quiet "Discuss this work" mailto whose subject names the chapter.
-
-### About and photo plates
-- **About (home, between Led work and Applied):** a three-column grid on the left edge (a 10rem portrait, a reading column up to 40rem, a 15rem photo column; two columns under 1024px with the photo under the text, one under 600px). The ID portrait is a 160px (10rem) square plate with a hairline and 2px radius, cropped to keep the face near the top third (8rem under 1024px, 7rem under 600px), never hero material. Beside it, first-person STIX sentences built from content.ts (role, lab and PI; the hospital project; the Ph.D. with the dissertation title in italic and its date in the serif; the B.Eng.), then one mono line of the five routes (Email, CV (PDF), LinkedIn, Google Scholar, ORCID). The ACFM 2025 podium photograph sits as a 3/4 plate with a mono label-size caption read from that talk record, linking to its row on /record.
-- **Photo plate:** a photograph rendered with `astro:assets` `<Image>` from `src/assets/photos` (webp, explicit width and a `widths` list, `sizes` per layout), 1px `--line` border, 2px radius, `--bg-1` ground while loading, and a mono caption in ink-2 under it. On `/record#talks` three plates share one row height by flexing in proportion to their aspect ratio (`--a`), never cropped; a caption links to its talk row when the CV has one.
-
-### CV action bar
-- **Style:** `position: sticky; top: var(--nav-h)` on `/cv`, `--bg` ground, a bottom hairline, layered under the nav. Left, a label ("Name, CV") in Archivo 500; right, Email (compact primary), CV (PDF) (compact ghost) and a LinkedIn text link trailed by the arrow-up-right icon, so the actions stay on screen across a four-page CV. Hidden in print, where the page is the CV itself.
+**The One Anatomy Rule.** A paper reads the same everywhere (home Selected, the research citation line, the CV): title (linked to the DOI when one exists), venue in mono, role mark, `doi:`. A role mark, tag or label never sits directly above a heading; that is the eyebrow the craft floor bans.
 
 ### Phase scrubber (`islands/PhaseScrubber.tsx`)
-- **Plate:** the current 1036×782 frame of J1's Case 1 on the light box (`box` ground) inside the film frame, with a hairline and mono corner readouts on the plate (phase top-left; acquired or synthesized bottom-right, the acquired state in primary ink). Phase 0 is server-rendered as a plain `<img>`, so nothing is blank before hydration.
-- **Rail:** a 1px `--line` track with ten ticks (0–9) and mono labels under them; the two acquired phases (0 and 5, parsed from the manifest note) get a taller 1rem tick in primary ink, a primary-ink label and a "CT" mark above. The grip is the wipe handle's grip (mono label type, 1px ink border, `--bg` ground, signal border on hover and drag) and is a `role="slider"` with arrows, Home/End and PageUp/Down; a click or drag snaps to the nearest phase.
-- **Readout:** "Phase k / 9 · acquired | synthesized" in mono, ink-2, the state in primary ink when acquired; 1.125rem in the full mode's side column.
-- **Legend:** field name in uppercase label type, low value, a 6rem × 0.5rem `diverging` ramp with a hairline, high value, unit in its own case, then the kPa reading in ink-3. Pressure 70–130 mmHg and WSS 0–5 Pa, both read from the manifest.
-- **Full mode** (`/research#image`): the plate beside a side column with the readout, the Pressure | WSS segmented control (the Flow field toggle), a Play/Pause ghost that loops at 6 fps, the legend and the phase note in STIX italic. **Compact mode** (home Image front): plate, rail, readout and legend only; no toggle, no play button.
-- **Motion:** the cycle plays once on first visibility and stops at Phase 0; nothing plays under reduced motion, offscreen or on `document.hidden`.
+The current frame of J1's Case 1 on a light-box sheet inside the film plate, with mono corner readouts (phase; acquired or synthesized). A ten-phase rail with taller primary-ink ticks and a CT mark on the two acquired phases; the shared grip as a `role="slider"`; a mono readout; the Pressure | WSS segmented control; a Play/Pause ghost; the diverging legend with the mmHg range and its kPa reading. Phase 0 is server-rendered; the cycle plays once on first visibility and never under reduced motion.
 
-### Plates (paper figures)
-**The Result-Plate Rule.** A paper figure earns a plate only when it shows a result (fields, curves, measured errors), never a method flowchart or an architecture diagram: those break the Two-Ink Rule and read as slides. Every plate is captioned in STIX italic naming the figure and the paper (id, journal initials, volume, year), sits on the shared left edge (never centered) as a light-box sheet padded 1rem with a hairline, is capped at 35rem (560px; a wide chart gets 50rem), links to its full-size file with a zoom-in cursor, keeps its caption under the plate's left edge at 62ch, and ships with provenance (a `<file>.json` sidecar or the manifest's `source`). Current plates: the phase-scrubber frames and Fig. 9 (J1) on `/research#image`, and the C1 CFD-against-PINO panel on `/publications`. Dropped by this rule: the J2 viscosity flowchart and the J4 workflow figure (on /publications and /research), and the 4D CT Fig. 1 architecture in both its white and black-ground versions (the black-ground file also loses its labels and arrows, which are black on black). A J2 visual returns only as its viscosity result panel (predicted against measured), cropped from the paper with provenance.
-
-### Tables and links
-- **Tables:** ruled top and bottom in `--line`, header rule in `--line`, row rules in `--line-soft`; 0.55rem row padding, no fills, header text ink-3, row heads ink-2, values in primary ink with tabular numerals; italic STIX caption above.
-- **Links:** inherit color, 1px underline in ink-3 offset 0.18em, underline turning signal on hover over 150ms. Footer and anchor links drop the underline for a 1px bottom border that turns signal.
+### Links
+Inherit color, 1px underline in ink-3 offset 0.18em, turning signal on hover over 150ms. Link rows (identity, footer) use a 1px bottom border instead of an underline. No quiet in-page arrow links remain, and summary and closing lines (proof line 3, the research closing row) are plain text.
 
 ### Motion
-Four durations and one curve: 150ms for state changes (`--duration-quick`), 250ms for reveals such as the playhead fade (`--duration-base`), 400ms reserved (`--duration-slow`), and 1780ms for the develop (`--duration-develop`), all on `cubic-bezier(0.16, 1, 0.3, 1)`. The vessel's idle drift completes one revolution in 60s (`--drift-period`), pauses offscreen and on `document.hidden`, and collapses to 0s under `prefers-reduced-motion`; the develop snaps to its finished state and every hover transform is removed under the same query. Nothing loops for its own sake.
+Four durations and one curve: 150ms for state changes, 250ms for reveals, 400ms for the two-state wipe tween, 1780ms for the develop, all on `cubic-bezier(0.16, 1, 0.3, 1)`. The develop runs once, on first visibility. The chapter viewer's idle drift (one revolution per 60s) pauses offscreen, on `document.hidden` and during drags; the quiet plate never drifts. Under `prefers-reduced-motion` the develop snaps, the drift stops and hover transforms are removed. Nothing loops for its own sake.
+
+### Performance
+- The quiet home plate loads `manifest.json` and `vessel.bin.gz` (uint16 quantized, zigzag delta, planar bytes, then gzip -9; `scripts/quantize-vessel.mjs`), inflated in the browser with `DecompressionStream` (the raw `vessel.bin` is the fallback). GitHub Pages sends `application/octet-stream` uncompressed, so the precompressed file is what keeps the plate near its gzip size on the wire. The speed arrays are `vessel-speed.bin(.gz)`, requested by /research the first time Speed or Error is chosen.
+- Home first load (nav, identity, plate) at most 450 KB on the wire.
+- Everything a plate shows as a number is also in the server-rendered HTML (captions, readouts, colorbar ticks).
+
+### Machine layer (`lib/schema.ts`, `pages/*.ts`, `public/robots.txt`)
+Not visual, but it reads the page's data and follows the same rules.
+- Endpoints: `llms.txt`, `llms-full.txt`, `index.md`, `research.md`, `cv.md`, `cv.json` (JSON Resume with `meta.canonical`), each generated from content.ts through `lib/schema.ts`. `llms.txt` links Email, CV (PDF), LinkedIn, Google Scholar and ORCID, then the pages, the machine-readable files and notes for agents; `llms.txt` and `llms-full.txt` both carry an In brief block (the three proof lines, then `Record:` with `countsLine`).
+- `index.md` prints the proof lines and the Selected rows with the short venue without its year (the year leads the row), as the page does.
+- JSON-LD: a `@graph` with `Person` (`@id`), `WebSite`, `ProfilePage`, `ScholarlyArticle` and the research `WebPage`. Each article's author list resolves the owner's byline to `{ "@id": <Person @id> }` and every other author to a `Person` by name.
+- `robots.txt`: a pointer to `/llms.txt`, then `Allow: /` with `Content-Signal: search=yes, ai-input=yes` for `*` and 19 named AI agents.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** put every data artifact inside a Frame with mono corner chrome and the three-tier stack (what / result / consequence); the frame is the unit of the page.
-- **Do** end every page with the shared Close, and keep Email (primary) and CV (PDF) (ghost) one click away in the nav on every page.
-- **Do** give a paper the one anatomy everywhere: title, authors, venue, then DOI and role mark on one row.
-- **Do** read only the semantic aliases (`--bg`, `--ink`, `--line`, and their tiers) in components so they sit on film and light box unchanged.
-- **Do** set every number, unit, identifier and readout in JetBrains Mono with tabular numerals, and compute it from the manifest or content data.
-- **Do** carry rank by border ink and frame size: signal border for first-author, ink for co-first, hairline for co-author; the larger frame for led work.
-- **Do** keep signal red a stroke (border, underline, ring, curve, counting numeral) and reserve `signal-fill` for the single primary action and the skip link.
-- **Do** draw field colors from `lib/colormaps.ts` only: turbo for pressure, diverging for signed error with the above-range yellow, viridis for speed and spectrograms.
-- **Do** honor `prefers-reduced-motion` on every autonomous motion: drift to 0s, develop snapped, transforms removed.
-- **Do** format every value through `lib/format.ts`: kPa at one decimal, FFR at two (three in the metrics table), seconds at two, a narrow no-break space before the unit, `doi:` lowercase with no space, and one manuscript label, "under revision (EAAI)".
-- **Do** start every column on the one left edge and narrow text by measure (60ch prose, 62ch captions), never by a narrower centered box.
-- **Do** write the copy that speaks for the owner in the first person (About, the Close, the "my part" lines); third person belongs to author lists and to collaborators' work.
+- **Do** lead home with who this is: the name as the h1, the role line, the four fields, the tagline, the three proof lines, the link row, then the quiet plate in the same 1440×900 viewport.
+- **Do** put every data artifact on a film plate (`Frame plate`) with mono corner chrome, in both schemes.
+- **Do** keep records as rows: capability rows and selected papers on home, dense rows on /cv.
+- **Do** keep Email to the nav's one primary action and CV to the nav's page link on every page; the footer carries LinkedIn, Google Scholar and ORCID only, minus any link the page's last viewport already shows (`omit`, `links: false`).
+- **Do** keep the home plate caption to one mono line (case id, node count, FFR CFD and PINO) and let proof line 2 and the sentence under the plate carry the 1.78 s and the CFD bound.
+- **Do** read only the semantic aliases in components, so they work on the light box, on a film page and on a plate.
+- **Do** set every number, unit, identifier and readout in JetBrains Mono, computed from content.ts or a manifest and formatted by `lib/format.ts`.
+- **Do** carry rank by border ink: primary ink for first author, secondary ink for co-first, hairline for co-author; never signal.
+- **Do** draw field colors from `lib/colormaps.ts` only, with five ticks on every bar and the error field on its fixed symmetric scale.
+- **Do** honor `prefers-reduced-motion` on every autonomous motion.
+- **Do** describe the work organ-agnostically (computational hemodynamics, physics-informed AI, wearable biosignals, medical devices); coronary appears only where a coronary result is named.
+- **Do** write the owner's voice in the first person, present tense, plain.
 
 ### Don't:
-- **Don't** use drop shadows, glows, gradients, blur or translucent panels on any surface; separation is a hairline or a one-step tonal lift.
-- **Don't** add kickers, eyebrows or section numbers above headings, including a role mark, tag or label printed directly over a title; the heading carries itself.
-- **Don't** plate a method flowchart or architecture figure from a paper; plates are results only, captioned, with provenance.
-- **Don't** introduce a second accent or a fourth ink tier; the palette is one ink family per surface plus one red.
-- **Don't** uppercase a unit or a ratio (kPa, mm, s, Pd/Pa) or track it; uppercase is for short identifiers in corners and tags only.
-- **Don't** fill a role mark or tag; rank is border ink, never a colored chip.
-- **Don't** animate the grain, loop the vessel for decoration, or run any motion that is not evidence of a measured quantity.
-- **Don't** use icon fonts or glyph characters; icons are inline Phosphor SVGs sized to the text.
-- **Don't** print a manuscript's status twice, as a tag, or in another wording; it is one label in one place per entry.
+- **Don't** switch a page's ground by attribute or add a theme toggle; the system scheme decides, and plates are always film.
+- **Don't** print a contact or CV action twice in one place or one viewport: no Email or CV (PDF) in the identity block or the footer, no per-chapter mail links, no per-entry mail links, no closing contact block, no on-screen contact row on /cv.
+- **Don't** link a home target twice, or turn a count or a closing line into a link.
+- **Don't** stack labels over a result ("what / result / consequence") or write consequence sentences; a chapter is one artifact, one paragraph, one table, one citation line.
+- **Don't** frame a record; frames are for data.
+- **Don't** use drop shadows, glows, gradients outside colormaps, blur or translucent panels.
+- **Don't** add kickers, eyebrows or section numbers above headings.
+- **Don't** introduce a second accent or a fourth ink tier.
+- **Don't** uppercase a unit or a ratio or track it.
+- **Don't** fill a role mark or tag.
+- **Don't** use icon fonts or glyph characters as icons (no "→"); icons are inline Phosphor SVGs sized to the text.
+- **Don't** print a manuscript's status twice, as a tag, or in another wording.
+- **Don't** set mono or label type below 13px on film, or secondary ink darker than 0.80 on film.
+- **Don't** state a speed-up factor larger than "≈1,000×", or convert the CFD bound into hours.
+
+## Revisions
+
+The sections above describe the build as it stands. This record keeps what each round changed, so a later reader can tell a rule from a leftover.
+
+### Round 1 (2026-10-15, commit 56ddc03): the cine frame
+North Star "The Angiographic Reading Room". Astro rebuild as candidate 6 (seed 6687f113). Two surfaces switched per page by `<html data-surface>`: film charcoal on `/` and `/research`, light box on `/publications`, `/record`, `/cv`. A full-viewport cine frame on home with the thesis h1 and the name as corner chrome; frames carried a three-tier caption stack (what / result / consequence); rank by frame size as well as border ink; a Close block ended every page.
+
+### Round 2 (2026-10-15, commit 2ec184d): scrubber and conversion path
+Added the 4D CT phase scrubber (paper rasters on a light-box sheet inside a film plate) and a contact path (Email, CV, LinkedIn) on every page, printed in the hero, per chapter and in the Close block.
+
+### Round 3 (2026-10-16, Revision 2 of the direction contract): short for people, complete for agents
+- **Theme:** the system scheme decides the ground (light box by default, film under `prefers-color-scheme: dark`); `data-surface` removed; `.plate` keeps every data artifact on film in both schemes. Dark floor: bone-2 raised from 0.74 to 0.80, bone-3 from 0.60 to 0.64, mono and label 13px on film. `color-scheme` meta and two `theme-color` metas.
+- **Structure:** three pages (`/`, `/research/`, `/cv/`); `/publications` and `/record` are meta-refresh redirects to `/cv/#publications` and `/cv/#talks`, excluded from the sitemap.
+- **First viewport:** identity first (96px portrait, the name as h1, the role line and `profile.fields`, `profile.tagline`, the mono link row), then the quiet plate at `min(44vh, 30rem)` with two Astro-rendered mono caption lines (case and FFR; "CFD up to 35 min on 64 CPU cores · PINO 1.78 s on one L40S").
+- **Contact:** the nav's Email (the one primary) plus the footer link row with `Updated <build date>`; at most two `mailto:` per page.
+- **Records:** capability rows, three Selected rows and a counts line on home; dense CV rows (section pad 1.5rem, publications as title, authors and one mono line, talks and patents as table rows, the three talk photos in one 120px row).
+- **Retired:** the what / result / consequence stack, consequence paragraphs, the Close block, per-chapter "Discuss this work" links, the home Led, About, Applied and Fronts sections, PatentList, ProjectList, PaperFrame, PageHead, rank by frame size, the thesis h1, the full-viewport home frame and its corner readouts.
+- **Viewer:** `quiet` mode (pressure only, wipe, five-tick colorbar, develop once, no readouts, no FFR curve, no drift); the camera fitted to the mesh bounding box (vertical centre at 42% of the frame, 8%–92% of the width, height at most 72%, recomputed on resize); the error field on a fixed symmetric scale ±(p99 of |p_err| rounded up to 0.5 kPa) with the above-range yellow; `vessel.bin` repacked by `scripts/quantize-vessel.mjs` (uint16 with per-attribute offset and scale in `manifest.json`, schema `pino-viewer-manifest/2`; zigzag delta, planar bytes, gzip; normals computed in the viewer; speed arrays split into `vessel-speed.bin`): 115 883 bytes gzipped, from a 492 948-byte float32 source.
+- **Agent layer:** `robots.txt` with explicit `Allow: /` groups for 19 named AI agents plus `*`, `Content-Signal: search=yes, ai-input=yes` and a pointer to `/llms.txt`; endpoints `llms.txt`, `llms-full.txt`, `index.md`, `research.md`, `cv.md` and `cv.json` (JSON Resume with `meta.canonical`), all built from content.ts; `<link rel="alternate">` to the page's markdown twin and to llms.txt in every head; a JSON-LD `@graph` (`Person`, `WebSite`, `ProfilePage`, `ScholarlyArticle`, `WebPage` with `CreativeWork` parts) from `lib/schema.ts` via `components/JsonLd.astro`.
+- **Budget gate:** `pnpm build` runs `scripts/budget.mjs`, which fails on home main over 220 words, research main over 750 or any research section over 230, more than two `mailto:` on a page, a home h1 that is not the name, a missing or unparseable JSON-LD block or one without `Person`, a missing agent file, or a `cv.json` without `meta.canonical`; it warns on images without alt (`--soft` reports without failing).
+- **Fonts:** Archivo stays variable (the name and page titles use `wdth` 92), shipped as a latin subset instanced to wght 400–600 and wdth 92–100 (`scripts/instance-archivo.py`); only Archivo latin and STIX latin 400 are preloaded.
+- **Recorded drift, not repaired:** the cap mask in `islands/vessel/colors.ts` still uses the round-2 bone-3 (oklch 0.56) instead of 0.64; `--size-display` in `tokens.css` is no longer read by any page (each h1 sets its own clamp); the manifest's `timing.cfd.wall_time_s` stays null for this case's unlogged run; the 35-minute bound lives in content.ts `cfdReference` and is mirrored under `timing.cfd.reference_pipeline` (the build fails on a drift).
+
+### Round 3a–3b (2026-10-16 to 2026-10-17, Revisions 2a and 2b of the direction contract): proofs in the identity block, one action word per viewport
+Verified against the working tree on 2026-10-17. This replaces the separate round 3a and 3b notes, which recorded intermediate states (linked project and award counts, a two-line plate caption, a closing "the CV" link).
+- **Identity:** three mono proof lines (`proofLines`) between the tagline and the link row, all plain text, 0.45rem apart under 640px. The link row is LinkedIn · Google Scholar · ORCID (CV (PDF) removed).
+- **Footer:** LinkedIn · Google Scholar · ORCID only (Email and CV (PDF) removed); `omit` and `links` props: `/cv/` omits LinkedIn, home drops the row.
+- **Contact:** one `mailto:` per page (the nav's), none in a redirect stub; `scripts/budget.mjs` sets `mailto: 1`, `mailtoRedirect: 0` and the home budget at 240 words (research 750, 230 per chapter).
+- **Plate:** one mono caption line (`plateCaptionItems`: case id, nodes, FFR CFD and PINO); the timing line removed; the STIX line is `plateSentence` (the CFD bound, the 1.78 s, "slide or toggle"); "How it works" removed; caption pairs nowrap.
+- **Home rows:** one target each (`/research/#flow`, `#image`, `#pulse`, `/cv/#patents`) and one computed number each; no home link repeats a target. The counts line under Selected removed; Selected sorted newest first with aligned venue (year stripped), role and DOI columns.
+- **Research:** the closing row (`researchClosing`) is plain text; one Replay for the two spectrogram plates (`replayGroup`), hidden until hydration; `recordingS` gives each spectrogram's accessible name the recording length; the FFR caption gives the s range; the Flow caption says "slide or toggle".
+- **CV:** the research-interests sentence (`interestsLine`) is the intro line under the h1 (`#interests`), no section heading; the contact row prints only; talk titles keep a 76ch measure (the detector flags longer lines).
+- **Signal:** role marks and the REGISTERED tag moved to ink borders.
+- **Type:** mono (`.num`, `.t-mono`, `.t-label`, `code`, `time`, `data`) stays upright inside italic captions.
+- **Scrubber:** both field legends (pressure in mmHg and kPa, WSS 0–5 Pa) are server-rendered; the inactive one carries `hidden`.
+- **Data and agent layer:** the PINO manifest mirrors `cfdReference` under `timing.cfd.reference_pipeline`; cv.json and cv.md write appointment notes as sentences; the funded projects carry `projectRole` ("participating researcher") in the CV heading (`projectsHeading`), cv.md, cv.json `roles`, llms.txt and index.md; `llms.txt` and `llms-full.txt` carry an In brief block; ScholarlyArticle authors reference the Person `@id`.
+- **Fallback:** `vessel-static.png` regenerated from the quiet plate by `scripts/vessel-still.mjs` (2392 x 786, 68 KB palette PNG).
+- **Viewer and gate:** the loading line prints only after hydration; the budget gate counts a `role="img"` element (a colorbar) as an image, not words.
+- **Recorded drift, not repaired:** the header comments of `components/home/Identity.astro` and of `proofLines` in `lib/schema.ts` still say the project and award counts link to the CV (the rendered line is plain text); the `cv.astro` header comment says 32px section gaps where `CvSection` pads 1.5rem (24px); `SpectrogramDevelop` still declares the retired `what` / `result` / `consequence` props, which no caller passes; the cap mask still uses the round-2 bone-3 (oklch 0.56).

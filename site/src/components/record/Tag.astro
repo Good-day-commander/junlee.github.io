@@ -2,13 +2,14 @@
 /*
   Short mono tag for identifiers and states (KR / US / PCT, INTL / DOMESTIC,
   REGISTERED, PRESENTER). Uppercase mono at 0.7rem is the one place the site
-  allows uppercase outside frame corners. Rank by border ink, never by fill:
-    signal  the state the reader is looking for (registered, presenter)
-    ink     a firm but neutral state
+  allows uppercase outside frame corners. Rank by border ink, never by fill
+  and never by signal (red is reserved for the nav Email, probes, active
+  states and the focus ring):
+    ink     primary-ink border: the state the reader is looking for (registered)
     soft    hairline, secondary ink (default)
 */
 export interface Props {
-  tone?: 'signal' | 'ink' | 'soft';
+  tone?: 'ink' | 'soft';
   title?: string;
   class?: string;
 }
@@ -36,11 +37,7 @@ const { tone = 'soft', title, class: className } = Astro.props;
     vertical-align: middle;
   }
   .tag[data-tone='ink'] {
-    border-color: var(--ink-2);
-    color: var(--ink);
-  }
-  .tag[data-tone='signal'] {
-    border-color: var(--signal);
+    border-color: var(--ink);
     color: var(--ink);
   }
 </style>

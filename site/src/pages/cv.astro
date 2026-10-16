@@ -1,19 +1,31 @@
 ---
 /*
-  /cv: the CV as a page, in the PDF's order, generated from content.ts.
-  Header without the phone number (the site is public). Prints as a
-  document: box surface, no chrome, a page break before each section.
+  /cv: the whole record, dense (contract revision 2). It absorbs the
+  retired /publications and /record pages, so every fact they showed is
+  here: every publication with its authors, citation, role, doi and
+  BibTeX, the publication counts, every talk as one row (year, title, short
+  venue with the full venue and location in its abbr, format and role; the
+  author line where it is not mine et al.), the three talk photographs, every patent filing with
+  its status and number, the funded projects,
+  awards, fellowships and teaching.
 
-  A sticky action bar sits under the nav for the whole length of the page:
-  Email (the page's one primary), CV (PDF) and LinkedIn, so the actions are
-  never off-screen on a four-page CV. The page ends with the shared Close
-  (rendered by Base); neither prints.
+  Rows, not frames; one entry is about two lines; section gaps are 24px;
+  one left edge. A sticky action bar under the nav keeps the PDF and
+  LinkedIn on screen; Email is the nav's. Because the bar carries LinkedIn
+  in every viewport, this page's footer row omits it (Google Scholar and
+  ORCID only). Prints as a document (no nav,
+  bar, footer or photos; a page break before the long sections).
+
+  Short for people, complete for agents (round 3): the appointment bullets
+  (each restates a [J#]/[C#] row below) and the patent inventor lists are
+  not printed here; cv.md, llms-full.txt and cv.json carry them in full.
 */
 import { Image } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CvSection from '@/components/record/CvSection.astro';
-import Authors from '@/components/record/Authors.astro';
+import PubEntry from '@/components/record/PubEntry.astro';
+import Tag from '@/components/record/Tag.astro';
 import {
   awards,
   education,
@@ -32,33 +44,31 @@ import {
   applicationLabel,
   awardPublication,
   capitalize,
-  citationLine,
-  doiUrl,
+  leads,
   normRange,
   period,
   publicPatents,
 } from '@/components/record/records';
-import envelope from '@phosphor-icons/core/assets/regular/envelope.svg?raw';
+import { CV_PDF, counts, interestsLine, projectsHeading } from '@/lib/schema';
 import filePdf from '@phosphor-icons/core/assets/regular/file-pdf.svg?raw';
 import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
 import portrait from '@/assets/photos/profile-main.jpg';
-
-const PDF = '/uploads/resume.pdf';
-
-/* Research interests: one paragraph from the product positioning (PRODUCT.md); no claim beyond it. */
-const interests =
-  'Making the physics of coronary flow fast enough for clinical use, on three connected fronts. Flow: image-based, patient-specific coronary CFD and CT-FFR (gray-zone FFR, lattice Boltzmann pipelines), and physics-informed neural operators that return CFD-grade pressure and velocity fields in seconds. Image: diffusion-based 4D coronary CT synthesis for dynamic FFR. Pulse: wearable PPG biomarkers (non-Newtonian blood viscosity, blood pressure, fluid status). The machine learning is physics-constrained (Carreau–Yasuda priors, Navier–Stokes residuals) rather than black-box, and the same line of work has been carried into products and patent filings.';
+import photoAcfm from '@/assets/photos/gallery-acfm-2025.jpg';
+import photoDmd from '@/assets/photos/gallery-dmd-2026.jpg';
+import photoYonsei from '@/assets/photos/gallery-talk-yonsei.jpg';
 
 const pubGroups: { heading: string; items: Publication[] }[] = [
   { heading: 'Journal articles (SCIE)', items: publications.filter((p) => p.type === 'journal') },
   { heading: 'Peer-reviewed proceedings', items: publications.filter((p) => p.type === 'proceedings') },
   { heading: 'Manuscript under revision', items: publications.filter((p) => p.type === 'under-review') },
 ];
+const leadCount = publications.filter(leads).length;
 
 const talkGroups: { heading: string; items: Talk[] }[] = [
   { heading: 'International', items: talks.filter((t) => t.category === 'International') },
   { heading: 'Domestic', items: talks.filter((t) => t.category === 'Domestic') },
 ];
+const presented = talks.filter((t) => t.role === 'presenter').length;
 
 const skillGroups: { label: string; items: string[] }[] = [
   { label: 'Computational', items: skills.computational },
@@ -67,36 +77,70 @@ const skillGroups: { label: string; items: string[] }[] = [
   { label: 'Languages', items: skills.languages },
 ];
 
+/*
+  Talk photographs, 120 px tall in one row. Two document talks in the record
+  and their captions are read from those rows; the Yonsei symposium has no
+  CV entry, so its caption is the old site's gallery copy.
+*/
+const talkById = (id: string) => talks.find((t) => t.id === id);
+/*
+  Talk rows are one table row each (packet §6): year · title · short venue ·
+  format and role. The short venue is the acronym the record already carries
+  ("(DMD2026)", "(ACFM)"), or the venue without its year; the full venue and
+  the location sit in the abbr's title. The author line is printed only where
+  it is not the default "H.J. Lee et al."
+*/
+const shortVenue = (venue: string) =>
+  venue.match(/\(([A-Z][A-Za-z0-9-]+)\)/)?.[1] ?? venue.replace(/\s+\d{4}$/, '');
+const DEFAULT_AUTHORS = 'H.J. Lee et al.';
+const acronym = (venue: string) => venue.match(/\(([A-Z][A-Za-z0-9]+)\)/)?.[1];
+function talkCaption(t: Talk | undefined, fallback: string): { text: string; href?: string } {
+  if (!t) return { text: fallback };
+  const a = acronym(t.venue);
+  const name = a ? (a.includes(t.year) ? a.replace(t.year, ` ${t.year}`) : `${a} ${t.year}`) : `${t.venue} ${t.year}`;
+  return { text: `${name}, ${t.location.split(',')[0]} · ${capitalize(t.format)}`, href: `#${t.id}` };
+}
+const I3 = talkById('I3');
+const I1 = talkById('I1');
+const PHOTO_H = 120;
+const photos = [
+  {
+    src: photoAcfm,
+    alt: I3 ? `${profile.name} presenting at the podium of the ${I3.venue}, ${I3.location}.` : `${profile.name} at a conference podium.`,
+    caption: talkCaption(I3, 'ACFM 2025, Seoul'),
+  },
+  {
+    src: photoDmd,
+    alt: I1 ? `The poster presented at the ${I1.venue}: ${I1.title}.` : 'Conference poster.',
+    caption: talkCaption(I1, 'DMD 2026, Minneapolis'),
+  },
+  {
+    src: photoYonsei,
+    alt: `${profile.name} presenting cardiovascular AI research at a Yonsei department symposium.`,
+    caption: { text: 'Yonsei department symposium, 2024' } as { text: string; href?: string },
+  },
+].map((ph) => ({ ...ph, width: Math.round((PHOTO_H * ph.src.width) / ph.src.height) }));
+
 const links = [
   { label: 'Google Scholar', href: profile.links.scholar },
-  { label: 'LinkedIn', href: profile.links.linkedin },
   { label: 'ORCID', href: profile.links.orcid },
 ];
 
-const description = `Curriculum vitae of ${profile.name}: education, appointments, publications, presentations, patents, projects, awards, teaching and skills, with the PDF.`;
+const description = `Curriculum vitae of ${profile.name}: education, appointments, every publication with BibTeX, talks, patents, funded projects, awards, teaching and skills, with the PDF.`;
 ---
 
 <Base
   title="CV"
   description={description}
-  surface="box"
   ogImage="/og/cv.png"
-  ogAlt={`${profile.name}, curriculum vitae: the CV action bar with Email and CV (PDF), his portrait and the head of the CV on light-box white.`}
-  close={{
-    line: 'Questions about this CV, or a copy of a paper? Email me.',
-    note: 'Email is the fastest route; I reply from Seoul (UTC+9).',
-  }}
+  ogAlt={`${profile.name}, curriculum vitae: the CV action bar, his portrait and the head of the CV.`}
+  footer={{ omit: ['LinkedIn'] }}
 >
   <div class="cv-bar">
     <div class="wrap cv-bar__row">
-      <p class="cv-bar__label">{profile.name}, CV</p>
       <div class="cv-bar__actions">
-        <Button href={`mailto:${profile.email}`} size="compact">
-          Email
-          <span slot="icon" aria-hidden="true" set:html={envelope} />
-        </Button>
-        <Button variant="ghost" href={PDF} external size="compact">
-          CV (PDF)
+        <Button variant="ghost" href={CV_PDF} external size="compact">
+          Download PDF
           <span slot="icon" aria-hidden="true" set:html={filePdf} />
         </Button>
         <a class="cv-bar__link" href={profile.links.linkedin} rel="me noopener">
@@ -105,30 +149,30 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </div>
     </div>
   </div>
-  <article class="cv wrap wrap--text">
+
+  <article class="cv wrap">
     <header class="cv-head">
       <Image
         src={portrait}
         alt={`${profile.name}, portrait.`}
-        width={portrait.width}
-        height={portrait.height}
+        width={80}
+        height={80}
+        densities={[1, 2]}
         format="webp"
         quality={85}
         class="cv-head__portrait"
       />
       <div class="cv-head__id">
         <h1 class="cv-head__name">{profile.name}</h1>
+        <p id="interests" class="cv-head__intro">{interestsLine}</p>
         <p class="cv-head__role">
-          {profile.role}, {profile.lab}<br />
-          {profile.department}, {profile.university}
+          {profile.role}, {profile.lab}, {profile.department}, {profile.university}
         </p>
         <p class="cv-head__role cv-head__role--second">
           {profile.concurrent.role}, {profile.concurrent.org}, {profile.concurrent.project}
         </p>
-        <ul class="cv-head__contact">
-          <li>
-            <a class="t-mono" href={`mailto:${profile.email}`}>{profile.email}</a>
-          </li>
+        <ul class="cv-head__contact t-mono">
+          <li>{profile.email}</li>
           {
             links.map((l) => (
               <li>
@@ -138,80 +182,68 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
               </li>
             ))
           }
-          <li class="cv-head__site">
-            <a class="t-mono" href={profile.links.site}>{profile.links.site.replace(/^https?:\/\//, '')}</a>
-          </li>
+          <li>{profile.links.site.replace(/^https?:\/\//, '')}</li>
         </ul>
       </div>
     </header>
 
-    <CvSection heading="Research interests" id="interests" flow>
-      <p class="cv-prose">{interests}</p>
-    </CvSection>
-
     <CvSection heading="Education" id="education" flow>
-      {
-        education.map((e) => (
-          <div class="cv-row">
-            <p class="cv-row__period t-mono">{period(e.start, e.end)}</p>
-            <div class="cv-row__main">
-              <p class="cv-row__title">{e.degree}</p>
-              <p class="cv-row__meta">
-                {e.institution}, {e.location}
-              </p>
-              {e.note && <p class="cv-row__meta cv-row__meta--note">{e.note}</p>}
-            </div>
-          </div>
-        ))
-      }
+      <ol class="rows">
+        {
+          education.map((e) => (
+            <li class="row">
+              <span class="row__lead t-mono">{period(e.start, e.end)}</span>
+              <div class="row__main">
+                <p class="row__title">
+                  {e.degree}
+                  <span class="row__inline">
+                    {e.institution}, {e.location}
+                  </span>
+                </p>
+                {e.note && <p class="row__meta">{e.note}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
     </CvSection>
 
-    <CvSection heading="Research experience" id="experience">
-      {
-        experience.map((x) => (
-          <div class="cv-row">
-            <p class="cv-row__period t-mono">{period(x.start, x.end)}</p>
-            <div class="cv-row__main">
-              <p class="cv-row__title">{x.role}</p>
-              <p class="cv-row__meta">
-                {x.org}, {x.location}
-              </p>
-              {x.notes && x.notes.map((n) => <p class="cv-row__meta cv-row__meta--note">{n}</p>)}
-              <ul class="cv-bullets">
-                {x.bullets.map((b) => (
-                  <li>{b}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))
-      }
+    <CvSection heading="Appointments" id="appointments">
+      <ol class="rows">
+        {
+          experience.map((x) => (
+            <li class="row">
+              <span class="row__lead t-mono">{period(x.start, x.end)}</span>
+              <div class="row__main">
+                <p class="row__title">
+                  {x.role}
+                  <span class="row__inline">
+                    {x.org}, {x.location}
+                  </span>
+                </p>
+                {x.notes && x.notes.map((n) => <p class="row__meta row__meta--note">{n}</p>)}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
     </CvSection>
 
     <CvSection heading="Publications" id="publications">
-      <p class="cv-legend">† first author (shared when it appears twice) · * corresponding author</p>
+      <p class="cv-note t-mono">
+        {counts.journal} journal articles · {counts.proceedings} proceedings · {counts.underReview} under revision ·
+        {' '}{leadCount} first- or co-first-authored · † first author (shared when it appears twice) · * corresponding author
+      </p>
       {
         pubGroups.map(
           (g) =>
             g.items.length > 0 && (
-              <div class="cv-group">
-                <h3 class="cv-group__heading">{g.heading}</h3>
-                <ol class="cv-list">
-                  {g.items.map((p) => {
-                    const doi = doiUrl(p);
-                    return (
-                      <li class="cv-item" id={p.id}>
-                        <span class="cv-item__id t-mono">[{p.id}]</span>
-                        <div class="cv-item__main">
-                          <Authors authors={p.authors} class="cv-item__authors" />
-                          <p class="cv-item__title">{p.title}</p>
-                          <p class="cv-item__meta">
-                            <span class="cv-item__venue">{citationLine(p)}</span>{p.type === 'under-review' ? `. ${p.status}` : ''}{doi && <span> <a class="t-mono" href={doi} rel="noopener">doi:{p.doi}</a></span>}
-                          </p>
-                        </div>
-                      </li>
-                    );
-                  })}
+              <div class="group">
+                <h3 class="group__heading">{g.heading}</h3>
+                <ol class="list">
+                  {g.items.map((p) => (
+                    <PubEntry pub={p} />
+                  ))}
                 </ol>
               </div>
             ),
@@ -219,23 +251,53 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       }
     </CvSection>
 
-    <CvSection heading="Conference presentations" id="presentations">
+    <CvSection heading="Talks" id="talks">
+      <ul class="photos">
+        {
+          photos.map((ph) => (
+            <li class="photo">
+              <figure class="photo__plate">
+                <Image
+                  src={ph.src}
+                  alt={ph.alt}
+                  width={ph.width}
+                  height={PHOTO_H}
+                  densities={[1, 2]}
+                  format="webp"
+                  quality={78}
+                  loading="lazy"
+                  class="photo__img"
+                />
+                <figcaption class="photo__caption t-mono">
+                  {ph.caption.href ? <a href={ph.caption.href}>{ph.caption.text}</a> : ph.caption.text}
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="cv-note t-mono">
+        {counts.talks} talks · {counts.talksInternational} international · {counts.talksDomestic} domestic · {presented} presented
+        by me
+      </p>
       {
         talkGroups.map((g) => (
-          <div class="cv-group">
-            <h3 class="cv-group__heading">{g.heading}</h3>
-            <ol class="cv-list">
+          <div class="group">
+            <h3 class="group__heading">{g.heading}</h3>
+            <ol class="list">
               {g.items.map((t) => (
-                <li class="cv-item" id={t.id}>
-                  <span class="cv-item__id t-mono">[{t.id}]</span>
-                  <div class="cv-item__main">
-                    <p class="cv-item__title">
-                      <span class="cv-item__year t-mono">{t.year}</span> {t.title}
-                    </p>
-                    <p class="cv-item__meta">
-                      {`${t.note.replace(/\.$/, '')}. ${t.venue}, ${t.location}. ${capitalize(t.format)}${t.role === 'presenter' ? '; presented by H.J. Lee.' : '.'}`}
-                    </p>
-                  </div>
+                <li class="talk" id={t.id}>
+                  <span class="talk__year t-mono">{t.year}</span>
+                  <p class="talk__title">
+                    {t.title}
+                    {t.note !== DEFAULT_AUTHORS && <span class="talk__note">{t.note}</span>}
+                  </p>
+                  <abbr class="talk__venue t-mono" title={`${t.venue}, ${t.location}`}>
+                    {shortVenue(t.venue)}
+                  </abbr>
+                  <span class="talk__format t-mono">
+                    {capitalize(t.format)} · {t.role === 'presenter' ? 'presented' : 'co-author'}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -245,33 +307,42 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     </CvSection>
 
     <CvSection heading="Patents" id="patents">
-      <ol class="cv-list">
+      <p class="cv-note t-mono">
+        {counts.patents} filings · {counts.patentsRegistered} registered · {counts.patents - counts.patentsRegistered} pending
+      </p>
+      <ol class="list">
         {
           publicPatents.map((p) => (
-            <li class="cv-item" id={p.id}>
-              <span class="cv-item__id t-mono">[{p.id}]</span>
-              <div class="cv-item__main">
-                <p class="cv-item__title">{p.title}</p>
-                <p class="cv-item__meta">
-                  <span class="t-mono">{applicationLabel(p)}</span>{' · '}{p.status === 'registered' && p.registrationNo ? <span><span class="t-mono">Registered No. {p.registrationNo}</span>{p.registrationDate ? ` (${p.registrationDate})` : ''}</span> : <span>filed <span class="t-mono">{p.year}</span>, pending</span>}<span class="cv-item__inventors"> · {p.inventors}</span>
-                </p>
-              </div>
+            <li class="patent" id={p.id}>
+              <span class="patent__id t-mono">{p.id}</span>
+              <p class="patent__title">{p.title}</p>
+              <p class="patent__meta t-mono">
+                {p.status === 'registered' && p.registrationNo ? (
+                  <span class="patent__status">
+                    <Tag tone="ink">Registered</Tag>
+                    {`No. ${p.registrationNo}${p.registrationDate ? `, ${p.registrationDate}` : ''}`}
+                  </span>
+                ) : (
+                  <span class="patent__status">pending, filed {p.year}</span>
+                )}
+                <span class="patent__no">{applicationLabel(p)}</span>
+              </p>
             </li>
           ))
         }
       </ol>
     </CvSection>
 
-    <CvSection heading="Research projects (participating researcher)" id="projects">
-      <ol class="cv-list">
+    <CvSection heading={projectsHeading} id="projects">
+      <ol class="rows">
         {
           projects.map((r) => (
-            <li class="cv-item" id={r.id}>
-              <span class="cv-item__id t-mono">[{r.id}]</span>
-              <div class="cv-item__main">
-                <p class="cv-item__title">{r.title}</p>
-                <p class="cv-item__meta">
-                  {r.program ? `${r.funder}, ${r.program}` : r.funder} · <span class="t-mono">{r.grantNo}</span> · <span class="t-mono">{period(r.start, r.end)}</span>
+            <li class="row" id={r.id}>
+              <span class="row__lead t-mono">{period(r.start, r.end)}</span>
+              <div class="row__main">
+                <p class="row__title">{r.title}</p>
+                <p class="row__meta row__meta--wide">
+                  {r.program ? `${r.funder}, ${r.program}` : r.funder} · <span class="t-mono">{r.grantNo}</span>
                 </p>
               </div>
             </li>
@@ -280,58 +351,65 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Awards and honors" id="awards">
-      {
-        awards.map((a) => {
-          const pub = awardPublication(a.forPublication);
-          return (
-            <div class="cv-row">
-              <p class="cv-row__period t-mono">{a.year}</p>
-              <div class="cv-row__main">
-                <p class="cv-row__title">{a.title}</p>
-                <p class="cv-row__meta">
-                  {a.note ? `${a.org}, ${a.note}` : a.org}{pub && <span> (<a href={`#${pub.id}`}>{pub.id}</a>)</span>}
+    <CvSection heading="Awards and fellowships" id="awards" flow>
+      <ol class="rows">
+        {
+          awards.map((a) => {
+            const pub = awardPublication(a.forPublication);
+            return (
+              <li class="row">
+                <span class="row__lead t-mono">{a.year}</span>
+                <p class="row__title">
+                  {a.title}
+                  <span class="row__inline">
+                    {a.note ? `${a.org}, ${a.note}` : a.org}
+                    {pub && (
+                      <span>
+                        {' '}
+                        (<a href={`#${pub.id}`}>{pub.id}</a>)
+                      </span>
+                    )}
+                  </span>
                 </p>
-              </div>
-            </div>
-          );
-        })
-      }
-    </CvSection>
-
-    <CvSection heading="Fellowships and scholarships" id="fellowships" flow>
-      {
-        fellowships.map((f) => (
-          <div class="cv-row">
-            <p class="cv-row__period t-mono">{normRange(f.period)}</p>
-            <div class="cv-row__main">
-              <p class="cv-row__title">{f.title}</p>
-              <p class="cv-row__meta">{f.org}</p>
-            </div>
-          </div>
-        ))
-      }
+              </li>
+            );
+          })
+        }
+        {
+          fellowships.map((f) => (
+            <li class="row">
+              <span class="row__lead t-mono">{normRange(f.period)}</span>
+              <p class="row__title">
+                {f.title}
+                <span class="row__inline">Fellowship, {f.org}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
     </CvSection>
 
     <CvSection heading="Teaching" id="teaching" flow>
-      {
-        teaching.map((t) => (
-          <div class="cv-row">
-            <p class="cv-row__period t-mono">{normRange(t.period)}</p>
-            <div class="cv-row__main">
-              <p class="cv-row__title">{t.role}</p>
-              <p class="cv-row__meta">{t.org}</p>
-            </div>
-          </div>
-        ))
-      }
+      <ol class="rows">
+        {
+          teaching.map((t) => (
+            <li class="row">
+              <span class="row__lead t-mono">{normRange(t.period)}</span>
+              <p class="row__title">
+                {t.role}
+                <span class="row__inline">{t.org}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
     </CvSection>
 
     <CvSection heading="Skills" id="skills" flow>
-      <dl class="cv-skills">
+      <dl class="skills">
         {
           skillGroups.map((g) => (
-            <div class="cv-skills__group">
+            <div class="skills__group">
               <dt>{g.label}</dt>
               <dd>{g.items.join('; ')}</dd>
             </div>
@@ -347,14 +425,16 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     @page {
       margin: 16mm 18mm;
     }
-    html[data-surface='box'] {
+    html {
       background: white;
     }
     .nav,
     .footer,
     .skip-link,
     .cv-bar,
-    .cv-head__portrait {
+    .cv-head__portrait,
+    .photos,
+    .pub__details {
       display: none !important;
     }
     .cv {
@@ -372,7 +452,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
 <style>
   /* Under the sticky nav and bar, anchors land below both. */
   :global(html:has(.cv-bar)) {
-    scroll-padding-top: calc(var(--nav-h) + 3.5rem);
+    scroll-padding-top: calc(var(--nav-h) + 3.25rem);
   }
   .cv-bar {
     position: sticky;
@@ -387,20 +467,14 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     align-items: center;
     justify-content: space-between;
     gap: var(--space-1) var(--space-3);
-    min-height: 3rem;
-    padding-block: 0.4rem;
-  }
-  .cv-bar__label {
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: var(--ink-2);
+    min-height: 2.75rem;
+    padding-block: 0.3rem;
   }
   .cv-bar__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-1) var(--space-2);
+    gap: var(--space-1) var(--space-3);
   }
   .cv-bar__link {
     display: inline-flex;
@@ -431,57 +505,61 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   }
 
   .cv {
-    padding-block: var(--space-5) 0;
+    padding-top: var(--space-4);
   }
 
   /* Header */
   .cv-head {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--space-4);
+    gap: var(--space-3);
     align-items: start;
-    padding-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
     border-bottom: 1px solid var(--ink);
+  }
+  .cv-head__id {
+    display: grid;
+    gap: 0.3rem;
   }
   .cv-head__name {
     font-family: var(--font-display);
     font-variation-settings: 'wdth' 92;
     font-weight: 600;
-    font-size: clamp(2rem, 1.5rem + 2.4vw, 3.25rem);
+    font-size: clamp(2rem, 1.5rem + 1.8vw, 2.75rem);
     line-height: 1;
     letter-spacing: -0.025em;
+    margin-bottom: 0.3rem;
   }
   .cv-head__role {
-    margin-top: var(--space-2);
     font-family: var(--font-text);
     font-size: 1.0625rem;
-    line-height: 1.5;
+    line-height: 1.45;
     color: var(--ink);
     text-wrap: pretty;
   }
   .cv-head__role--second {
-    margin-top: 0.25rem;
     color: var(--ink-2);
   }
   .cv-head__contact {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem var(--space-3);
-    margin-top: var(--space-3);
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: var(--size-ui);
+    gap: 0.2rem var(--space-3);
+    margin-top: 0.3rem;
+    color: var(--ink-2);
   }
   .cv-head__contact a {
+    color: var(--ink);
     text-decoration-color: var(--line);
   }
-  .cv-head__contact .t-mono {
-    font-size: var(--size-ui);
+  /* On screen the nav holds Email and the footer holds Scholar and ORCID; the row stays for print. */
+  @media screen {
+    .cv-head__contact {
+      display: none;
+    }
   }
-  /* ID portrait, used small beside the name; never printed (the PDF has none). */
   .cv-head :global(.cv-head__portrait) {
-    width: 6rem;
-    height: 6rem;
+    width: 5rem;
+    height: 5rem;
     object-fit: cover;
     object-position: 50% 28%;
     border: 1px solid var(--line);
@@ -489,181 +567,274 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     background: var(--bg-1);
   }
 
-  /* Prose */
-  .cv-prose {
+  /* The research interests, one sentence under the name (the #interests anchor). */
+  .cv-head__intro {
     font-family: var(--font-text);
-    font-size: var(--size-prose);
-    line-height: var(--leading-prose);
-    max-width: var(--measure);
+    font-size: 1.125rem;
+    line-height: 1.45;
+    color: var(--ink);
+    max-width: 68ch;
     text-wrap: pretty;
+    margin-bottom: 0.2rem;
+  }
+  .cv-note {
+    color: var(--ink-3);
+    margin-bottom: var(--space-1);
   }
 
-  /* Period rows */
-  .cv-row {
-    display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
-    gap: var(--space-3);
+  /* Period rows (education, appointments, projects, awards, teaching) */
+  .rows > .row + .row {
+    border-top: 1px solid var(--line-soft);
   }
-  .cv-row__period {
+  .row {
+    display: grid;
+    grid-template-columns: 10.5rem minmax(0, 1fr);
+    gap: 0 var(--space-3);
+    padding-block: 0.3rem;
+  }
+  .row__lead {
     color: var(--ink-2);
-    padding-top: 0.25rem;
+    padding-top: 0.15rem;
     white-space: nowrap;
   }
-  .cv-row__main {
+  .row__main {
     display: grid;
-    gap: 0.3rem;
+    gap: 0.15rem;
     min-width: 0;
   }
-  .cv-row__title {
+  .row__title {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 1.0625rem;
+    font-size: 1rem;
     line-height: 1.35;
-    letter-spacing: -0.005em;
     text-wrap: pretty;
   }
-  .cv-row__meta {
+  .row__inline {
     font-family: var(--font-text);
-    font-size: 1rem;
-    line-height: 1.5;
-    color: var(--ink-2);
-    text-wrap: pretty;
-    max-width: 66ch;
-  }
-  .cv-row__meta--note {
-    font-style: italic;
-  }
-  .cv-bullets {
-    display: grid;
-    gap: 0.3rem;
-    margin-top: 0.3rem;
-    padding-left: 1.1rem;
-    list-style: disc;
-    font-family: var(--font-text);
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--ink-2);
-    max-width: 66ch;
-  }
-  .cv-bullets li::marker {
-    color: var(--ink-3);
-  }
-
-  /* Numbered lists [J1] … */
-  .cv-legend {
-    font-family: var(--font-text);
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--ink-3);
-  }
-  .cv-group {
-    display: grid;
-    gap: var(--space-2);
-  }
-  .cv-group__heading {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1rem;
-    line-height: 1.3;
-    color: var(--ink);
-  }
-  .cv-list {
-    display: grid;
-    gap: var(--space-2);
-  }
-  .cv-item {
-    display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr);
-    gap: var(--space-2);
-    scroll-margin-top: var(--space-2);
-  }
-  .cv-item__id {
-    color: var(--ink-3);
-    padding-top: 0.2rem;
-  }
-  .cv-item__main {
-    display: grid;
-    gap: 0.2rem;
-    min-width: 0;
-  }
-  .cv-item :global(.cv-item__authors) {
-    font-size: 0.95rem;
-  }
-  .cv-item__title {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1rem;
-    line-height: 1.4;
-    text-wrap: pretty;
-    max-width: 70ch;
-  }
-  .cv-item__year {
-    color: var(--ink-2);
     font-weight: 400;
-    margin-right: 0.25rem;
+    font-size: 0.975rem;
+    color: var(--ink-2);
+    margin-left: 0.5rem;
   }
-  .cv-item__meta {
+  .row__inline::before {
+    content: '· ';
+    color: var(--ink-3);
+  }
+  .row__meta {
     font-family: var(--font-text);
-    font-size: 0.95rem;
-    line-height: 1.5;
+    font-size: 0.975rem;
+    line-height: 1.45;
     color: var(--ink-2);
     text-wrap: pretty;
-    max-width: 72ch;
-    overflow-wrap: anywhere;
+    max-width: none;
   }
-  .cv-item__venue {
+  .row__meta .t-mono {
+    white-space: nowrap;
+  }
+  .row__meta--note {
     font-style: italic;
+    max-width: 72ch;
   }
-  .cv-item__meta a {
+  .row__meta--wide {
+    max-width: none;
+  }
+  .row__meta a,
+  .row__inline a {
     text-decoration-color: var(--line);
   }
-  .cv-item__inventors {
+
+  /* Groups and numbered lists */
+  .group + .group {
+    margin-top: var(--space-2);
+  }
+  .group__heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--ink-2);
+    padding-block: 0.35rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Talks: one row each: year, title (authors only where not mine et al.), short venue, format and role */
+  .talk {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 7.5rem 15rem;
+    gap: 0 var(--space-2);
+    align-items: baseline;
+    padding-block: 0.3rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .talk__year {
+    color: var(--ink-2);
+  }
+  .talk__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.975rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+    min-width: 0;
+    max-width: 76ch; /* the venue column bounds the measure; 76ch keeps most titles on one line and the measure under ~80 */
+  }
+  .talk__note {
+    font-family: var(--font-text);
+    font-weight: 400;
+    font-size: 0.9375rem;
     color: var(--ink-3);
+    margin-left: 0.5rem;
+  }
+  .talk__venue {
+    color: var(--ink-2);
+    text-decoration: underline dotted;
+    text-decoration-color: var(--line);
+    text-underline-offset: 0.18em;
+    white-space: nowrap;
+  }
+  .talk__format {
+    color: var(--ink-2);
+    text-align: right;
+  }
+  /* Patents: one row each (packet §6): id · title · status · number */
+  .patent {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    gap: 0 var(--space-2);
+    align-items: baseline;
+    padding-block: 0.3rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .patent__id {
+    color: var(--ink-3);
+  }
+  .patent__title {
+    min-width: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.975rem;
+    line-height: 1.35;
+    text-wrap: pretty;
+  }
+  .patent__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.1rem var(--space-2);
+    line-height: 1.4;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .patent__no {
+    color: var(--ink);
+  }
+  .patent__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* Talk photographs: one 120 px row */
+  .photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .photo__plate {
+    margin: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .photo :global(.photo__img) {
+    height: 120px;
+    width: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-1);
+  }
+  .photo__caption {
+    color: var(--ink-2);
+  }
+  .photo__caption a {
+    color: var(--ink-2);
+    text-decoration-color: var(--line);
+  }
+  .photo__caption a:hover {
+    color: var(--ink);
+    text-decoration-color: var(--signal);
   }
 
   /* Skills */
-  .cv-skills {
+  .skills {
     display: grid;
-    gap: var(--space-1);
+    gap: 0.25rem;
   }
-  .cv-skills__group {
+  .skills__group {
     display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
+    grid-template-columns: 10.5rem minmax(0, 1fr);
     gap: var(--space-3);
   }
-  .cv-skills dt {
+  .skills dt {
     font-family: var(--font-ui);
     font-weight: 500;
     font-size: var(--size-ui);
   }
-  .cv-skills dd {
+  .skills dd {
     margin: 0;
     font-family: var(--font-text);
-    font-size: 1rem;
-    line-height: 1.55;
+    font-size: 0.975rem;
+    line-height: 1.5;
     color: var(--ink-2);
-    max-width: 66ch;
+    max-width: none;
   }
 
   @media (max-width: 760px) {
-    .cv-head {
-      grid-template-columns: 1fr;
-      gap: var(--space-3);
-    }
     .cv-head :global(.cv-head__portrait) {
-      width: 4.5rem;
-      height: 4.5rem;
+      width: 4rem;
+      height: 4rem;
     }
-    .cv-bar__label {
-      display: none;
+    .row,
+    .skills__group {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.1rem;
     }
-    .cv-row,
-    .cv-skills__group {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
-    }
-    .cv-row__period {
+    .row__lead {
       padding-top: 0;
+    }
+    .row__inline {
+      display: block;
+      margin-left: 0;
+    }
+    .row__inline::before {
+      content: none;
+    }
+    .talk {
+      grid-template-columns: 2.5rem auto minmax(0, 1fr);
+      gap: 0.1rem var(--space-2);
+    }
+    .talk__title {
+      grid-column: 2 / -1;
+    }
+    .talk__venue {
+      grid-column: 2;
+    }
+    .talk__format {
+      grid-column: 3;
+      text-align: left;
+    }
+    .patent {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      gap: 0.1rem var(--space-2);
+    }
+    .patent__meta {
+      grid-column: 2;
+      justify-content: flex-start;
+      white-space: normal;
+    }
+    .photo :global(.photo__img) {
+      height: 96px;
     }
   }
 
@@ -676,29 +847,24 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       font-size: 22pt;
     }
     .cv-head__role,
-    .cv-prose,
-    .cv-row__meta,
-    .cv-item__meta,
-    .cv-bullets,
-    .cv-skills dd {
+    .cv-head__intro,
+    .row__meta,
+    .row__inline,
+    .talk__note,
+    .patent__meta,
+    .skills dd {
       font-size: 10pt;
       line-height: 1.4;
     }
-    .cv-row__title,
-    .cv-item__title {
+    .row__title,
+    .talk__title,
+    .patent__title {
       font-size: 10.5pt;
     }
-    .cv-row,
-    .cv-item {
+    .row,
+    .talk,
+    .patent {
       break-inside: avoid;
-    }
-    .cv-row {
-      grid-template-columns: 9rem minmax(0, 1fr);
-      gap: 0.75rem;
-    }
-    .cv-list,
-    .cv-group {
-      gap: 0.5rem;
     }
   }
 </style>

@@ -1,81 +1,80 @@
 ---
 /*
-  The honest metrics table for the Flow chapter: this case beside the cohort
-  median, all cells mono, every value computed from the PINO manifest.
+  The one metrics table the research chapters share: an italic STIX
+  caption above (the label convention, e.g. "current model, 85 cases,
+  10-fold CV", or the manuscript status), a ruled mono table, nothing
+  else. Rows are computed in lib/schema.ts from the manifests; nothing
+  is typed here.
 */
-import { formatDecimal, formatInt } from '@/lib/format';
-import { pino, parseRank } from './data';
+export interface Props {
+  id: string;
+  caption: string;
+  head: string[];
+  rows: string[][];
+  label: string;
+}
 
-const c = pino.metrics.case;
-const k = pino.metrics.cohort;
-const rank = parseRank(pino.selection.case_rank_by_R2_pressure);
+const { id, caption, head, rows, label } = Astro.props;
 
-const rows = [
-  {
-    label: 'Pressure R²',
-    kase: formatDecimal(c.pressure_Pa.R2, 3),
-    cohort: formatDecimal(k.pressure_R2.median, 3),
-  },
-  {
-    /* kPa at one decimal, like every other pressure in chrome and tables (recorded decision). */
-    label: 'Pressure MAE',
-    kase: `${formatDecimal(c.pressure_Pa.MAE / 1000, 1)} kPa`,
-    cohort: `${formatDecimal(k.pressure_MAE_Pa.median / 1000, 1)} kPa`,
-  },
-  {
-    label: 'Speed R²',
-    kase: formatDecimal(c.velocity_mps.R2, 3),
-    cohort: formatDecimal(k.velocity_R2.median, 3),
-  },
-  {
-    label: 'FFR, Pd/Pa',
-    kase: `CFD ${formatDecimal(c.ffr.cfd, 3)} · PINO ${formatDecimal(c.ffr.pino, 3)}`,
-    cohort: `MAE vs CFD ${formatDecimal(k.ffr_MAE_vs_cfd, 4)}`,
-  },
-];
-
-const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
+/*
+  A value that pairs two readings ("CFD 0.830 · PINO 0.824") is split at its
+  middle dot into unbreakable segments, so on a phone it may break between
+  the readings but never inside one.
+*/
+const segments = (v: string) => v.split(' · ');
 ---
 
 <figure class="metrics">
-  <p class="metrics__caption" id="metrics-caption">
-    Current model, {formatInt(k.n_cases)} cases, 10-fold cross-validation. All volume nodes of each case.
-  </p>
-  <div class="metrics__scroll" tabindex="0" role="region" aria-label="PINO metrics, this case against the cohort">
-  <table class="t-mono" aria-describedby="metrics-caption">
-    <thead>
-      <tr>
-        <th scope="col">Metric</th>
-        <th scope="col">This case</th>
-        <th scope="col">{cohortHead}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        rows.map((row) => (
-          <tr>
-            <th scope="row">{row.label}</th>
-            <td>{row.kase}</td>
-            <td>{row.cohort}</td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
+  <figcaption class="metrics__caption" id={`${id}-caption`}>{caption}</figcaption>
+  <div class="metrics__scroll" tabindex="0" role="region" aria-label={label}>
+    <table class="t-mono" aria-describedby={`${id}-caption`}>
+      <thead>
+        <tr>{head.map((h) => <th scope="col">{h}</th>)}</tr>
+      </thead>
+      <tbody>
+        {
+          rows.map(([first, ...rest]) => (
+            <tr>
+              <th scope="row">{first}</th>
+              {rest.map((v) => (
+                <td>
+                  {segments(v).map((seg, i, all) => (
+                    <>
+                      <span class="metrics__seg">{i < all.length - 1 ? `${seg} ·` : seg}</span>
+                      {i < all.length - 1 && ' '}
+                    </>
+                  ))}
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
   </div>
-  <figcaption class="metrics__note">
-    A well-predicted case, not a typical one: its pressure R² ranks {formatInt(rank.rank)} of {formatInt(rank.of)} in
-    the cohort.
-  </figcaption>
 </figure>
 
 <style>
   .metrics {
     display: grid;
-    gap: var(--space-2);
-    max-width: var(--measure);
+    gap: var(--space-1);
+    margin: 0;
+    width: 100%;
+    max-width: 44rem;
   }
-  /* On a phone the table keeps its rows on one line and scrolls sideways instead of breaking labels. */
+  .metrics__caption {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  /*
+    The scroll region is a guard only: under 600px the metric labels and the
+    column heads wrap (about 18ch) and the value cells keep their readings
+    whole, so every value column fits a 390 px phone without scrolling.
+  */
   .metrics__scroll {
     overflow-x: auto;
     overscroll-behavior-x: contain;
@@ -89,23 +88,20 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
   }
-  .metrics__caption {
-    color: var(--ink-2);
-    font-family: var(--font-text);
-    font-style: italic;
-    font-size: 0.95rem;
-  }
   th,
   td {
     text-align: left;
-    padding: 0.55rem 0;
+    padding: 0.45rem var(--space-3) 0.45rem 0;
     vertical-align: top;
     font-weight: 400;
+    white-space: nowrap;
+  }
+  th:last-child,
+  td:last-child {
+    padding-right: 0;
   }
   thead th {
     color: var(--ink-3);
-    white-space: nowrap;
-    padding-right: var(--space-3);
     border-bottom: 1px solid var(--line);
   }
   tbody tr + tr th,
@@ -114,22 +110,27 @@ const cohortHead = `Cohort median, n = ${formatInt(k.n_cases)}`;
   }
   tbody th {
     color: var(--ink-2);
-    padding-right: var(--space-3);
-    white-space: nowrap;
   }
   td {
     color: var(--ink);
-    padding-right: var(--space-3);
+  }
+  .metrics__seg {
     white-space: nowrap;
   }
-  td:last-child,
-  th:last-child {
-    padding-right: 0;
-  }
-  .metrics__note {
-    font-family: var(--font-text);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: var(--ink-2);
+
+  @media (max-width: 599.98px) {
+    th,
+    td {
+      padding-right: var(--space-2);
+    }
+    thead th,
+    tbody th {
+      white-space: normal;
+      max-width: 18ch;
+      text-wrap: pretty;
+    }
+    td {
+      white-space: normal;
+    }
   }
 </style>

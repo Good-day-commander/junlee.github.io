@@ -1,0 +1,92 @@
+---
+/*
+  A chapter's citation line: the paper's one anatomy compressed to a row.
+  Title (linked to the DOI when there is one), then in mono the venue, the
+  year or the manuscript status, the author-role mark and the doi. Every
+  field is the publication record in content.ts; the role is never
+  inferred.
+*/
+import RoleMark from '@/components/RoleMark.astro';
+import type { Publication } from '@/data/content';
+
+export interface Props {
+  pub: Publication;
+}
+
+const { pub } = Astro.props;
+const doiHref = pub.doi ? `https://doi.org/${pub.doi}` : undefined;
+/* Short venue in the row ("CMPB", "DMD", "EAAI"); the year has its own slot, so a trailing year is dropped. */
+const venueName = pub.venueShort ?? pub.venue;
+const venue =
+  /\(([A-Z][^)]*)\)\s*$/.exec(venueName)?.[1]?.replace(/\s?\d{4}$/, '') ??
+  (pub.venueShort && pub.venueShort.length <= 8
+    ? pub.venueShort
+    : pub.venue
+        .split(/\s+/)
+        .filter((w) => /^[A-Z]/.test(w))
+        .map((w) => w[0])
+        .join(''));
+---
+
+<p class="cite">
+  <span class="cite__title">{doiHref ? <a href={doiHref} rel="noopener">{pub.title}</a> : pub.title}</span>
+  <span class="cite__meta t-mono">
+    <span>
+      {
+        pub.year ? (
+          <>
+            <abbr title={pub.venue}>{venue}</abbr> · {pub.year}
+          </>
+        ) : (
+          <>
+            manuscript under revision (<abbr title={pub.venue}>{venue}</abbr>)
+          </>
+        )
+      }
+    </span>
+    <RoleMark role={pub.myRole} />
+    {doiHref && <a class="cite__doi" href={doiHref} rel="noopener">doi:{pub.doi}</a>}
+  </span>
+</p>
+
+<style>
+  .cite {
+    display: grid;
+    gap: 0.35rem;
+    max-width: 72ch;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--line);
+    width: 100%;
+  }
+  .cite__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+  .cite__title a,
+  .cite__doi {
+    color: inherit;
+    text-decoration-color: var(--line);
+  }
+  .cite__title a:hover,
+  .cite__doi:hover {
+    text-decoration-color: var(--signal);
+  }
+  .cite__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem var(--space-2);
+    color: var(--ink-2);
+  }
+  .cite__meta abbr {
+    text-decoration: none;
+    cursor: help;
+  }
+  .cite__doi {
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+</style>

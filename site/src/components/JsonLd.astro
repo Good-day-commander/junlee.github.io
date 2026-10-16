@@ -1,0 +1,26 @@
+---
+/*
+  One <script type="application/ld+json"> per page, built by lib/schema.ts.
+
+  graph   the @graph nodes. When a page passes none, the graph is chosen by
+          path: / adds ProfilePage, /cv/ adds ProfilePage and a
+          ScholarlyArticle per journal and proceedings entry, /research/ adds
+          a WebPage with one CreativeWork per chapter; every other page gets
+          the default Person + WebSite graph.
+*/
+import { getImage } from 'astro:assets';
+import portrait from '@/assets/photos/profile-main.jpg';
+import { SITE, graphFor, jsonLdDocument, type JsonLdNode } from '@/lib/schema';
+
+export interface Props {
+  graph?: JsonLdNode[];
+}
+
+const img = await getImage({ src: portrait, format: 'jpg', width: portrait.width });
+const imageUrl = new URL(img.src, `${SITE}/`).href;
+const graph = Astro.props.graph ?? graphFor(Astro.url.pathname, imageUrl);
+/* "<" is escaped so no string in the data can close the script element. */
+const json = JSON.stringify(jsonLdDocument(graph)).replace(/</g, '\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

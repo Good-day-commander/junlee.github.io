@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /*
-  Open Graph images, 1200x630 each: the home hero (headline + vessel) to
-  site/public/og.png, and the first viewport of every other page (its
-  heading and lede in the page's own surface) to site/public/og/<page>.png.
+  Open Graph images, 1200x630 each: the home first viewport (identity and
+  the vessel plate, dark scheme) to site/public/og.png, and the first
+  viewport of /research (dark) and /cv (light) to site/public/og/<page>.png.
   Each page passes its card and a matching alt to Base (ogImage, ogAlt).
   Run against `pnpm preview` (port 4321) after `pnpm build`; rebuild
   afterwards so dist picks the files up. ROUTES limits the run (e.g.
@@ -19,8 +19,6 @@ const publicDir = path.resolve(here, '..', 'public');
 const cards = [
   { route: '/?og', file: 'og.png', scheme: 'dark' },
   { route: '/research/', file: 'og/research.png', scheme: 'dark' },
-  { route: '/publications/', file: 'og/publications.png', scheme: 'light' },
-  { route: '/record/', file: 'og/record.png', scheme: 'light' },
   { route: '/cv/', file: 'og/cv.png', scheme: 'light' },
 ];
 const wanted = process.env.ROUTES ? new Set(process.env.ROUTES.split(',').map((r) => r.trim().replace(/\/$/, '') || '/')) : null;

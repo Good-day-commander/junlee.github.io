@@ -5,6 +5,11 @@
   the developing edge with a mono time readout, and a Replay ghost button
   runs it again. Reduced motion paints the whole strip at once.
 
+  replayGroup: plates that develop side by side share one Replay control
+  placed once by the page. With a group the island prints no button of its
+  own and restarts when the document dispatches
+  `spectrogram:replay` with `detail.group` equal to its group.
+
   Data: /data/pulse/manifest.json + stft.bin | cwt.bin (see pulse/manifest.ts).
   Colour: viridis over the manifest's db_display range, bottom tenth clipped.
   Axes are DOM text in mono (Hz on the left, s below), placed by fraction so
@@ -15,8 +20,14 @@
   only chrome and nothing is printed twice. The clock readout stays in the
   top-right corner either way.
 
+  Server render: the page passes axes (rasterAxes of the manifest grid,
+  computed at build) and method, so the frequency and time ticks, the dB
+  range and the transform line are in the server HTML; the loaded raster
+  replaces them with the same values. The loading line is printed only
+  after hydration, never in the static markup.
+
   Exports
-    SpectrogramDevelop  props { manifestUrl, variant = 'stft', crop, ... }
+    SpectrogramDevelop  props { manifestUrl, variant = 'stft', crop, axes, method, ... }
     CwtStrip            static CWT scalogram for a side-by-side (no develop)
 */
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
@@ -25,9 +36,9 @@ import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockw
 import { cssGradient } from '@/lib/colormaps';
 import { formatDecimal, formatSeconds } from '@/lib/format';
 import { loadVariant } from './pulse/manifest';
-import type { GridSpec, PulseManifest, Variant } from './pulse/manifest';
+import type { GridMethod, GridSpec, PulseManifest, Variant } from './pulse/manifest';
 import { buildRaster, frequencyTicks, paintRaster, timeTicks } from './pulse/raster';
-import type { Raster } from './pulse/raster';
+import type { Raster, RasterAxes } from './pulse/raster';
 import './pulse/spectrogram.css';
 
 export interface SpectrogramDevelopProps {
@@ -37,6 +48,8 @@ export interface SpectrogramDevelopProps {
   crop?: [number, number];
   /** Develop time in ms for the full strip. */
   duration?: number;
+  /** Length of the recording in seconds, for the accessible name (from the pulse manifest). */
+  recordingS?: number;
   /** CSS aspect-ratio of the plot stage. */
   aspect?: string;
   /** Bilinear upsampling instead of one hard-edged block per cell. */
@@ -49,6 +62,12 @@ export interface SpectrogramDevelopProps {
   label?: string;
   /** Inside a host Frame: no border and no top-left label of its own (the host carries them). */
   bare?: boolean;
+  /** Axis geometry from the manifest at build time (rasterAxes), for the server render. */
+  axes?: RasterAxes;
+  /** The grid's transform parameters (manifest method), for the server render. */
+  method?: GridMethod;
+  /** Shared Replay: no own button; restart on a `spectrogram:replay` event for this group. */
+  replayGroup?: string;
   class?: string;
   className?: string;
   id?: string;
@@ -63,7 +82,7 @@ const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* Transform parameters as separate legend cells (hairline-divided in CSS, no chained separators). */
-function methodParts(spec: GridSpec, variant: Variant): string[] | null {
+function methodParts(spec: Pick<GridSpec, 'method'>, variant: Variant): string[] | null {
   const m = spec.method;
   if (!m) return null;
   const fs = m.fs_hz ? [`${m.fs_hz} Hz`] : [];
@@ -86,6 +105,7 @@ function SpectrogramCore({
   variant = 'stft',
   crop,
   duration = 4000,
+  recordingS,
   aspect,
   smooth = false,
   what,
@@ -93,6 +113,9 @@ function SpectrogramCore({
   consequence,
   label,
   bare = false,
+  axes: axesProp,
+  method: methodProp,
+  replayGroup,
   class: classA,
   className,
   id,
@@ -119,6 +142,8 @@ function SpectrogramCore({
   const [raster, setRaster] = useState<Raster | null>(null);
   const [phase, setPhase] = useState<Phase>('latent');
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const reactId = useId();
   const headingId = `${id ?? reactId}-what`;
 
@@ -277,20 +302,35 @@ function SpectrogramCore({
 
   useEffect(() => stop, [stop]);
 
-  const fTicks = useMemo(() => (raster ? frequencyTicks(raster, 5) : []), [raster]);
-  const tTicks = useMemo(() => (raster ? timeTicks(raster, 6) : []), [raster]);
+  /* A page-level Replay for this group restarts the develop (once the data is here). */
+  useEffect(() => {
+    if (!develop || !replayGroup) return;
+    const onReplay = (e: Event) => {
+      const group = (e as CustomEvent<{ group?: string }>).detail?.group;
+      if (group !== replayGroup || status !== 'ready') return;
+      startedRef.current = true;
+      run();
+    };
+    document.addEventListener('spectrogram:replay', onReplay);
+    return () => document.removeEventListener('spectrogram:replay', onReplay);
+  }, [develop, replayGroup, status, run]);
 
-  const method = spec ? methodParts(spec, variant) : null;
+  /* The loaded raster wins; before it (and on the server) the build-time axes print the same ticks. */
+  const ax: RasterAxes | null = raster ?? axesProp ?? null;
+  const fTicks = useMemo(() => (ax ? frequencyTicks(ax, 5) : []), [ax]);
+  const tTicks = useMemo(() => (ax ? timeTicks(ax, 6) : []), [ax]);
+
+  const method = spec ? methodParts(spec, variant) : methodProp ? methodParts({ method: methodProp }, variant) : null;
   const frameLabel = label ?? `PPG · ${variant.toUpperCase()}`;
   const hasStack = Boolean(what || result || consequence);
   const stageAspect = aspect ?? (develop ? '16 / 9' : '16 / 6');
 
   const altText = useMemo(() => {
-    if (!raster || !spec) return `${variant.toUpperCase()} spectrogram of a smartwatch PPG recording, loading`;
-    const [fLo, fHi] = raster.fDomain;
-    const [tLo, tHi] = raster.tDomain;
-    return `${variant.toUpperCase()} spectrogram of a ${formatDecimal(tHi - tLo, 0)} s smartwatch PPG recording, ${formatDecimal(fLo, 1)} to ${formatDecimal(fHi, 1)} Hz${raster.scale === 'log' ? ' on a log axis' : ''}, power in dB on a viridis scale from ${formatDecimal(raster.dbLo, 0)} to ${formatDecimal(raster.dbHi, 0)} dB`;
-  }, [raster, spec, variant]);
+    if (!ax) return `${variant.toUpperCase()} spectrogram of a smartwatch PPG recording, loading`;
+    const [fLo, fHi] = ax.fDomain;
+    const [tLo, tHi] = ax.tDomain;
+    return `${variant.toUpperCase()} spectrogram of a ${recordingS ?? formatDecimal(tHi - tLo, 0)} s smartwatch PPG recording, ${formatDecimal(fLo, 1)} to ${formatDecimal(fHi, 1)} Hz${ax.scale === 'log' ? ' on a log axis' : ''}, power in dB on a viridis scale from ${formatDecimal(ax.dbLo, 0)} to ${formatDecimal(ax.dbHi, 0)} dB`;
+  }, [ax, variant, recordingS]);
 
   const classes = [
     bare ? 'pulse--bare' : 'frame',
@@ -315,7 +355,7 @@ function SpectrogramCore({
       {!bare && <span className="frame__corner frame__corner--tl frame__corner--caps">{frameLabel}</span>}
       <span className="frame__corner frame__corner--tr pulse__readout" aria-live="off">
         <span className="pulse__readout-k">t</span>
-        <span ref={readoutRef}>{status === 'ready' ? '' : '—'}</span>
+        <span ref={readoutRef}>{status === 'ready' ? '' : ax ? formatSeconds(Math.max(0, ax.tDomain[0]), 2) : '—'}</span>
       </span>
 
       <div className="pulse__plot">
@@ -330,7 +370,7 @@ function SpectrogramCore({
         <div className="pulse__stage" ref={stageRef} style={{ aspectRatio: stageAspect }}>
           <canvas ref={canvasRef} className="pulse__canvas" role="img" aria-label={altText} />
           {develop && <div ref={playheadRef} className="pulse__playhead" data-on={phase === 'developing'} />}
-          {status === 'loading' && (
+          {status === 'loading' && mounted && (
             <div className="pulse__state" role="status">
               <p>
                 loading {variant}.bin
@@ -364,10 +404,10 @@ function SpectrogramCore({
 
       <div className="pulse__bar">
         <div className="pulse__meta">
-          <span className="pulse__scale" aria-label={raster ? `Colour scale, ${formatDecimal(raster.dbLo, 0)} to ${formatDecimal(raster.dbHi, 0)} dB` : undefined}>
-            <span>{raster ? formatDecimal(raster.dbLo, 0) : '—'}</span>
+          <span className="pulse__scale" aria-label={ax ? `Colour scale, ${formatDecimal(ax.dbLo, 0)} to ${formatDecimal(ax.dbHi, 0)} dB` : undefined}>
+            <span>{ax ? formatDecimal(ax.dbLo, 0) : '—'}</span>
             <span className="pulse__scale-bar" style={{ backgroundImage: VIRIDIS_BAR }} aria-hidden="true" />
-            <span>{raster ? formatDecimal(raster.dbHi, 0) : '—'}</span>
+            <span>{ax ? formatDecimal(ax.dbHi, 0) : '—'}</span>
             <span className="pulse__scale-unit">dB</span>
           </span>
           {method && (
@@ -380,7 +420,7 @@ function SpectrogramCore({
             </span>
           )}
         </div>
-        {develop && (
+        {develop && !replayGroup && (
           <button
             type="button"
             className="pulse__btn"

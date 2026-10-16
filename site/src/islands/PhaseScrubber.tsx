@@ -300,15 +300,22 @@ export default function PhaseScrubber({
   const stateLong = acq ? `acquired CT${acq.name ? `, ${acq.name}` : ''}` : 'synthesized';
   const pct = (k: number) => `${((k / Math.max(1, last)) * 100).toFixed(4)}%`;
 
-  const legend = useMemo(() => {
-    if (!spec) return null;
-    const [lo, hi] = spec.range;
-    const second =
-      spec.unit === 'mmHg'
-        ? `${formatDecimal(lo * KPA_PER_MMHG, 1)}–${formatDecimal(hi * KPA_PER_MMHG, 1)} kPa`
-        : null;
-    return { lo: formatInt(lo), hi: formatInt(hi), unit: spec.unit, label: spec.label, second };
-  }, [spec]);
+  /*
+    One legend per field, all in the server HTML: the shown field's is
+    visible, the others carry `hidden` until the toggle picks them (so the
+    WSS 0–5 Pa scale is in the static markup beside the pressure scale).
+  */
+  const legends = useMemo(() => {
+    if (!manifest) return null;
+    return FIELDS.map((f) => {
+      const fs = manifest.fields[f];
+      const [lo, hi] = fs.range;
+      const second =
+        fs.unit === 'mmHg' ? `${formatDecimal(lo * KPA_PER_MMHG, 1)}–${formatDecimal(hi * KPA_PER_MMHG, 1)} kPa` : null;
+      return { field: f, lo: formatInt(lo), hi: formatInt(hi), unit: fs.unit, label: fs.label, second };
+    });
+  }, [manifest]);
+  const legend = legends?.find((l) => l.field === field) ?? null;
 
   const plateLabel = spec
     ? `${manifest?.case ?? ''}, phase ${phase} of ${last} (${stateLong}): ${spec.label.toLowerCase()} on the coronary tree, ${legend?.lo} to ${legend?.hi} ${spec.unit}, blue to red.`
@@ -418,18 +425,26 @@ export default function PhaseScrubber({
     </p>
   );
 
-  const legendStrip = legend && (
-    <p className={s.legend} aria-label={`Colour scale: ${legend.label}, ${legend.lo} to ${legend.hi} ${legend.unit}`}>
-      {!compact && <span className={s.legendName}>{legend.label}</span>}
-      <span className={s.legendScale}>
-        <span>{legend.lo}</span>
-        <span className={s.ramp} style={{ backgroundImage: RAMP }} aria-hidden="true" />
-        <span>{legend.hi}</span>
-        <span className={s.unit}>{legend.unit}</span>
-      </span>
-      {legend.second && !compact && <span className={s.second}>{legend.second}</span>}
-    </p>
-  );
+  const legendStrip =
+    legends &&
+    legends.map((l) => (
+      <p
+        key={l.field}
+        className={s.legend}
+        data-field={l.field}
+        hidden={l.field !== field}
+        aria-label={`Colour scale: ${l.label}, ${l.lo} to ${l.hi} ${l.unit}`}
+      >
+        {!compact && <span className={s.legendName}>{l.label}</span>}
+        <span className={s.legendScale}>
+          <span>{l.lo}</span>
+          <span className={s.ramp} style={{ backgroundImage: RAMP }} aria-hidden="true" />
+          <span>{l.hi}</span>
+          <span className={s.unit}>{l.unit}</span>
+        </span>
+        {l.second && !compact && <span className={s.second}>{l.second}</span>}
+      </p>
+    ));
 
   return (
     <div

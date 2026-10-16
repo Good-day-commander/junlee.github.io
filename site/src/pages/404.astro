@@ -1,8 +1,8 @@
 ---
 /*
-  /404 on film: one frame, one line, the ways back in (home, the three main
-  pages), then the shared Close so even a dead address leads to Email and
-  the CV. GitHub Pages serves this file for every unknown address, so
+  /404: one film plate (a cine frame with no signal), one line, the ways
+  back in (the three pages); the nav and the footer still lead to Email
+  and the CV. GitHub Pages serves this file for every unknown address, so
   nothing here depends on the request; it is noindex and has no canonical.
 */
 import Base from '@/layouts/Base.astro';
@@ -13,20 +13,13 @@ const host = profile.links.site.replace(/^https?:\/\//, '');
 const ways = [
   { href: '/', label: 'Home' },
   { href: '/research/', label: 'Research' },
-  { href: '/publications/', label: 'Publications' },
   { href: '/cv/', label: 'CV' },
 ];
 ---
 
-<Base
-  title="Page not found"
-  description="This address has no page on hyeongjunlee.me."
-  surface="film"
-  noindex
-  close={{ line: 'Looking for a paper, the CV or something else? Email me.' }}
->
+<Base title="Page not found" description="This address has no page on hyeongjunlee.me." noindex>
   <section class="lost wrap">
-    <Frame as="div" tl="404" tr="No page" bl={host} br="No signal" padded class="lost__frame">
+    <Frame as="div" tl="404" tr="No page" bl={host} br="No signal" padded plate class="lost__frame">
       <div class="lost__body">
         <h1 class="lost__line">No page at this address.</h1>
         <ul class="lost__ways">

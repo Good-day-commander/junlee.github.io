@@ -10,15 +10,22 @@
   The VesselViewer's onState is a function prop, which Astro cannot pass
   from .astro, so this small React wrapper owns the bridge. Props are plain
   strings and numbers computed in Hero.astro from the PINO manifest.
+
+  quiet (the round-3 home plate): the viewer in quiet mode (pressure only,
+  wipe, colorbar, develop once, no drift or orbit) and no corner readout at
+  all; the page prints the case line as a caption under the frame, in
+  Astro, so its numbers are in the server HTML. inferenceSeconds and gpu are
+  then unused and may be left out. summary passes the manifest's case id,
+  node count and ranges to the viewer for its server-rendered colorbar.
 */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import VesselViewer, { type ViewerState } from '@/islands/VesselViewer';
+import VesselViewer, { type ViewerState, type ViewerSummary } from '@/islands/VesselViewer';
 import { formatDecimal, formatSeconds } from '@/lib/format';
 
 export interface HeroViewerProps {
   manifestUrl: string;
-  /** Measured inference time in seconds (manifest timing.pino.inference_ms_median / 1000). */
-  inferenceSeconds: number;
+  /** Measured inference time in seconds (manifest timing.pino.inference_ms_median / 1000). Unused when quiet. */
+  inferenceSeconds?: number;
   /**
     "FFR Pd/Pa 0.83 CFD · 0.82 PINO", computed in Astro. Kept for the
     current Hero.astro; prefer ffrCfd / ffrPino, which this island formats
@@ -29,8 +36,8 @@ export interface HeroViewerProps {
   ffrCfd?: number;
   /** Case FFR on the distal probe plane (manifest metrics.case.ffr.pino). */
   ffrPino?: number;
-  /** "L40S" */
-  gpu: string;
+  /** "L40S". Unused when quiet. */
+  gpu?: string;
   /**
     Where the CFD | PINO hairline starts, 0..1 of the frame width. The
     headline block holds the lower left of the hero, so the hairline is
@@ -38,6 +45,10 @@ export interface HeroViewerProps {
     cutting through its last glyphs at the exact middle.
   */
   initialWipe?: number;
+  /** Home plate: quiet viewer, no corner readout (default false). Hairline starts mid-frame (0.5). */
+  quiet?: boolean;
+  /** Manifest case id, node count and ranges, so the colorbar ticks are in the server HTML. */
+  summary?: ViewerSummary;
 }
 
 /*
@@ -69,53 +80,69 @@ export default function HeroViewer({
   ffrLine,
   ffrCfd,
   ffrPino,
-  gpu,
-  initialWipe = 0.56,
+  gpu = '',
+  initialWipe,
+  quiet = false,
+  summary,
 }: HeroViewerProps) {
   const ffr = ffrLines(ffrLine, ffrCfd, ffrPino);
+  const seconds = inferenceSeconds ?? 0;
   const [ready, setReady] = useState(false);
   const [wipe, setWipe] = useState<number | null>(null);
-  const [shown, setShown] = useState(inferenceSeconds);
+  const [shown, setShown] = useState(seconds);
   const reduced = useRef(false);
 
-  // On hydration: arm the counter (drop to 0.00) unless motion is reduced.
+  // On hydration: arm the counter (drop to 0.00) unless motion is reduced or there is no readout.
   useEffect(() => {
     reduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced.current) return undefined;
+    if (reduced.current || quiet) return undefined;
     setShown(0);
     const fallback = window.setTimeout(() => setReady(true), READY_FALLBACK_MS);
     return () => window.clearTimeout(fallback);
-  }, []);
+  }, [quiet]);
 
   // Once ready: count linearly, like a stopwatch, over exactly the measured time.
   useEffect(() => {
-    if (!ready) return undefined;
-    if (reduced.current) {
-      setShown(inferenceSeconds);
+    if (!ready || quiet) return undefined;
+    if (reduced.current || seconds <= 0) {
+      setShown(seconds);
       return undefined;
     }
-    const duration = inferenceSeconds * 1000;
+    const duration = seconds * 1000;
     const t0 = performance.now();
     let raf = 0;
     const tick = (now: number) => {
       const t = Math.min(1, (now - t0) / duration);
-      setShown(inferenceSeconds * t);
+      setShown(seconds * t);
       if (t < 1) raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
-  }, [ready, inferenceSeconds]);
+  }, [ready, seconds, quiet]);
 
   const onState = useCallback((s: ViewerState) => {
     if (s.ready) setReady(true);
     setWipe(s.wipe);
   }, []);
 
+  const viewer = (
+    <div className="hero__viewer" data-quiet={quiet ? 'true' : undefined}>
+      <VesselViewer
+        manifestUrl={manifestUrl}
+        mode="hero"
+        quiet={quiet}
+        summary={summary}
+        onState={onState}
+        initialWipe={initialWipe ?? (quiet ? 0.5 : 0.56)}
+      />
+    </div>
+  );
+
+  if (quiet) return viewer;
+
   return (
     <>
-      <div className="hero__viewer">
-        <VesselViewer manifestUrl={manifestUrl} mode="hero" onState={onState} initialWipe={initialWipe} />
-      </div>
+      {viewer}
       <p
         className="frame__corner frame__corner--br hero__corner hero__readout"
         data-ready={ready ? 'true' : undefined}

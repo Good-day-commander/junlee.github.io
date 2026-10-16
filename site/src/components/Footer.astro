@@ -1,108 +1,102 @@
 ---
 /*
-  Site footer: a ruled colophon row. Every page now ends with the Close
-  (components/Close.astro), which carries Email, CV (PDF), the address and
-  Google Scholar / LinkedIn / ORCID directly above this row, so the footer
-  does not print those links a second time. It holds the name and lab, the
-  four pages and a way back to the top of a long page.
+  The ending every page shares (it replaces the round-2 Close): one STIX
+  line, the link row in mono (LinkedIn, Google Scholar, ORCID), then the
+  build date and the host. No Email (revision 2a): the sticky nav's Email
+  is always on screen, so a page carries exactly one mailto link. No CV
+  (PDF) (round 3b): the nav's CV is on screen in the same last viewport,
+  and the PDF is one click on from there (the /cv/ action bar).
+
+  Props, so no page shows a link twice in its last viewport:
+  omit   labels to leave out of the row; /cv/ passes ['LinkedIn'], since
+         its sticky bar carries LinkedIn in every viewport.
+  links  false drops the row; home passes it, since the identity block
+         already links LinkedIn, Google Scholar and ORCID.
+  Hidden in print (the CV prints as a document).
 */
 import { profile } from '@/data/content';
-import arrowUp from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
+import { BUILD_DATE } from '@/lib/schema';
 
-const pages = [
-  { href: '/research/', label: 'Research' },
-  { href: '/publications/', label: 'Publications' },
-  { href: '/record/', label: 'Record' },
-  { href: '/cv/', label: 'CV' },
-];
+export interface Props {
+  omit?: string[];
+  links?: boolean;
+}
 
-const year = new Date().getFullYear();
+const { omit = [], links: showLinks = true } = Astro.props;
+
+const host = profile.links.site.replace(/^https?:\/\//, '');
+const links = [
+  { label: 'LinkedIn', href: profile.links.linkedin },
+  { label: 'Google Scholar', href: profile.links.scholar },
+  { label: 'ORCID', href: profile.links.orcid },
+].filter((l) => !omit.includes(l.label));
 ---
 
 <footer class="footer">
-  <div class="wrap footer__row">
-    <p class="footer__colophon">
-      <span class="num">©&nbsp;{year}</span>
-      {profile.name}, {profile.lab}, {profile.university}
-    </p>
-    <nav class="footer__nav" aria-label="Footer">
-      <ul>
-        {
-          pages.map((p) => (
+  <div class="wrap footer__inner">
+    <p class="footer__line">Open to collaboration, positions and paper requests.</p>
+    {
+      showLinks && links.length > 0 && (
+        <ul class="footer__links t-mono">
+          {links.map((l) => (
             <li>
-              <a class="footer__link" href={p.href}>
-                {p.label}
+              <a href={l.href} rel="me noopener">
+                {l.label}
               </a>
             </li>
-          ))
-        }
-        <li>
-          <a class="footer__link footer__top" href="#main">
-            Top
-            <span class="icon" aria-hidden="true" set:html={arrowUp} />
-          </a>
-        </li>
-      </ul>
-    </nav>
+          ))}
+        </ul>
+      )
+    }
+    <p class="footer__colophon t-mono">
+      <span>Updated <time datetime={BUILD_DATE}>{BUILD_DATE}</time></span>
+      <span>{host}</span>
+    </p>
   </div>
 </footer>
 
 <style>
   .footer {
+    margin-top: var(--space-5);
     border-top: 1px solid var(--line);
-    padding-block: var(--space-3);
-    color: var(--ink-2);
+    padding-block: var(--space-3) var(--space-4);
   }
-  .footer__row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-1) var(--space-4);
+  .footer__inner {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
   }
-  .footer__colophon {
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: var(--ink-3);
-    text-wrap: pretty;
+  .footer__line {
+    font-family: var(--font-text);
+    font-size: 1.125rem;
+    line-height: 1.45;
+    color: var(--ink);
   }
-  .footer__colophon .num {
-    margin-right: 0.35rem;
-  }
-  .footer__nav ul {
+  .footer__links {
     display: flex;
     flex-wrap: wrap;
     gap: 0 var(--space-3);
   }
-  .footer__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: 0.85rem;
-    line-height: 1.2;
-    color: var(--ink-2);
-    text-decoration: none;
-    padding-block: 0.6rem;
-    border-bottom: 1px solid transparent;
-    transition:
-      color var(--duration-quick) var(--ease-out),
-      border-color var(--duration-quick) var(--ease-out);
-  }
-  .footer__link:hover {
+  .footer__links a {
+    display: inline-block;
+    padding-block: 0.45rem;
     color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    transition: border-color var(--duration-quick) var(--ease-out);
+  }
+  .footer__links a:hover {
     border-bottom-color: var(--signal);
   }
-  .icon {
-    display: inline-flex;
-    width: 1em;
-    height: 1em;
+  .footer__colophon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
     color: var(--ink-3);
   }
-  .icon :global(svg) {
-    width: 100%;
-    height: 100%;
+  @media print {
+    .footer {
+      display: none;
+    }
   }
 </style>

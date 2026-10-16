@@ -27,6 +27,12 @@ export interface Props {
   padded?: boolean;
   /** Raised panel background (--bg-1) instead of the page ground. */
   panel?: boolean;
+  /**
+    A data plate (viewer, FFR curve, spectrogram, CT scrubber): the frame
+    re-declares the film aliases (.plate in tokens.css), so it is dark film
+    on the light box as well as on the dark page.
+  */
+  plate?: boolean;
   /** Heading level used for the "what" slot. */
   headingLevel?: 2 | 3 | 4;
   id?: string;
@@ -42,6 +48,7 @@ const {
   aspect,
   padded = false,
   panel = false,
+  plate = false,
   headingLevel = 3,
   id,
   class: className,
@@ -60,7 +67,7 @@ const cornerClass = (pos: string, label: string) =>
 const What = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
 ---
 
-<Tag id={id} class:list={['frame', { 'frame--padded': padded, 'frame--panel': panel }, className]}>
+<Tag id={id} class:list={['frame', { 'frame--padded': padded, 'frame--panel': panel, plate }, className]}>
   {tl && <span class:list={cornerClass('tl', tl)}>{tl}</span>}
   {tr && <span class:list={cornerClass('tr', tr)}>{tr}</span>}
   {bl && <span class:list={cornerClass('bl', bl)}>{bl}</span>}

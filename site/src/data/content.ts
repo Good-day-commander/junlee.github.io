@@ -21,7 +21,7 @@
 // - CV RESEARCH INTERESTS (4 bullets) has no schema field: (1) Patient-specific computational hemodynamics: image-based coronary CFD (incl. lattice Boltzmann method) and FFR assessment; (2) Physics-informed machine learning: neural operators and physics-informed surrogates for real-time cardiovascular flow prediction; (3) Image-based cardiovascular physiology: CT-FFR and diffusion-based 4D coronary CT synthesis for dynamic FFR; (4) Wearable hemodynamic diagnostics: PPG-based estimation of non-Newtonian blood viscosity, blood pressure and fluid status.
 // - CV REFERENCES section (Prof. Joon Sang Lee, joonlee@yonsei.ac.kr; others on request) intentionally excluded from the public dataset.
 // - CV labels J1-J4 "Journal Articles (SCIE)"; the type "journal" carries no indexing qualifier, so page copy says SCIE explicitly.
-// - CV header for R1-R7 is "RESEARCH PROJECTS (PARTICIPATING RESEARCHER)"; the schema has no role field, so the page labels the whole section as participating researcher.
+// - CV header for R1-R7 is "RESEARCH PROJECTS (PARTICIPATING RESEARCHER)"; the Project type has no role field, so `projectRole` below carries it once for the whole section (the CV heading, cv.md, llms*.txt and cv.json read it).
 // - J1 title: site used "A Diffusion Deformable Model for Coronary 4D CT Synthesis and Dynamic FFR Derivation"; CV official title is "Synthesis of coronary 4D CT image by denoising diffusion probabilistic model" (CMPB 282, 109382, 2026), doi:10.1016/j.cmpb.2026.109382. Site previously marked the DOI as pending and the paper as "Featured" although H.J. Lee is a co-author (T.H. Han first). Site text cited Severance Hospital IRB 4-2024-0685, which is not in the CV. The brief's contribution sentence now follows the CV research-experience bullet (diffusion deformable model, two CT phases, time-resolved FFR).
 // - J2 title: site capitalized "Using PPG"; CV has "using PPG". CV confirms H.J. Lee is sole first author. The 2026 Merit Academic Paper Award is linked to J2 through awards[].forPublication.
 // - J3 title: site shortened it; CV full title is "Optimization of tricuspid membrane mechanism for effectiveness and leaflet longevity through hemodynamic analysis". H.J. Lee is second (co-)author, Y.W. Kim first. CV gives "vol. 16, no. 1, pp. 1587-1600"; issue folded into volume as "16(1)" because the schema has no issue field.
@@ -83,6 +83,10 @@ export type Profile = {
   phdDissertation: string;
   phdCompleted: string;
   appointmentNote: string;
+  /** The owner's one-line self-description, first person; swap it here in one edit. */
+  tagline: string;
+  /** The four fields of the practice, organ-agnostic, in display order. */
+  fields: string[];
 };
 
 export type Education = {
@@ -209,7 +213,7 @@ export const profile: Profile = {
     project: "4D CT-FFR project",
     pi: "Prof. Jung-Sun Kim, Department of Internal Medicine, College of Medicine",
   },
-  email: "kochujam369@gmail.com",
+  email: "hjunlee96@gmail.com",
   links: {
     scholar: "https://scholar.google.com/citations?user=1NxM3T0AAAAJ&hl=en",
     linkedin: "https://www.linkedin.com/in/hyeongjunlee/",
@@ -220,7 +224,27 @@ export const profile: Profile = {
   phdCompleted: "Aug. 2026",
   appointmentNote:
     "Technical Research Personnel (alternative military service, through Aug. 2027), Engineering Research Institute, Yonsei University",
+  // Placeholder (2026-10-16): the owner is choosing between candidates; replace this one string.
+  tagline:
+    "I turn clinical questions into engineering problems and bring back answers clinicians can act on, using simulation, AI and wearable signals.",
+  fields: ["computational hemodynamics", "physics-informed AI", "wearable biosignals", "medical devices"],
 };
+
+/**
+  Reference CFD solve for the PINO demo, as the owner reported it on
+  2026-10-16: a measured upper bound, up to 2 100 s (35 min) on 64 CPU
+  cores. Pages print it beside the measured PINO inference time; they never
+  convert it to hours, extrapolate it to fewer cores, or state a speed-up
+  factor larger than "about 1,000×".
+  public/data/pino/manifest.json mirrors these values under
+  timing.cfd.reference_pipeline; lib/schema.ts fails the build if they drift.
+*/
+export const cfdReference = {
+  wall_time_max_s: 2100,
+  cpu_cores: 64,
+  source: "owner, 2026-10-16",
+  note: "upper bound for the lab's CFD pipeline on the reference cluster; this case's own run time was not logged",
+} as const;
 
 export const education: Education[] = [
   {
@@ -707,6 +731,9 @@ export const patents: Patent[] = [
     inventors: "J.S. Lee, H.J. Lee",
   },
 ];
+
+/** His role on every funded project (R1-R7), from the CV heading "RESEARCH PROJECTS (PARTICIPATING RESEARCHER)". The page heading, cv.md, llms*.txt and cv.json all read this one constant. */
+export const projectRole = "participating researcher";
 
 export const projects: Project[] = [
   {

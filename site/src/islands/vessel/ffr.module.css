@@ -1,4 +1,5 @@
-/* FfrCurve: SVG chart chrome. Reads only the semantic tokens. */
+/* FfrCurve: SVG chart chrome. Reads only the semantic tokens; every text is
+   the plate's mono size (13px on film, the Dark Floor Rule). */
 
 .root {
   position: relative;
@@ -23,14 +24,14 @@
 }
 .tick {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--size-mono, 0.8125rem);
   font-variant-numeric: tabular-nums;
   fill: var(--ink-3);
 }
 /* Axis titles keep their case: s is a variable, Pd/Pa a ratio, mm a unit. */
 .axisLabel {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--size-mono, 0.8125rem);
   letter-spacing: 0;
   text-transform: none;
   fill: var(--ink-3);
@@ -57,7 +58,7 @@
 }
 .probeLabel {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--size-mono, 0.8125rem);
   font-variant-numeric: tabular-nums;
   fill: var(--ink-3);
 }
@@ -89,9 +90,9 @@
   row-gap: 0.35rem;
   min-height: 1.5rem;
   /* Aligned with the plot's left edge (PAD.left in FfrCurve.tsx), never with the frame border. */
-  padding: 0.5rem 0 0 46px;
+  padding: 0.5rem 0 0 50px;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--size-mono, 0.8125rem);
   line-height: 1.3;
   font-variant-numeric: tabular-nums;
   color: var(--ink-2);

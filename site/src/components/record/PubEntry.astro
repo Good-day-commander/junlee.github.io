@@ -1,225 +1,94 @@
 ---
 /*
-  One publication. Rank is carried by size: first and co-first authored
-  work gets the larger frame (with its figure plate where one exists),
-  co-authored work a compact ruled row. Every string comes from content.ts;
-  the BibTeX is generated from the same record at build time.
+  One publication as a dense CV row (the /publications page is retired;
+  this is its record on /cv#publications). Three short lines: the title
+  (linked to the DOI), the author list exactly as the CV prints it, then
+  one mono line with the citation, the author-role mark, the doi, an
+  optional figure link and the BibTeX control. Every string comes from
+  content.ts; the BibTeX is generated from the same record at build time.
 
-  One anatomy for a paper, the same as /research and home: title (linked to
-  the DOI), authors, venue line, then the DOI and the role mark on one row
-  with a quiet "Email for a copy". One BibTeX control: a disclosure whose
-  panel holds the entry (readable and selectable without JavaScript) and the
-  Copy action, which confirms inline for two seconds.
+  BibTeX is one disclosure: its panel holds the entry (readable and
+  selectable without JavaScript) and a Copy action that confirms inline
+  for two seconds. No per-entry mail link: the nav and footer carry email.
 */
 import type { Publication } from '@/data/content';
-import Frame from '@/components/Frame.astro';
 import RoleMark from '@/components/RoleMark.astro';
 import Button from '@/components/Button.astro';
 import Authors from './Authors.astro';
 import { bibtex } from './bibtex';
-import { profile } from '@/data/content';
-import { citationLine, doiUrl, leads, PLATES } from './records';
+import { citationLine, doiUrl, PLATES } from './records';
 
 export interface Props {
   pub: Publication;
 }
 const { pub } = Astro.props;
-const lead = leads(pub);
-const plate = PLATES[pub.id];
 const doi = doiUrl(pub);
 const bib = bibtex(pub);
-const cite = citationLine(pub);
-const published = pub.year !== '';
-const askHref = `mailto:${profile.email}?subject=${encodeURIComponent(`Copy of ${pub.id}: ${pub.title}`)}`;
-/* One status label site-wide for a manuscript: "under revision (EAAI)", printed once, in the corner. */
-const corner = published ? pub.year : `under revision (${pub.venueShort ?? pub.venue})`;
-/* Plate caption: names the paper the figure comes from ("Figure from J2, CMPB 265 (2025)."). */
-/* Short venue: a trailing "(DMD2026)" when the venue carries one, else venueShort, else the initials (CMPB). */
-const venueName = pub.venueShort ?? pub.venue;
-const shortVenue =
-  /\(([A-Z][^)]*)\)\s*$/.exec(venueName)?.[1] ??
-  pub.venueShort ??
-  pub.venue.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('');
-const showYear = Boolean(pub.year) && !shortVenue.includes(pub.year);
-const plateCaption = `Figure from ${pub.id}, ${shortVenue}${pub.volume ? ` ${pub.volume}` : ''}${showYear ? ` (${pub.year})` : ''}.`;
+const plate = PLATES[pub.id];
+/* The short venue (C1/C2 drop the conference location) keeps the mono line to one line; the full venue is in the BibTeX, cv.md and cv.json. */
+const cite = pub.type === 'under-review' ? `${pub.venue} · ${pub.status}` : citationLine(pub, { shortVenue: true });
 ---
 
-{
-  lead ? (
-    <Frame as="article" id={pub.id} tl={pub.id} tr={corner} class="pub pub--lead" padded>
-      <div class:list={['pub__grid', { 'pub__grid--plate': Boolean(plate) }]}>
-        {plate && (
-          <figure class="pub__plate">
-            <div class="pub__sheet">
-              <img src={plate.src} alt={plate.alt} width={plate.width} height={plate.height} loading="lazy" decoding="async" />
-            </div>
-            <figcaption class="pub__plate-caption">{plateCaption}</figcaption>
-          </figure>
-        )}
-        <div class="pub__text">
-          <div class="pub__head">
-            <h3 class="pub__title pub__title--lead">
-              {doi ? <a href={doi} rel="noopener">{pub.title}</a> : pub.title}
-            </h3>
-            <Authors authors={pub.authors} />
+<li class="pub" id={pub.id}>
+  <span class="pub__id t-mono" aria-hidden="true">{pub.id}</span>
+  <div class="pub__main">
+    <p class="pub__title">{doi ? <a href={doi} rel="noopener">{pub.title}</a> : pub.title}</p>
+    <Authors authors={pub.authors} class="pub__authors" />
+    <div class="pub__meta t-mono">
+      <span class="pub__cite">{cite}</span>
+      <RoleMark role={pub.myRole} class="pub__role" />
+      {
+        doi && (
+          <a class="pub__doi" href={doi} rel="noopener">
+            doi:{pub.doi}
+          </a>
+        )
+      }
+      {
+        plate && (
+          <a class="pub__fig" href={plate.src} title={plate.alt}>
+            figure
+          </a>
+        )
+      }
+      <details class="pub__details" id={`bib-${pub.id}`}>
+        <summary>BibTeX</summary>
+        <div class="pub__panel">
+          <div class="pub__bib" aria-live="polite">
+            <Button variant="ghost" size="compact" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
+              Copy BibTeX
+            </Button>
           </div>
-          <div class="pub__meta">
-            <p class="pub__cite t-mono">{cite}</p>
-            <div class="pub__actions">
-              {doi && (
-                <a class="pub__doi t-mono" href={doi} rel="noopener">
-                  doi:{pub.doi}
-                </a>
-              )}
-              <RoleMark role={pub.myRole} />
-              <a class="pub__ask" href={askHref}>Email for a copy</a>
-            </div>
-            <details class="pub__details" id={`bib-${pub.id}`}>
-              <summary>BibTeX</summary>
-              <div class="pub__panel">
-                <div class="pub__bib" aria-live="polite">
-                  <Button variant="ghost" size="compact" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
-                    Copy BibTeX
-                  </Button>
-                </div>
-                <pre class="t-mono" tabindex="0">{bib}</pre>
-              </div>
-            </details>
-          </div>
+          <pre tabindex="0">{bib}</pre>
         </div>
-      </div>
-    </Frame>
-  ) : (
-    <article id={pub.id} class="pub pub--row">
-      <span class="pub__id t-mono" aria-hidden="true">
-        {pub.id}
-      </span>
-      <div class="pub__text">
-        <h3 class="pub__title">{doi ? <a href={doi} rel="noopener">{pub.title}</a> : pub.title}</h3>
-        <Authors authors={pub.authors} />
-        <p class="pub__cite t-mono">{cite}</p>
-        <div class="pub__actions">
-          {doi && (
-            <a class="pub__doi t-mono" href={doi} rel="noopener">
-              doi:{pub.doi}
-            </a>
-          )}
-          <RoleMark role={pub.myRole} />
-          <a class="pub__ask" href={askHref}>Email for a copy</a>
-        </div>
-        <details class="pub__details" id={`bib-${pub.id}`}>
-          <summary>BibTeX</summary>
-          <div class="pub__panel">
-            <div class="pub__bib" aria-live="polite">
-              <Button variant="ghost" size="compact" class="pub__copy" type="button" aria-controls={`bib-${pub.id}`}>
-                Copy BibTeX
-              </Button>
-            </div>
-            <pre class="t-mono" tabindex="0">{bib}</pre>
-          </div>
-        </details>
-      </div>
-    </article>
-  )
-}
+      </details>
+    </div>
+  </div>
+</li>
 
 <style>
   .pub {
-    scroll-margin-top: calc(var(--nav-h) + var(--space-2));
-  }
-  .pub--lead {
-    --corner-inset: 0.6rem;
-  }
-  .pub__grid {
     display: grid;
-    gap: var(--space-4);
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0 var(--space-2);
+    padding-block: 0.2rem 0.25rem;
+    border-bottom: 1px solid var(--line-soft);
   }
-  /*
-    Figure plates: a paper figure is capped near 560 px and centred on a
-    light plate with a hairline, never stretched; the italic caption names
-    the paper. The plate column holds up to 35rem so flowchart text stays
-    legible; the text takes the rest.
-  */
-  .pub__grid--plate {
-    grid-template-columns: minmax(0, 35rem) minmax(0, 1fr);
-    align-items: start;
+  .pub__id {
+    color: var(--ink-3);
+    padding-top: 0.15rem;
   }
-  .pub__plate {
+  .pub__main {
     display: grid;
-    justify-items: center;
-    gap: var(--space-1);
-    margin: 0;
-  }
-  .pub__sheet {
-    width: 100%;
-    max-width: 35rem;
-    padding: var(--space-2);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: white;
-  }
-  .pub__plate img {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: min(32rem, 60vh);
-    object-fit: contain;
-  }
-  .pub__plate-caption {
-    width: 100%;
-    max-width: 35rem;
-    font-family: var(--font-text);
-    font-style: italic;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: var(--ink-2);
-  }
-  .pub__text,
-  .pub__head,
-  .pub__meta {
-    display: grid;
-    gap: var(--space-2);
-    align-content: start;
+    gap: 0;
     min-width: 0;
-  }
-  /*
-    A lead without a plate splits on wide screens: title and authors on the
-    left, citation, role, DOI and BibTeX on the right, so the frame is not
-    half empty.
-  */
-  @media (min-width: 961px) {
-    .pub__grid:not(.pub__grid--plate) .pub__text {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      column-gap: var(--space-6);
-    }
-    .pub__grid:not(.pub__grid--plate) .pub__meta {
-      padding-top: 0.35rem;
-    }
   }
   .pub__title {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 1.125rem;
+    font-size: 0.975rem;
     line-height: 1.35;
-    letter-spacing: -0.01em;
-    text-wrap: balance;
-    max-width: 40ch;
-  }
-  .pub__title--lead {
-    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
-    line-height: 1.32;
-    letter-spacing: -0.015em;
-  }
-  .pub__cite {
-    color: var(--ink-2);
     text-wrap: pretty;
-  }
-  .pub__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-1) var(--space-3);
-    margin-top: var(--space-1);
   }
   .pub__title a {
     color: inherit;
@@ -228,30 +97,54 @@ const plateCaption = `Figure from ${pub.id}, ${shortVenue}${pub.volume ? ` ${pub
   .pub__title a:hover {
     text-decoration-color: var(--signal);
   }
-  .pub__ask {
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: var(--ink-2);
-    text-decoration-color: var(--line);
+  .pub :global(.pub__authors) {
+    font-size: 0.875rem;
+    line-height: 1.35;
   }
-  .pub__ask:hover {
+  .pub__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem var(--space-2);
+    color: var(--ink-2);
+    line-height: 1.35;
+  }
+  .pub__meta :global(.pub__role) {
+    min-height: 1.0625rem;
+  }
+  .pub__doi,
+  .pub__fig {
     color: var(--ink);
+    text-decoration-color: var(--line);
+    overflow-wrap: anywhere;
+  }
+  .pub__doi:hover,
+  .pub__fig:hover {
     text-decoration-color: var(--signal);
+  }
+  .pub__details summary {
+    display: inline-block;
+    cursor: pointer;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 0.18em;
+    list-style: none;
+  }
+  .pub__details summary::-webkit-details-marker {
+    display: none;
+  }
+  .pub__details summary:hover {
+    text-decoration-color: var(--signal);
+  }
+  .pub__details[open] {
+    flex-basis: 100%;
   }
   .pub__panel {
     display: grid;
     justify-items: start;
     gap: var(--space-1);
-    margin-top: var(--space-1);
-  }
-  .pub__doi {
-    color: var(--ink);
-    text-decoration-color: var(--line);
-    overflow-wrap: anywhere;
-  }
-  .pub__bib {
-    display: inline-flex;
+    margin-block: var(--space-1);
   }
   .pub__bib[data-state='copied'] :global(.btn) {
     border-color: var(--signal);
@@ -260,90 +153,26 @@ const plateCaption = `Figure from ${pub.id}, ${shortVenue}${pub.volume ? ` ${pub
     border-color: var(--ink-3);
     color: var(--ink-2);
   }
-  .pub__bib :global(.pub__copy) {
-    min-width: 7.5rem;
-  }
-  .pub__details {
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    color: var(--ink-2);
-  }
-  .pub__details summary {
-    display: inline-block;
-    cursor: pointer;
-    padding-block: 0.25rem;
-    color: var(--ink-3);
-    list-style: none;
-  }
-  .pub__details summary::-webkit-details-marker {
-    display: none;
-  }
-  .pub__details summary::before {
-    content: '';
-    display: inline-block;
-    width: 0.4rem;
-    height: 0.4rem;
-    margin-right: 0.5rem;
-    border-right: 1px solid currentColor;
-    border-bottom: 1px solid currentColor;
-    transform: translateY(-0.15rem) rotate(-45deg);
-    transition: transform var(--duration-quick) var(--ease-out);
-  }
-  .pub__details[open] summary::before {
-    transform: translateY(-0.2rem) rotate(45deg);
-  }
-  .pub__details summary:hover {
-    color: var(--ink);
-  }
   .pub__details pre {
     justify-self: stretch;
+    margin: 0;
     padding: var(--space-2);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--bg-1);
     color: var(--ink);
+    font-size: var(--size-mono);
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     -webkit-user-select: all;
     user-select: all;
   }
-
-  /* Compact row for co-authored work */
-  .pub--row {
-    display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr);
-    gap: var(--space-2);
-    padding-block: var(--space-3);
-    border-top: 1px solid var(--line);
-  }
-  .pub--row .pub__text {
-    gap: 0.6rem;
-  }
-  .pub__id {
-    color: var(--ink-3);
-    padding-top: 0.3rem;
-  }
-
-  @media (max-width: 960px) {
-    .pub__grid--plate {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 760px) {
-    .pub__plate img {
-      max-height: 18rem;
-    }
-    .pub--row {
-      grid-template-columns: 1fr;
-      gap: var(--space-1);
+  @media (max-width: 640px) {
+    .pub {
+      grid-template-columns: minmax(0, 1fr);
     }
     .pub__id {
-      padding-top: 0;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .pub__details summary::before {
-      transition: none;
+      display: none;
     }
   }
 </style>

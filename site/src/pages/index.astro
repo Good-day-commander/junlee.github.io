@@ -1,74 +1,202 @@
 ---
 /*
-  Home. Experience surface on film: the hero cine frame, then Three fronts,
-  Led work, About, Applied, and the shared Close (rendered by Base with the
-  home page's own line). Composes Base + shared components + islands + the
-  page-local components in components/home/.
+  Home, a Read surface (contract revision 2): identity first, then the one
+  live plate, then four rows on what I work on (by capability, not organ),
+  three selected papers, and the shared footer without its link row (the
+  identity block carries LinkedIn, Google Scholar and ORCID once; round
+  3b). Each home link has its own target. The counts line moved into
+  the identity block's proof lines (revision 2a). Two screens at
+  1440 x 900; 240 visible words in <main> at most (the build's budget gate
+  checks it).
+
+  Every fact comes from content.ts or the data manifests through
+  lib/schema.ts, the same module that writes /index.md and /llms.txt, so the
+  page and its markdown twin cannot drift apart.
 */
-import { getImage } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
-import Section from '@/components/Section.astro';
-import Hero from '@/components/home/Hero.astro';
-import Fronts from '@/components/home/Fronts.astro';
-import Led from '@/components/home/Led.astro';
-import About from '@/components/home/About.astro';
-import Applied from '@/components/home/Applied.astro';
-import { loadPinoManifest, loadPulseManifest } from '@/components/home/manifests';
-import { awards, education, profile, skills } from '@/data/content';
-import portrait from '@/assets/photos/profile-main.jpg';
+import Identity from '@/components/home/Identity.astro';
+import Plate from '@/components/home/Plate.astro';
+import RoleMark from '@/components/RoleMark.astro';
+import { profile } from '@/data/content';
+import { SELECTED, capabilities, listAnd } from '@/lib/schema';
 
-const pino = loadPinoManifest();
-const pulse = loadPulseManifest();
+const title = `${profile.role}, ${profile.university}`;
+const description = `${profile.name}, ${profile.role.toLowerCase()} at the ${profile.lab}, ${profile.university}. ${listAnd(profile.fields).replace(/^./, (c) => c.toUpperCase())}. ${profile.tagline}`;
 
-const title = 'Coronary physics, fast enough for the clinic';
-const description = `${profile.name}, ${profile.role.toLowerCase()} at the ${profile.lab}, ${profile.university}: image-based coronary CFD and CT-FFR, physics-informed neural operators, and wearable PPG biomarkers.`;
-
-const site = Astro.site ?? new URL(profile.links.site);
-const portraitImage = await getImage({ src: portrait, format: 'jpg', width: portrait.width });
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: profile.name,
-  jobTitle: profile.role,
-  email: `mailto:${profile.email}`,
-  url: profile.links.site,
-  image: new URL(portraitImage.src, site).href,
-  affiliation: {
-    '@type': 'Organization',
-    name: `${profile.lab}, ${profile.department}, ${profile.university}`,
-  },
-  alumniOf: Array.from(new Set(education.map((e) => e.institution))).map((name) => ({
-    '@type': 'CollegeOrUniversity',
-    name,
-  })),
-  award: awards.map((a) => `${a.title}, ${a.org} (${a.year})`),
-  knowsAbout: [...skills.computational, ...skills.ml],
-  sameAs: [profile.links.scholar, profile.links.linkedin, profile.links.orcid],
-};
-
-const close = {
-  line: 'Open to collaboration on coronary hemodynamics, medical AI and wearable biosignal analysis.',
-  note: 'For research, an industry partnership, a position or a copy of a paper, email is the fastest route; I reply from Seoul (UTC+9).',
-};
+/* "Computer Methods and Programs in Biomedicine" → "CMPB"; a venue ending in "(DMD2026)" → "DMD" (the year has its own column). */
+const shortVenue = (venue: string) =>
+  /\(([A-Z][^)]*)\)\s*$/.exec(venue)?.[1]?.replace(/\s?\d{4}$/, '') ??
+  venue
+    .split(/\s+/)
+    .filter((w) => /^[A-Z]/.test(w))
+    .map((w) => w[0])
+    .join('');
 ---
 
-<Base title={title} description={description} surface="film" jsonLd={jsonLd} close={close}>
-  <Hero pino={pino} />
+<Base title={title} description={description} footer={{ links: false }}>
+  <Identity />
+  <Plate />
 
-  <Section id="fronts" heading="Three fronts" width="frame">
-    <Fronts pino={pino} pulse={pulse} />
-  </Section>
+  <section class="home-sec wrap" aria-labelledby="work-heading">
+    <h2 id="work-heading" class="home-sec__heading">Work</h2>
+    <ul class="caps">
+      {
+        capabilities.map((c) => {
+          /* The capability name is the row's one link; each row has its own target. */
+          const [before, after] = c.inline ? c.row.split(c.inline.text) : [c.row, undefined];
+          return (
+            <li class="caps__row">
+              <p class="caps__name">
+                <a href={c.href}>{c.name}</a>
+              </p>
+              <p class="caps__row-text">
+                {before}
+                {c.inline && after !== undefined && <><a href={c.inline.href}>{c.inline.text}</a>{after}</>}
+              </p>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </section>
 
-  <Section id="led" heading="Led work" width="frame">
-    <Led />
-  </Section>
-
-  <Section id="about" heading="About" width="frame">
-    <About />
-  </Section>
-
-  <Section id="applied" heading="Applied" width="frame">
-    <Applied />
-  </Section>
+  <section class="home-sec wrap" aria-labelledby="selected-heading">
+    <h2 id="selected-heading" class="home-sec__heading">Selected</h2>
+    <ol class="sel">
+      {
+        SELECTED.map((p) => (
+          <li class="sel__row">
+            <span class="sel__year t-mono">{p.year}</span>
+            <p class="sel__title">{p.title}</p>
+            <span class="sel__meta">
+              <span class="sel__venue t-mono">{shortVenue(p.venueShort ?? p.venue)}</span>
+              <RoleMark role={p.myRole} />
+              {p.doi && (
+                <a class="sel__doi t-mono" href={`https://doi.org/${p.doi}`} rel="noopener">
+                  doi:{p.doi}
+                </a>
+              )}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
 </Base>
+
+<style>
+  .home-sec {
+    padding-top: var(--space-4);
+  }
+  .home-sec__heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    padding-bottom: var(--space-1);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Capability rows: the name (the row's link), one clause; rows, not frames. */
+  .caps__row {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 0.25rem var(--space-3);
+    align-items: baseline;
+    padding-block: 0.65rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .caps__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+  }
+  .caps__name a {
+    color: var(--ink);
+    text-decoration-color: var(--line);
+  }
+  .caps__name a:hover {
+    text-decoration-color: var(--signal);
+  }
+  .caps__row-text {
+    font-family: var(--font-text);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 64ch;
+    text-wrap: pretty;
+  }
+  .caps__row-text a {
+    color: var(--ink);
+    text-decoration-color: var(--line);
+    white-space: nowrap;
+  }
+  .caps__row-text a:hover {
+    text-decoration-color: var(--signal);
+  }
+
+  /*
+    Selected papers, newest first: year, title, then venue, role mark and
+    DOI in fixed-width columns so they align from row to row.
+  */
+  .sel__row {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) 5.5rem 8.5rem 15.5rem;
+    gap: 0.25rem var(--space-3);
+    align-items: baseline;
+    padding-block: 0.6rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .sel__year {
+    color: var(--ink-2);
+  }
+  .sel__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.4;
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+  .sel__meta {
+    display: contents;
+  }
+  .sel__meta > :global(.rolemark) {
+    justify-self: start;
+    align-self: baseline;
+  }
+  .sel__venue {
+    color: var(--ink-2);
+  }
+  .sel__doi {
+    color: var(--ink);
+    text-decoration-color: var(--line);
+    white-space: nowrap;
+  }
+  .sel__doi:hover {
+    text-decoration-color: var(--signal);
+  }
+
+  @media (max-width: 899px) {
+    .caps__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+  }
+  /* Under 1100px the three fixed columns would starve the title; they drop under it. */
+  @media (max-width: 1099px) {
+    .sel__row {
+      grid-template-columns: 3rem minmax(0, 1fr);
+    }
+    .sel__meta {
+      grid-column: 2;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem var(--space-2);
+    }
+  }
+</style>

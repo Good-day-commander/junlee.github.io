@@ -1,8 +1,8 @@
 {
  "case_id": "PINO-DEMO-01",
- "schema": "pino-viewer-manifest/1",
+ "schema": "pino-viewer-manifest/2",
  "generated": "2026-10-15",
- "generator": "website_assets/web/convert.py (from website_assets/pino, export_for_web.py output of 2026-10-14)",
+ "generator": "website_assets/web/convert.py (from website_assets/pino, export_for_web.py output of 2026-10-14); packed by site/scripts/quantize-vessel.mjs",
  "byteOrder": "little-endian",
  "alignment": 4,
  "units": {
@@ -17,14 +17,38 @@
  "vessel_note": "coronary branch label is not recorded in the CFD dataset",
  "buffers": {
   "file": "vessel.bin",
-  "byteLength": 492948,
+  "byteLength": 198912,
+  "gzip": {
+   "file": "vessel.bin.gz",
+   "byteLength": 115883
+  },
+  "packing": {
+   "note": "uint16 quantized (value = offset + q * scale, per axis for positions), zigzag delta per component, planar bytes (low bytes then high bytes); vertices and triangles reordered along the inlet-outlet chord for locality, the surface itself is unchanged; normals are computed by the viewer; the speed arrays live in a second file (chunks.speed) fetched only when a speed-dependent field is chosen",
+   "source": {
+    "schema": "pino-viewer-manifest/1",
+    "file": "vessel.bin",
+    "byteLength": 492948,
+    "md5": "6c3d87c4c1864bfa659a4b5fb716a3ed"
+   }
+  },
+  "chunks": {
+   "speed": {
+    "file": "vessel-speed.bin",
+    "byteLength": 34600,
+    "gzip": {
+     "file": "vessel-speed.bin.gz",
+     "byteLength": 30030
+    },
+    "arrays": [
+     "vmag_cfd",
+     "vmag_pino"
+    ]
+   }
+  },
   "arrays": {
    "positions": {
-    "dtype": "float32",
     "components": 3,
     "count": 8649,
-    "byteOffset": 0,
-    "byteLength": 103788,
     "units": "mm",
     "bounds": {
      "min": [
@@ -37,78 +61,140 @@
       22.225,
       3.708
      ]
-    }
+    },
+    "dtype": "uint16",
+    "quantization": {
+     "offset": [
+      -17.004852294921875,
+      -22.225038528442383,
+      -3.7075042724609375
+     ],
+     "scale": [
+      0.0005189548270366026,
+      0.0006782646991208478,
+      0.00011314577775115397
+     ],
+     "max_abs_error": 0.00034
+    },
+    "encoding": {
+     "delta": "zigzag",
+     "layout": "planar-bytes"
+    },
+    "byteOffset": 0,
+    "byteLength": 51894
    },
    "indices": {
-    "dtype": "uint32",
     "components": 3,
     "count": 17294,
-    "byteOffset": 103788,
-    "byteLength": 207528,
-    "topology": "triangles"
+    "topology": "triangles",
+    "dtype": "uint16",
+    "encoding": {
+     "delta": "zigzag",
+     "layout": "planar-bytes",
+     "stride": 1
+    },
+    "byteOffset": 51896,
+    "byteLength": 103764
    },
    "p_cfd": {
-    "dtype": "float32",
     "components": 1,
     "count": 8649,
-    "byteOffset": 311316,
-    "byteLength": 34596,
     "units": "Pa",
     "min": 10715.9785,
-    "max": 12988.6514
+    "max": 12988.6514,
+    "dtype": "uint16",
+    "quantization": {
+     "offset": 10715.978515625,
+     "scale": 0.03467876480601968,
+     "max_abs_error": 0.0176
+    },
+    "encoding": {
+     "delta": "zigzag",
+     "layout": "planar-bytes"
+    },
+    "byteOffset": 155660,
+    "byteLength": 17298
    },
    "p_pino": {
-    "dtype": "float32",
     "components": 1,
     "count": 8649,
-    "byteOffset": 345912,
-    "byteLength": 34596,
     "units": "Pa",
     "min": 10666.4854,
-    "max": 12956.623
-   },
-   "p_err": {
-    "dtype": "float32",
-    "components": 1,
-    "count": 8649,
-    "byteOffset": 380508,
-    "byteLength": 34596,
-    "units": "Pa",
-    "definition": "p_pino - p_cfd",
-    "min": -167.2355,
-    "max": 603.3107
+    "max": 12956.623,
+    "dtype": "uint16",
+    "quantization": {
+     "offset": 10666.4853515625,
+     "scale": 0.03494526123922331,
+     "max_abs_error": 0.0176
+    },
+    "encoding": {
+     "delta": "zigzag",
+     "layout": "planar-bytes"
+    },
+    "byteOffset": 172960,
+    "byteLength": 17298
    },
    "vmag_cfd": {
-    "dtype": "float32",
     "components": 1,
     "count": 8649,
-    "byteOffset": 415104,
-    "byteLength": 34596,
     "units": "m/s",
     "min": 0.0001,
-    "max": 0.772
+    "max": 0.772,
+    "dtype": "uint16",
+    "quantization": {
+     "offset": 0.00014022206596564502,
+     "scale": 0.000011777240664216003,
+     "max_abs_error": 0.00000589
+    },
+    "encoding": {
+     "delta": "zigzag",
+     "layout": "planar-bytes"
+    },
+    "chunk": "speed",
+    "byteOffset": 0,
+    "byteLength": 17298
    },
    "vmag_pino": {
-    "dtype": "float32",
     "components": 1,
     "count": 8649,
-    "byteOffset": 449700,
-    "byteLength": 34596,
     "units": "m/s",
     "min": 0.0105,
-    "max": 0.7101
+    "max": 0.7101,
+    "dtype": "uint16",
+    "quantization": {
+     "offset": 0.01045519020408392,
+     "scale": 0.000010675970887582107,
+     "max_abs_error": 0.00000534
+    },
+    "encoding": {
+     "delta": "zigzag",
+     "layout": "planar-bytes"
+    },
+    "chunk": "speed",
+    "byteOffset": 17300,
+    "byteLength": 17298
    },
    "region": {
-    "dtype": "uint8",
     "components": 1,
     "count": 8649,
-    "byteOffset": 484296,
-    "byteLength": 8649,
     "codes": {
      "0": "wall",
      "1": "inlet cap",
      "2": "outlet cap"
-    }
+    },
+    "dtype": "uint8",
+    "byteOffset": 190260,
+    "byteLength": 8649
+   },
+   "p_err": {
+    "components": 1,
+    "count": 8649,
+    "units": "Pa",
+    "definition": "p_pino - p_cfd",
+    "min": -167.2355,
+    "max": 603.3107,
+    "derived": "p_pino - p_cfd",
+    "note": "not stored; the viewer computes it from the two decoded pressure arrays"
    }
   }
  },
@@ -119,7 +205,7 @@
  },
  "ranges": {
   "p": [
-   10716.0,
+   10716,
    12988.7
   ],
   "p_err_abs_max": 512.6,
@@ -181,7 +267,7 @@
      -18.01,
      -2.39
     ],
-    "s_mm": 66.0
+    "s_mm": 66
    }
   }
  },
@@ -205,7 +291,7 @@
     "note": "read on the same two probe planes 5 mm inside each cap (geometry.ffr_probes): CFD over every plane node, PINO over the stored 512-node subsample of each plane; not at the curve ends"
    },
    "pino_profile": {
-    "inlet_plateau_mm": 5.0,
+    "inlet_plateau_mm": 5,
     "distal_flat_mm": 6.4,
     "note": "inlet_plateau_mm: PINO pressure equals p_proximal_Pa up to this s; distal_flat_mm: last stretch where the PINO section mean moves < 2% of its total drop (not pressure recovery)"
    },
@@ -261,11 +347,17 @@
    "time_steps": 400,
    "mpi_ranks": 24,
    "wall_time_s": null,
-   "note": "run logs were not provided with the dataset, so the wall time is unknown; mpi_ranks is the default of the provided run.sh, the rank count actually used was not recorded"
+   "reference_pipeline": {
+    "cpu_cores": 64,
+    "wall_time_max_s": 2100,
+    "source": "owner, 2026-10-16",
+    "note": "upper bound for the lab's CFD pipeline on the reference cluster; this case's own run time was not logged"
+   },
+   "note": "wall_time_s is null because this case's own run was not logged (no run logs came with the dataset); reference_pipeline holds the owner's measured upper bound for the same CFD pipeline (mirrors site/src/data/content.ts cfdReference). mpi_ranks is the default of the provided run.sh; the rank count actually used was not recorded"
   },
   "pino": {
    "gpu": "NVIDIA L40S",
-   "inference_ms_median": 1781.0,
+   "inference_ms_median": 1781,
    "query_points": "~80k",
    "preprocessing_s_approx": 1.2,
    "note": "inference = encoder + decoder over every volume node (fp32, one GPU, median after warm-up); preprocessing = SDF grid and input assembly, about 1-2 s depending on caches"
@@ -347,7 +439,7 @@
     "byteLength": 236100,
     "units": "m/s",
     "source": "PINO speed interpolated at the same CFD streamline points",
-    "min": 0.0,
+    "min": 0,
     "max": 1.4248
    },
    "lineOffsets": {

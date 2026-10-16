@@ -16,13 +16,33 @@
 
   Orientation: the `aligned` group rotates the vessel so its inlet→outlet
   chord lies on screen X with the plane of its curvature facing the camera
-  (chapter mode), on screen Y with the inlet at the top (portrait frames),
-  or, in the landscape hero, rolled by HERO_ROLL_DEG like an angulated C-arm
-  view so the chord runs from upper left to lower right and the nearly
-  planar vessel opens up the frame's height instead of lying as a thread
-  along its middle. The `pivot` group adds the idle drift (one revolution
-  per 60 s about that chord) and the pointer orbit. The camera never moves
-  except to re-frame on resize.
+  (landscape frames), or on screen Y with the inlet at the top (portrait
+  frames, width / height < 0.85). The `pivot` group adds the idle drift (one
+  revolution per 60 s about that chord, through the vessel's bounding-box
+  centre) and the pointer orbit; a quiet viewer turns both off.
+
+  Framing (every mode): the camera is fitted to the vessel's projected
+  bounding box at rest (no drift, no orbit), not set at a fixed distance:
+  the box is centred at FRAME_CY of the frame height from the top and spans
+  FRAME_LEFT..FRAME_RIGHT of the width, or FRAME_SPAN_Y of the height if
+  that binds first. A right inset (the colorbar's column, from setInsets)
+  pulls the right bound in so the vessel never runs under the bar. The fit
+  is solved on the perspective projection of every vertex (a few
+  fixed-point steps), so the near half of the vessel cannot overshoot, and
+  it is recomputed on every resize and orientation change. The camera never
+  moves otherwise.
+
+  Distal clip (setClipDistal, the quiet home plate only): triangles past the
+  distal FFR probe plane (manifest geometry.ffr_probes.distal, 5 mm inside
+  the outlet cap; the plane faces the outlet centre) are left out of the
+  index, and the framing fits what remains. The distal stretch sits on the
+  floor of the shared pressure range (CFD and PINO both; vertices under 5 %
+  of the range span the last ~11 % of the chord), where turbo is
+  near-black, so it read as a grey stub rather than as data: a data
+  artefact, not a framing one. The cut removes the part past the probe
+  (~6 % of the chord, cap included); a short dark tip before the plane
+  stays, because the FFR is read on that plane and nothing the plate
+  reports is cut. The research viewer keeps the whole mesh.
 
   Rendering is on demand: the rAF loop runs only while something animates
   (drift, develop, wipe tween) and stops otherwise; setActive(false) halts
@@ -63,16 +83,13 @@ export interface SceneEvents {
 const TWO_PI = Math.PI * 2;
 const DRIFT_PERIOD_MS = 60_000;
 const FOV_DEG = 26;
-/** Landscape hero: roll of the chord below screen X (inlet upper left, outlet lower right). */
-const HERO_ROLL_DEG = 52;
-/*
-  Hero crop: the last stretch of the chord past this fraction (beyond the
-  distal FFR probe, where pressure sits flat at the bottom of the range and
-  turbo's darkest stop reads as an unlit grey stub) is framed off the bottom
-  edge, the way a cine run crops the vessel at the detector edge. The mesh
-  is not cut; the camera simply frames the vessel up to here.
-*/
-const HERO_CROP = 0.88;
+/* Framing targets, as fractions of the frame (see the header). */
+const FRAME_LEFT = 0.08;
+const FRAME_RIGHT = 0.92;
+/** Vertical centre of the vessel's box, from the top. */
+const FRAME_CY = 0.42;
+/** Largest share of the frame height the box may take (0.42 ± 0.36 → 6 %–78 %). */
+const FRAME_SPAN_Y = 0.72;
 const X = new Vector3(1, 0, 0);
 const Y = new Vector3(0, 1, 0);
 const Z = new Vector3(0, 0, 1);
@@ -101,19 +118,18 @@ export class VesselScene {
   /** Mesh positions, kept to re-derive the on-screen extents when the orientation changes. */
   private positions: Float32Array | null = null;
   private meshOffset = new Vector3();
-  private boxOffset = new Vector3();
-  private chordOffset = new Vector3();
   /** Bounding size of the vessel as shown, in pivot space: x across the frame, y up, z depth. */
   private extent = new Vector3(1, 1, 1);
-  /** Centre of that box in pivot space (the drift axis passes through the origin, not this). */
+  /** Centre of that box in pivot space. */
   private center = new Vector3();
-  /** Hero framing: bounds of the vessel up to HERO_CROP along the chord, and the crop point, in pivot space. */
-  private keepMin = new Vector3();
-  private keepMax = new Vector3();
-  private cropPoint = new Vector3();
-  private keep: Uint8Array | null = null;
-  /** Centroid of the vessel's cross-section at the crop (raw mesh coordinates). */
-  private cropRaw = new Vector3();
+  /** Every vertex in pivot space at rest (the framing solves on these). */
+  private rest: Float32Array | null = null;
+  /** Largest distance of a vertex from the pivot origin (near / far planes). */
+  private radius = 1;
+  /** CSS px kept clear at the right edge (the colorbar column). */
+  private insetRight = 0;
+  private clipDistal = false;
+  private data: VesselData | null = null;
   private portrait = false;
 
   private width = 1;
@@ -236,17 +252,57 @@ export class VesselScene {
   /* Build the mesh and the alignment from the loaded buffers. */
   setGeometry(data: VesselData): void {
     this.clearMesh();
+    this.data = data;
+    const g = data.manifest.geometry;
+    const n = data.manifest.vertexCount;
+
+    // Optional distal clip: keep the vertices on the inlet side of the distal probe plane.
+    let shown = data.positions;
+    let index: Uint16Array | Uint32Array = data.indices;
+    if (this.clipDistal && g.ffr_probes?.distal?.center_mm) {
+      const probe = new Vector3().fromArray(g.ffr_probes.distal.center_mm);
+      const toOutlet = new Vector3().fromArray(g.outlet_center).sub(probe).normalize();
+      const keep = new Uint8Array(n);
+      const q = new Vector3();
+      let kept = 0;
+      for (let i = 0; i < n; i += 1) {
+        q.fromArray(data.positions, i * 3).sub(probe);
+        if (q.dot(toOutlet) <= 0) {
+          keep[i] = 1;
+          kept += 1;
+        }
+      }
+      const src = data.indices;
+      const out = new (src instanceof Uint16Array ? Uint16Array : Uint32Array)(src.length);
+      let m = 0;
+      for (let t = 0; t < src.length; t += 3) {
+        if (keep[src[t]] && keep[src[t + 1]] && keep[src[t + 2]]) {
+          out[m] = src[t];
+          out[m + 1] = src[t + 1];
+          out[m + 2] = src[t + 2];
+          m += 3;
+        }
+      }
+      index = out.slice(0, m);
+      shown = new Float32Array(kept * 3);
+      for (let i = 0, k = 0; i < n; i += 1) {
+        if (!keep[i]) continue;
+        shown[k] = data.positions[i * 3];
+        shown[k + 1] = data.positions[i * 3 + 1];
+        shown[k + 2] = data.positions[i * 3 + 2];
+        k += 3;
+      }
+    }
+
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(data.positions, 3));
-    geometry.setIndex(new BufferAttribute(data.indices, 1));
+    geometry.setIndex(new BufferAttribute(index, 1));
     geometry.computeVertexNormals();
-    const n = data.manifest.vertexCount;
     geometry.setAttribute('colorA', new BufferAttribute(new Float32Array(n * 3), 3));
     geometry.setAttribute('colorB', new BufferAttribute(new Float32Array(n * 3), 3));
 
     // Chord from inlet to outlet → +X; the vessel is nearly planar, so the
     // plane normal (world Z, orthogonalised against the chord) → +Z.
-    const g = data.manifest.geometry;
     const inlet = new Vector3().fromArray(g.inlet_center);
     const outlet = new Vector3().fromArray(g.outlet_center);
     const a = outlet.clone().sub(inlet).normalize();
@@ -255,39 +311,17 @@ export class VesselScene {
     const basis = new Matrix4().makeBasis(a, b, nrm);
     this.qLandscape.setFromRotationMatrix(basis).invert();
 
-    // Pivot origin. Chapter: the landscape bounding-box centre, so the drift
-    // turns the vessel about its own middle and it stays centred. Hero: the
-    // chord's midpoint, so the drift axis is the chord itself and inlet and
-    // outlet hold still (the hero frames the outlet off the bottom edge, and
-    // that exit stays put through the whole revolution).
-    const { min, max } = this.bounds(data.positions, this.qLandscape);
+    // Pivot origin: the landscape bounding-box centre, so the drift turns
+    // the vessel about its own middle (the chord through the box centre)
+    // and the fitted framing holds through the revolution.
+    const { min, max } = this.bounds(shown, this.qLandscape);
     const center = min.clone().add(max).multiplyScalar(0.5);
-    this.boxOffset.copy(center).negate().applyQuaternion(this.qLandscape.clone().invert());
-    this.chordOffset.copy(inlet).add(outlet).multiplyScalar(-0.5);
-    const offset = this.mode === 'hero' ? this.chordOffset : this.boxOffset;
-    this.positions = data.positions;
-    this.meshOffset.copy(offset);
-    // Which vertices lie within the hero crop (chord fraction from the inlet ≤ HERO_CROP),
-    // and where the vessel itself (not the chord, which the body arcs away from) crosses it.
-    const len = outlet.distanceTo(inlet);
-    const keep = new Uint8Array(n);
-    const p = new Vector3();
-    const ring = new Vector3();
-    let ringN = 0;
-    for (let i = 0; i < n; i += 1) {
-      p.fromArray(data.positions, i * 3);
-      const t = p.clone().sub(inlet).dot(a) / len;
-      keep[i] = t <= HERO_CROP ? 1 : 0;
-      if (t > HERO_CROP - 0.02 && t <= HERO_CROP) {
-        ring.add(p);
-        ringN += 1;
-      }
-    }
-    this.keep = keep;
-    this.cropRaw.copy(ringN ? ring.divideScalar(ringN) : inlet.clone().lerp(outlet, HERO_CROP));
+    this.meshOffset.copy(center).negate().applyQuaternion(this.qLandscape.clone().invert());
+    // The framing (bounds, rest points) reads only the vertices that are drawn.
+    this.positions = shown;
 
     const mesh = new Mesh(geometry, this.material);
-    mesh.position.copy(offset);
+    mesh.position.copy(this.meshOffset);
     mesh.frustumCulled = false;
     this.aligned.add(mesh);
     this.mesh = mesh;
@@ -313,6 +347,29 @@ export class VesselScene {
     if (this.mode === mode) return;
     this.mode = mode;
     this.applyOrientation();
+    this.frame();
+    this.requestRender();
+  }
+
+  /** Leave out the stretch past the distal FFR probe plane (see the header). Rebuilds the mesh if loaded. */
+  setClipDistal(on: boolean): void {
+    if (on === this.clipDistal) return;
+    this.clipDistal = on;
+    if (!this.data || !this.geometry) return;
+    const colorA = (this.geometry.getAttribute('colorA') as BufferAttribute).array as Float32Array;
+    const colorB = (this.geometry.getAttribute('colorB') as BufferAttribute).array as Float32Array;
+    const wipeOn = this.uniforms.uWipeOn.value > 0.5;
+    const a = colorA.slice();
+    const b = colorB.slice();
+    this.setGeometry(this.data);
+    this.setColors(a, b, wipeOn);
+  }
+
+  /** CSS px to keep clear at the right edge (the colorbar column); 0 when the bar sits under the image. */
+  setInsets(rightPx: number): void {
+    const r = Math.max(0, Math.round(rightPx));
+    if (r === this.insetRight) return;
+    this.insetRight = r;
     this.frame();
     this.requestRender();
   }
@@ -457,6 +514,7 @@ export class VesselScene {
   }
 
   private clearMesh(): void {
+    // (this.data is kept: setClipDistal rebuilds from it.)
     if (this.mesh) {
       this.aligned.remove(this.mesh);
       this.mesh = null;
@@ -467,13 +525,12 @@ export class VesselScene {
     }
   }
 
-  /** Axis-aligned bounds of the positions after rotation by q (optionally only where keep[i] is set). */
-  private bounds(positions: Float32Array, q: Quaternion, keep?: Uint8Array): { min: Vector3; max: Vector3 } {
+  /** Axis-aligned bounds of the positions after rotation by q. */
+  private bounds(positions: Float32Array, q: Quaternion): { min: Vector3; max: Vector3 } {
     const p = new Vector3();
     const min = new Vector3(Infinity, Infinity, Infinity);
     const max = new Vector3(-Infinity, -Infinity, -Infinity);
     for (let i = 0; i < positions.length; i += 3) {
-      if (keep && !keep[i / 3]) continue;
       p.fromArray(positions, i).applyQuaternion(q);
       min.min(p);
       max.max(p);
@@ -484,84 +541,98 @@ export class VesselScene {
   /** Screen-space rotation applied on top of the landscape alignment for the current frame. */
   private frameRotation(): Quaternion {
     if (this.portrait) return new Quaternion().setFromAxisAngle(Z, -Math.PI / 2);
-    if (this.mode === 'hero') return new Quaternion().setFromAxisAngle(Z, (-HERO_ROLL_DEG * Math.PI) / 180);
     return new Quaternion();
   }
 
   private applyOrientation(): void {
-    if (this.mesh) {
-      this.meshOffset.copy(this.mode === 'hero' ? this.chordOffset : this.boxOffset);
-      this.mesh.position.copy(this.meshOffset);
-    }
+    if (this.mesh) this.mesh.position.copy(this.meshOffset);
     const rot = this.frameRotation();
     this.aligned.quaternion.copy(rot).multiply(this.qLandscape);
-    // The chord in pivot space: +X in landscape, −Y in portrait (inlet at the top), rolled in the hero.
+    // The chord in pivot space: +X in landscape, −Y in portrait (inlet at the top).
     this.chordInPivot.copy(X).applyQuaternion(rot);
-    // Extents of the vessel as shown, so framing fits the rolled or portrait silhouette.
+    // The vessel at rest in pivot space, so the framing fits the silhouette as shown.
     if (this.positions) {
-      const { min, max } = this.bounds(this.positions, this.aligned.quaternion);
-      const off = this.meshOffset.clone().applyQuaternion(this.aligned.quaternion);
-      this.extent.subVectors(max, min);
-      this.center.copy(min).add(max).multiplyScalar(0.5).add(off);
-      if (this.keep) {
-        const k = this.bounds(this.positions, this.aligned.quaternion, this.keep);
-        this.keepMin.copy(k.min).add(off);
-        this.keepMax.copy(k.max).add(off);
-        this.cropPoint.copy(this.cropRaw).applyQuaternion(this.aligned.quaternion).add(off);
+      const q = this.aligned.quaternion;
+      const off = this.meshOffset.clone().applyQuaternion(q);
+      const n = this.positions.length;
+      const rest = this.rest && this.rest.length === n ? this.rest : new Float32Array(n);
+      const p = new Vector3();
+      const min = new Vector3(Infinity, Infinity, Infinity);
+      const max = new Vector3(-Infinity, -Infinity, -Infinity);
+      let r2 = 0;
+      for (let i = 0; i < n; i += 3) {
+        p.fromArray(this.positions, i).applyQuaternion(q).add(off);
+        p.toArray(rest, i);
+        min.min(p);
+        max.max(p);
+        r2 = Math.max(r2, p.lengthSq());
       }
+      this.rest = rest;
+      this.radius = Math.sqrt(r2) || 1;
+      this.extent.subVectors(max, min);
+      this.center.copy(min).add(max).multiplyScalar(0.5);
     }
   }
 
   /*
-    Camera framing from the on-screen extents.
-      hero         the vessel up to HERO_CROP is framed from just under the
-                   top corner readouts down to the bottom edge, and the crop
-                   point sits on that edge, so the flat distal stub runs out
-                   of frame instead of ending as a grey cap inside it.
-                   Landscape: the rolled vessel opens from the upper left
-                   across ~70 % of the width and leaves the frame between the
-                   headline block and the bottom-right readout (~70 % x).
-                   Portrait: the inlet at the top, the vessel leaving the
-                   bottom edge between the CFD | PINO toggle and the readout.
-      chapter      centred, spans most of the frame
+    Fit the camera to the vessel's projected bounding box (see the header).
+    The camera looks down −Z from (tx, ty, d), so a vertex (x, y, z) lands at
+    NDC ((x − tx) / ((d − z) · tan · aspect), (y − ty) / ((d − z) · tan)).
+    Start from the orthographic estimate, then correct the target by the
+    measured centre and the distance by the measured span; four steps settle
+    to well under a pixel.
   */
   private frame(): void {
     const aspect = this.width / this.height;
     const tanHalf = Math.tan((FOV_DEG * Math.PI) / 360);
-    let tx: number;
-    let ty: number;
-    let visibleH: number;
-    if (this.mode === 'hero' && this.keep) {
-      const top = this.portrait ? 0.24 : 0.12; // highest the vessel may reach, as a fraction from the top
-      const left = this.portrait ? 0.1 : 0.08; // leftmost it may reach, as a fraction from the left
-      const bottom = 1.03; // the kept box ends just past the bottom edge
-      const exitX = this.portrait ? 0.35 : 0.72; // where the crop point crosses the bottom edge
-      // Large enough that the kept vessel fits under `top` and right of `left`, whichever binds.
-      const byHeight = (this.keepMax.y - this.keepMin.y) / (bottom - top);
-      const byWidth = (this.cropPoint.x - this.keepMin.x) / (exitX - left) / aspect;
-      visibleH = Math.max(byHeight, byWidth);
-      const visibleW = visibleH * aspect;
-      tx = this.cropPoint.x - (exitX - 0.5) * visibleW;
-      ty = this.keepMin.y + (bottom - 0.5) * visibleH;
-    } else {
-      const fracW = 0.84;
-      const fracH = 0.8;
-      // Perspective enlarges the near half of a rotating vessel; keep a margin.
-      const margin = 0.95;
-      const needW = this.extent.x / (fracW * margin);
-      const needH = this.extent.y / (fracH * margin);
-      const visibleW = Math.max(needW, needH * aspect);
-      visibleH = visibleW / aspect;
-      tx = this.center.x;
-      ty = this.center.y;
+    const rightFrac = Math.max(FRAME_LEFT + 0.2, Math.min(FRAME_RIGHT, 1 - this.insetRight / this.width));
+    const spanX = rightFrac - FRAME_LEFT; // share of the width
+    const cxFrac = (FRAME_LEFT + rightFrac) / 2; // from the left
+    // Targets in NDC (−1..1, y up).
+    const spanXN = spanX * 2;
+    const spanYN = FRAME_SPAN_Y * 2;
+    const cxN = cxFrac * 2 - 1;
+    const cyN = 1 - FRAME_CY * 2;
+
+    const visibleH = Math.max(this.extent.y / FRAME_SPAN_Y, this.extent.x / (spanX * aspect));
+    let d = visibleH / (2 * tanHalf);
+    let tx = this.center.x - (cxN / 2) * visibleH * aspect;
+    let ty = this.center.y - (cyN / 2) * visibleH;
+
+    const rest = this.rest;
+    if (rest) {
+      for (let step = 0; step < 4; step += 1) {
+        let x0 = Infinity;
+        let x1 = -Infinity;
+        let y0 = Infinity;
+        let y1 = -Infinity;
+        for (let i = 0; i < rest.length; i += 3) {
+          const w = (d - rest[i + 2]) * tanHalf;
+          if (w <= 0) continue;
+          const nx = (rest[i] - tx) / (w * aspect);
+          const ny = (rest[i + 1] - ty) / w;
+          if (nx < x0) x0 = nx;
+          if (nx > x1) x1 = nx;
+          if (ny < y0) y0 = ny;
+          if (ny > y1) y1 = ny;
+        }
+        // Shift so the measured centre lands on the target (world units at the box's depth)…
+        tx += ((x0 + x1) / 2 - cxN) * d * tanHalf * aspect;
+        ty += ((y0 + y1) / 2 - cyN) * d * tanHalf;
+        // …then scale the distance by the overshoot, keeping the target's offset from the box centre in proportion.
+        const k = Math.max((x1 - x0) / spanXN, (y1 - y0) / spanYN);
+        tx = this.center.x + (tx - this.center.x) * k;
+        ty = this.center.y + (ty - this.center.y) * k;
+        d *= k;
+      }
     }
-    const d = visibleH / (2 * tanHalf);
+
     this.camera.aspect = aspect;
     this.camera.position.set(tx, ty, d);
     this.camera.lookAt(tx, ty, 0);
-    const depth = Math.max(this.extent.x, this.extent.y, this.extent.z);
-    this.camera.near = Math.max(0.5, d - depth);
-    this.camera.far = d + depth;
+    const r = this.radius * 1.2;
+    this.camera.near = Math.max(0.5, d - r);
+    this.camera.far = d + r;
     this.camera.updateProjectionMatrix();
   }
 

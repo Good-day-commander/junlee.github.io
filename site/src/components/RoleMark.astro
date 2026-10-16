@@ -2,9 +2,11 @@
 /*
   Author-role mark, bordered not filled. The role string comes straight from
   content.ts (publication.myRole) and is never inferred.
-  Rank is carried by the border ink, not by weight or size:
-    first      signal border, primary ink
-    co-first   primary-ink border, primary ink
+  Rank is carried by the border ink, not by weight or size, and never by
+  signal (red is reserved for the nav Email, probes, active states and the
+  focus ring):
+    first      primary-ink border, primary ink
+    co-first   secondary-ink border, primary ink
     co-author  hairline border, secondary ink
 */
 import type { AuthorRole } from '@/data/content';
@@ -43,11 +45,11 @@ const labels: Record<AuthorRole, string> = {
     vertical-align: middle;
   }
   .rolemark[data-role='first'] {
-    border-color: var(--signal);
+    border-color: var(--ink);
     color: var(--ink);
   }
   .rolemark[data-role='co-first'] {
-    border-color: var(--ink);
+    border-color: var(--ink-2);
     color: var(--ink);
   }
 </style>

@@ -120,6 +120,8 @@
   data {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+    /* JetBrains Mono ships upright only; never synthesize an oblique inside an italic caption. */
+    font-style: normal;
   }
   table {
     border-collapse: collapse;
@@ -131,21 +133,23 @@
     margin: 0;
   }
 
-  /* Grain: one static feTurbulence sheet over film surfaces, never animated */
-  html[data-surface='film'] body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 2147483000;
-    pointer-events: none;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-    background-size: 256px 256px;
-    background-repeat: repeat;
+  /* Grain: one static feTurbulence sheet over the page when the page is film (dark scheme), never animated */
+  @media (prefers-color-scheme: dark) {
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 2147483000;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      background-repeat: repeat;
+    }
   }
 
   @media print {
-    html[data-surface='film'] body::after {
+    body::after {
       display: none;
     }
   }
@@ -225,6 +229,12 @@
   }
   .signal {
     color: var(--signal);
+  }
+  /* A measured value in running text; upright even inside a STIX italic caption (the mono has no italic). */
+  .num,
+  .t-mono,
+  .t-label {
+    font-style: normal;
   }
   .num {
     font-family: var(--font-mono);
@@ -380,4 +390,26 @@
   .skip-link {
     transition: none;
   }
+}
+
+/*
+  Inline link icon (Phosphor regular, inlined as SVG, never a glyph): 1em,
+  ink-3 at rest, signal while its link is hovered. Used by the quiet
+  "How it works" and "the CV" links.
+*/
+.link-icon {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  margin-left: 0.3em;
+  vertical-align: -0.125em;
+  color: var(--ink-3);
+  transition: color var(--duration-quick) var(--ease-out);
+}
+.link-icon svg {
+  width: 100%;
+  height: 100%;
+}
+a:hover > .link-icon {
+  color: var(--signal);
 }

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/budget.mjs",
     "preview": "astro preview --port 4321",
     "check": "astro check",
     "shots": "node scripts/screenshot.mjs",

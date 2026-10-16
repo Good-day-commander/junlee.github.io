@@ -17,6 +17,18 @@
              control       'auto' (default): wipe handle on frames 640 px
                            and wider, a two-state CFD | PINO toggle below;
                            'handle' or 'toggle' forces one
+             quiet         the home plate: pressure only, no field toggle,
+                           no field note, no idle drift, no orbit, the
+                           vessel cropped at the distal FFR probe plane
+                           (scene.ts setClipDistal); the wipe
+                           (handle or two-state), the colorbar with its ticks
+                           and the develop (once, snapped under reduced
+                           motion) stay
+             summary       { case_id, vertexCount, ranges } from the
+                           manifest, so the server render prints the
+                           colorbar ticks and the loading line; defaults to
+                           a build-time copy when manifestUrl is the shipped
+                           /data/pino/manifest.json
     state    ViewerState { wipe, field, ready, webgl, develop, elapsedS,
              developDone, error? }
              wipe: handle position from the left edge; CFD is painted left
@@ -40,6 +52,20 @@
     motion   develop 1.78 s on first visibility (snaps under reduced
              motion); idle drift one revolution per 60 s, paused offscreen,
              on document.hidden, during drags and under reduced motion
+             (never in quiet mode)
+    framing  the camera is fitted to the vessel's projected bounding box
+             (scene.ts): centred at 42 % of the frame height, 8 %–92 % of
+             the width, clear of the colorbar column; refitted on resize
+    fields   error is PINO − CFD on a fixed symmetric scale (the 99th
+             percentile of |p_err| rounded up to 0.5 kPa, colors.ts), with
+             one mono note under the field toggle saying what it shows;
+             in chapter mode all three colorbars and both notes are in the
+             server HTML, the ones not chosen carrying the hidden
+             attribute, so every number the plate can show is in the
+             static page (packet §7);
+             the speed arrays are a second file (vessel-speed.bin),
+             requested the first time Speed or Error is chosen, so the
+             quiet home plate never downloads them
     fallback no WebGL → the static PNG (or a labelled frame) and the same
              DOM colorbar; never a blank
 */
@@ -55,12 +81,15 @@ import {
 } from 'react';
 import { cssDivergingGradient, cssGradient } from '@/lib/colormaps';
 import { formatInt, formatPaRange } from '@/lib/format';
-import { fieldColors, legendFor, type FieldColors, type Legend } from './vessel/colors';
+import { fieldColors, fieldNote, legendFor, type FieldColors, type Legend } from './vessel/colors';
+import { summaryFor, summaryOf, type ViewerSummary } from './vessel/summary';
 import {
   developMs,
   fallbackImageUrl,
   loadManifest,
   loadVessel,
+  loadSpeed,
+  hasSpeed,
   VIEWER_STATE_EVENT,
   type PinoManifest,
   type VesselData,
@@ -71,6 +100,7 @@ import s from './vessel/viewer.module.css';
 
 export type { ViewerField } from './vessel/data';
 export { VIEWER_STATE_EVENT } from './vessel/data';
+export type { ViewerSummary } from './vessel/summary';
 
 export interface ViewerState {
   /** Handle position from the left edge: CFD left of it, PINO right. 0 = all PINO, 1 = all CFD. */
@@ -97,6 +127,10 @@ export interface VesselViewerProps {
   fallbackSrc?: string;
   /** Wipe control: 'auto' picks the handle at 640 px and wider, the two-state toggle below. */
   control?: 'auto' | 'handle' | 'toggle';
+  /** Home plate: pressure only, wipe and colorbar, no toggle, note, drift or orbit. */
+  quiet?: boolean;
+  /** Manifest values for the server render (colorbar ticks, loading line). */
+  summary?: ViewerSummary;
   className?: string;
 }
 
@@ -122,6 +156,8 @@ export function VesselViewer({
   developDelayMs = 250,
   fallbackSrc,
   control = 'auto',
+  quiet = false,
+  summary: summaryProp,
   className,
 }: VesselViewerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -141,6 +177,9 @@ export function VesselViewer({
   const [compact, setCompact] = useState(false);
   const [dragging, setDragging] = useState<'none' | 'wipe' | 'orbit'>('none');
   const [reduced, setReduced] = useState(false);
+  /* The loading line is printed only after hydration, never in the static markup (no JS: no false promise). */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Mutable mirror of the state for emit() and the scene callbacks.
   const live = useRef<ViewerState>({
@@ -218,6 +257,11 @@ export function VesselViewer({
         });
         scene.setReducedMotion(rm.matches);
         scene.setWipe(live.current.wipe);
+        if (quiet) {
+          scene.setDrift(false);
+          // The stretch past the distal FFR probe sits on the floor of the range (a grey stub): cropped on the plate.
+          scene.setClipDistal(true);
+        }
       } catch {
         scene = null;
       }
@@ -234,11 +278,31 @@ export function VesselViewer({
     };
     rm.addEventListener('change', onReduced);
 
+    /*
+      The colorbar column (strip and tick labels) when it sits over the
+      image, so the framing keeps the vessel clear of it; 0 when the bar
+      sits in the rows under the image. The label above the bar is left out:
+      it sits above the bar's top tick, beside the vessel's upper edge.
+    */
+    const colorbarInset = (r: DOMRect): number => {
+      const bar = root.querySelector<HTMLElement>('[data-colorbar]:not([hidden])');
+      if (!bar || getComputedStyle(bar).position !== 'absolute') return 0;
+      let left = Infinity;
+      bar.querySelectorAll<HTMLElement>('[data-strip], li').forEach((el) => {
+        const b = el.getBoundingClientRect();
+        if (b.width > 0) left = Math.min(left, b.left);
+      });
+      return Number.isFinite(left) ? Math.max(0, r.right - left + 8) : 0;
+    };
+
     // The root's width picks the layout; the stage (the canvas box) sizes the renderer.
     const ro = new ResizeObserver(() => {
       setCompact(root.clientWidth < COMPACT_PX);
       const r = stage.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) scene?.setSize(r.width, r.height, window.devicePixelRatio || 1);
+      if (r.width > 0 && r.height > 0) {
+        scene?.setInsets(colorbarInset(r));
+        scene?.setSize(r.width, r.height, window.devicePixelRatio || 1);
+      }
     });
     ro.observe(root);
     ro.observe(stage);
@@ -264,6 +328,10 @@ export function VesselViewer({
         const data = await loadVessel(m, manifestUrl, ac.signal);
         if (cancelled) return;
         dataRef.current = data;
+        {
+          const r = stage.getBoundingClientRect();
+          if (r.width > 0) scene.setInsets(colorbarInset(r));
+        }
         scene.setGeometry(data);
         applyField(live.current.field);
         scene.renderNow();
@@ -291,7 +359,7 @@ export function VesselViewer({
       sceneRef.current = null;
       dataRef.current = null;
     };
-  }, [manifestUrl, mode, applyField, emit, maybeDevelop]);
+  }, [manifestUrl, mode, quiet, applyField, emit, maybeDevelop]);
 
   const useToggle = control === 'toggle' || (control === 'auto' && compact);
 
@@ -317,14 +385,47 @@ export function VesselViewer({
     [emit],
   );
 
+  /* The speed chunk, fetched once on demand (Speed or Error chosen); never in quiet mode. */
+  const speedLoad = useRef<{ data: VesselData; promise: Promise<void> } | null>(null);
+  const ensureSpeed = useCallback((): Promise<void> => {
+    const data = dataRef.current;
+    if (!data || hasSpeed(data)) return Promise.resolve();
+    if (speedLoad.current?.data !== data) {
+      const promise = loadSpeed(data, manifestUrl).catch((err) => {
+        speedLoad.current = null;
+        throw err;
+      });
+      speedLoad.current = { data, promise };
+    }
+    return speedLoad.current.promise;
+  }, [manifestUrl]);
+
   const setField = useCallback(
     (f: ViewerField) => {
-      if (f === live.current.field) return;
+      if (quiet || f === live.current.field) return;
       setFieldState(f);
-      applyField(f);
       emit({ field: f });
+      const data = dataRef.current;
+      if (f === 'speed' && data && !hasSpeed(data)) {
+        // Paint once the chunk arrives, unless the reader has moved on; on failure fall back to pressure.
+        ensureSpeed().then(
+          () => {
+            if (live.current.field === 'speed') applyField('speed');
+          },
+          () => {
+            if (live.current.field !== 'speed') return;
+            setFieldState('pressure');
+            applyField('pressure');
+            emit({ field: 'pressure' });
+          },
+        );
+        return;
+      }
+      applyField(f);
+      // Error is one click from Speed: warm the chunk so Speed paints at once.
+      if (f === 'error') ensureSpeed().catch(() => undefined);
     },
-    [applyField, emit],
+    [quiet, applyField, emit, ensureSpeed],
   );
 
   /* Handle drag */
@@ -393,7 +494,7 @@ export function VesselViewer({
   /* Orbit drag anywhere else on the image */
   const onStagePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     const scene = sceneRef.current;
-    if (!scene || status !== 'ready') return;
+    if (quiet || !scene || status !== 'ready') return;
     if (e.button !== 0 && e.pointerType === 'mouse') return;
     const el = e.target as HTMLElement;
     if (el.closest('button, [role="slider"], a')) return;
@@ -429,32 +530,58 @@ export function VesselViewer({
     else setWipe(to);
   };
 
-  const legend: Legend | null = useMemo(
-    () => (manifest ? legendFor(field, manifest) : null),
-    [manifest, field],
+  /* The loaded manifest wins; before it arrives (and on the server) the summary prints the same numbers. */
+  const summary: ViewerSummary | undefined = useMemo(
+    () => (manifest ? summaryOf(manifest) : (summaryProp ?? summaryFor(manifestUrl))),
+    [manifest, summaryProp, manifestUrl],
   );
-  /* Both orientations: the strip is vertical over the image, horizontal in the rows layout. */
-  const gradients = useMemo(() => {
-    if (!legend) return undefined;
-    const g = (dir: 'to top' | 'to right') =>
-      legend.colormap === 'diverging'
-        ? cssDivergingGradient(24, legend.overFraction, dir)
-        : cssGradient(legend.colormap, 24, dir);
-    return { v: g('to top'), h: g('to right') };
-  }, [legend]);
+  /*
+    Every bar the plate can show, each with both orientations of its strip
+    (vertical over the image, horizontal in the rows layout). The quiet
+    plate has pressure only; the chapter viewer renders all three and hides
+    the ones not chosen, so their ticks are in the server HTML.
+  */
+  const barFields: ViewerField[] = useMemo(
+    () => (mode === 'chapter' && !quiet ? FIELDS.map((f) => f.id) : ['pressure']),
+    [mode, quiet],
+  );
+  const bars = useMemo(() => {
+    if (!summary) return [];
+    return barFields.map((f) => {
+      const lg = legendFor(f, summary);
+      const g = (dir: 'to top' | 'to right') =>
+        lg.colormap === 'diverging' ? cssDivergingGradient(24, lg.overFraction, dir) : cssGradient(lg.colormap, 24, dir);
+      return { field: f, legend: lg, gradients: { v: g('to top'), h: g('to right') } };
+    });
+  }, [summary, barFields]);
+  const legend: Legend | null = bars.find((b) => b.field === field)?.legend ?? null;
 
   const showHandle = status === 'ready' && field !== 'error' && !useToggle;
   const showTwoState = status === 'ready' && field !== 'error' && useToggle;
-  const showFields = mode === 'chapter' && status === 'ready';
+  const showFields = mode === 'chapter' && !quiet && status === 'ready';
+  /* Notes for the error and speed fields (chapter only), shown while their field is chosen. */
+  const notes =
+    mode === 'chapter' && !quiet && summary
+      ? FIELDS.map((f) => ({ field: f.id, text: fieldNote(f.id, summary) })).filter((n) => n.text)
+      : [];
   const pct = Math.round(wipe * 100);
-  const caseId = manifest?.case_id ?? 'PINO-DEMO-01';
-  const nodes = manifest ? formatInt(manifest.vertexCount) : '8 649';
-  const pRange = manifest ? formatPaRange(manifest.ranges.p[0], manifest.ranges.p[1]) : '';
+  const caseId = summary?.case_id ?? 'PINO-DEMO-01';
+  const nodes = summary ? formatInt(summary.vertexCount) : '';
+  const pRange = summary ? formatPaRange(summary.ranges.p[0], summary.ranges.p[1]) : '';
   const fallback = fallbackSrc ?? fallbackImageUrl(manifestUrl);
 
-  const srSummary = manifest
-    ? `${caseId}, a coronary vessel surface of ${nodes} nodes painted with ${legend?.summary ?? ''} CFD is shown left of the wipe handle, PINO right of it.`
-    : `${caseId}, coronary vessel surface pressure, CFD against PINO.`;
+  /*
+    Screen-reader summary of the canvas. Quiet (the home plate) prints none:
+    the host page captions the plate in Astro (case, nodes, FFR, inference)
+    and the colorbar's own label carries the field and its range, so a
+    third copy would only be read twice.
+  */
+  const legendLine = legend?.summary ? legend.summary.charAt(0).toLowerCase() + legend.summary.slice(1) : '';
+  const srSummary = quiet
+    ? ''
+    : summary
+      ? `${caseId}, ${nodes} nodes: ${legendLine} CFD is on the left and PINO on the right; slide or toggle to compare.`
+      : `${caseId}, vessel surface pressure, CFD against PINO.`;
 
   return (
     <div
@@ -466,11 +593,12 @@ export function VesselViewer({
       data-dragging={dragging}
       data-field={field}
       data-control={useToggle ? 'toggle' : 'handle'}
+      data-quiet={quiet ? 'true' : undefined}
       role="group"
       aria-label={`${caseId} vessel viewer`}
       aria-busy={status === 'loading' || undefined}
     >
-      <p className={s.srOnly}>{srSummary}</p>
+      {srSummary && <p className={s.srOnly}>{srSummary}</p>}
 
       <div className={s.layout}>
         <div ref={stageRef} className={s.stage} onPointerDown={onStagePointerDown}>
@@ -489,11 +617,18 @@ export function VesselViewer({
             />
           )}
 
-          {status === 'loading' && (
+          {status === 'loading' && mounted && (
             <p className={s.status} aria-live="polite">
-              <strong>{caseId}</strong>
-              <br />
-              loading {nodes} nodes
+              {quiet ? (
+                /* Quiet: the host caption under the plate already prints the case and node count. */
+                'loading'
+              ) : (
+                <>
+                  <strong>{caseId}</strong>
+                  <br />
+                  {nodes ? `loading ${nodes} nodes` : 'loading the vessel'}
+                </>
+              )}
             </p>
           )}
           {status === 'error' && (
@@ -535,18 +670,24 @@ export function VesselViewer({
           only on the controls); under it, in rows, on narrow chapter frames.
         */}
         <div className={s.chrome}>
-          {legend && gradients && (
+          {bars.map(({ field: f, legend: lg, gradients }) => (
             <div
+              key={f}
               className={s.colorbar}
+              data-colorbar=""
+              data-field={f}
+              hidden={f !== field || undefined}
               role="img"
-              aria-label={`Colorbar: ${legend.summary}`}
+              aria-label={`Colorbar: ${lg.summary}`}
               style={{ '--cb-v': gradients.v, '--cb-h': gradients.h } as CSSProperties}
             >
-              <span className={s.cbLabel}>
-                {legend.name} <span className={s.unit}>{legend.unit}</span>
+              <span className={s.cbLabel} data-long={lg.joiner ? 'true' : undefined}>
+                <span className={s.cbName}>{lg.name}</span>
+                {lg.joiner ? <span className={s.joiner}>{lg.joiner}</span> : ' '}
+                <span className={s.unit}>{lg.unit}</span>
               </span>
               <ol className={s.ticks} aria-hidden="true">
-                {legend.ticks.map((t) => (
+                {lg.ticks.map((t) => (
                   <li
                     key={t.t}
                     className={s.tick}
@@ -558,9 +699,9 @@ export function VesselViewer({
                   </li>
                 ))}
               </ol>
-              <div className={s.strip} />
+              <div className={s.strip} data-strip="" />
             </div>
-          )}
+          ))}
 
           {(showFields || showTwoState) && (
             <div className={s.controls}>
@@ -604,12 +745,11 @@ export function VesselViewer({
             </div>
           )}
 
-          {mode === 'chapter' && status === 'ready' && field === 'speed' && (
-            <p className={s.note}>
-              Inlet and outlet caps are masked: the wall is no-slip, so surface speed is the first
-              interior node&rsquo;s, and cap vertices carry an interior value on a different range.
+          {notes.map((n) => (
+            <p key={n.field} className={s.note} data-field={n.field} hidden={!(showFields && field === n.field) || undefined}>
+              {n.text}
             </p>
-          )}
+          ))}
         </div>
       </div>
     </div>

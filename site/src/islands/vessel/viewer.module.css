@@ -50,6 +50,10 @@
 .root[data-dragging='orbit'] .canvas {
   cursor: grabbing;
 }
+/* Quiet (the home plate): no orbit, so no grab cursor. */
+.root[data-quiet] .canvas {
+  cursor: default;
+}
 .root[data-status='nowebgl'] .canvas,
 .root[data-status='error'] .canvas {
   display: none;
@@ -63,7 +67,7 @@
   object-fit: contain;
   object-position: 50% 50%;
 }
-.root[data-mode='hero'] .fallback {
+.root[data-mode='hero']:not([data-quiet]) .fallback {
   object-position: 72% 50%;
 }
 
@@ -135,6 +139,13 @@
 /* Hero: the headline block holds the lower left, so the grip rides high on the hairline. */
 .root[data-mode='hero'] .grip {
   top: 18%;
+}
+/*
+  Quiet plate: the fitted vessel ends by 78 % of the height (scene.ts), so
+  the grip rides under it on the hairline instead of covering the image.
+*/
+.root[data-quiet] .grip {
+  top: 88%;
 }
 .gripBar {
   width: 1px;
@@ -218,6 +229,22 @@
   letter-spacing: 0;
   color: var(--ink-2);
 }
+/*
+  A long label (the error bar: "error · PINO − CFD · ±1.0 kPa") stacks over
+  the strip on two right-aligned lines, name then scale, so it does not
+  reach across the image; the joiner shows only where it runs on one line.
+*/
+.cbLabel[data-long] {
+  display: grid;
+  justify-items: end;
+  row-gap: 0.2rem;
+}
+.cbLabel[data-long] .joiner {
+  display: none;
+}
+.cbName {
+  white-space: nowrap;
+}
 
 /* Segmented controls: field toggle (chapter) and two-state wipe (narrow) */
 .segment {
@@ -238,9 +265,12 @@
   white-space: nowrap;
 }
 .fields {
-  /* Inset past a Frame's corner chrome so the two never collide. */
+  /*
+    Inset past a Frame's corner chrome, with the field note's line between
+    the two, so neither collides with the corner.
+  */
   left: 0.75rem;
-  bottom: 2.25rem;
+  bottom: 3.75rem;
 }
 .twoState {
   left: 50%;
@@ -256,7 +286,7 @@
 .root[data-mode='chapter'] .twoState {
   left: auto;
   right: 0.75rem;
-  bottom: 2.25rem;
+  bottom: 3.75rem;
   transform: none;
 }
 .segBtn {
@@ -319,17 +349,24 @@
   }
 }
 
+/*
+  Field note: one mono line under the field toggle saying what the error
+  (or speed) field shows, above the Frame's bottom corner chrome.
+*/
 .note {
   position: absolute;
   left: 0.75rem;
-  bottom: 4.75rem;
-  max-width: 44ch;
-  font-family: var(--font-text);
-  font-style: italic;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  right: 0.75rem;
+  bottom: 2.25rem;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--size-mono);
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-2);
-  text-wrap: pretty;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Loading / error readout */
@@ -386,32 +423,38 @@
   .root[data-mode='chapter'][data-status='loading'] .chrome {
     min-height: 7rem;
   }
+  /* The label runs on one line above the strip, so the strip keeps the row's full width. */
   .root[data-mode='chapter'] .colorbar {
     position: static;
     transform: none;
     height: auto;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: 8px 1rem;
-    column-gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 8px 1rem;
     row-gap: 0.35rem;
     align-items: center;
   }
   .root[data-mode='chapter'] .cbLabel {
     position: static;
     grid-column: 1;
-    grid-row: 1 / span 2;
-    align-self: center;
+    grid-row: 1;
+    white-space: normal;
+  }
+  .root[data-mode='chapter'] .cbLabel[data-long] {
+    display: block;
+  }
+  .root[data-mode='chapter'] .cbLabel[data-long] .joiner {
+    display: inline;
   }
   .root[data-mode='chapter'] .strip {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     width: auto;
     height: 8px;
     background: var(--cb-h);
   }
   .root[data-mode='chapter'] .ticks {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 1;
+    grid-row: 3;
     height: 1rem;
   }
   .root[data-mode='chapter'] .tick {
@@ -460,8 +503,8 @@
   }
   .root[data-mode='chapter'] .note {
     position: static;
-    max-width: none;
-    font-size: 0.85rem;
+    white-space: normal;
+    overflow: visible;
   }
 }
 
@@ -471,7 +514,7 @@
   frame, so a shorter portrait frame cannot push it under either.
 */
 @container vessel (max-width: 639.98px) {
-  .root[data-mode='hero'] .colorbar {
+  .root[data-mode='hero']:not([data-quiet]) .colorbar {
     top: 6.5rem;
     bottom: 6rem;
     height: auto;
@@ -484,4 +527,10 @@
   .segBtn {
     transition: none;
   }
+}
+
+/* Colorbars and notes for the fields not chosen stay in the HTML (their numbers are in the static page) and out of view. */
+.colorbar[hidden],
+.note[hidden] {
+  display: none !important;
 }

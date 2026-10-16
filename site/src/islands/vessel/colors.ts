@@ -5,11 +5,16 @@
 
   Each field yields two color sets: A paints the left of the wipe, B the
   right. Pressure: A = CFD, B = PINO, one shared p range. Error: both sides
-  carry p_pino - p_cfd on the symmetric diverging range, the throat above
-  +absMax in the over color; the wipe is switched off. Speed: A = CFD, B =
-  PINO near-wall speed on 0..vmag_wall_max; the inlet and outlet caps are
-  masked to bone-3 because their vertices carry an interior value on a
+  carry p_pino - p_cfd on a fixed symmetric diverging range (errorScalePa:
+  the 99th percentile of |p_err| rounded up to the next 0.5 kPa), anything
+  above +scale in the over color; the wipe is switched off. Speed: A = CFD,
+  B = PINO near-wall speed on 0..vmag_wall_max; the inlet and outlet caps
+  are masked to bone-3 because their vertices carry an interior value on a
   different range (manifest viewer_notes).
+
+  Every bar has the same five-tick layout (0, 1/4, 1/2, 3/4, 1 of its
+  range). legendFor reads only the manifest's ranges, so the server render
+  can print the bar before the manifest is fetched.
 */
 import {
   buildLut,
@@ -19,8 +24,27 @@ import {
   type ColormapName,
   type RGB,
 } from '@/lib/colormaps';
-import { formatDecimal, formatInt, formatKpa } from '@/lib/format';
+import { formatDecimal, formatKpa, THIN } from '@/lib/format';
 import type { PinoManifest, VesselData, ViewerField } from './data';
+
+/** The ranges a legend needs; a subset of the manifest, small enough to pass as an island prop. */
+export type LegendRanges = Pick<
+  PinoManifest['ranges'],
+  'p' | 'p_err_abs_max' | 'p_err_min' | 'p_err_max' | 'vmag_wall_max'
+>;
+
+/** Error bars step in 0.5 kPa. */
+export const ERROR_STEP_PA = 500;
+
+/*
+  The fixed symmetric error scale in Pa: the 99th percentile of |p_err|
+  (manifest p_err_abs_max) rounded up to the next ERROR_STEP_PA. For
+  PINO-DEMO-01 that is 512.6 Pa → 1 000 Pa (±1.0 kPa).
+*/
+export function errorScalePa(r: Pick<LegendRanges, 'p_err_abs_max'>): number {
+  const p99 = Math.abs(r.p_err_abs_max);
+  return Math.max(ERROR_STEP_PA, Math.ceil(p99 / ERROR_STEP_PA - 1e-9) * ERROR_STEP_PA);
+}
 
 export const FIELD_COLORMAP: Record<ViewerField, ColormapName> = {
   pressure: 'turbo',
@@ -106,11 +130,13 @@ export function fieldColors(data: VesselData, field: ViewerField, reuse?: FieldC
   }
   if (field === 'error') {
     const lut = linearLut('diverging');
-    const toT = (v: number) => normalizeDiverging(v, r.p_err_abs_max);
+    const scale = errorScalePa(r);
+    const toT = (v: number) => normalizeDiverging(v, scale);
     paintLinear(a, data.p_err, lut, toT);
     b.set(a);
     return { a, b, wipe: false };
   }
+  if (!data.vmag_cfd || !data.vmag_pino) throw new Error('the speed chunk is not loaded (loadSpeed)');
   const lut = linearLut('viridis');
   const toT = (v: number) => normalize(v, 0, r.vmag_wall_max);
   paintLinear(a, data.vmag_cfd, lut, toT, data.region);
@@ -130,6 +156,8 @@ export interface Legend {
   colormap: ColormapName;
   /** Field name for the label row. */
   name: string;
+  /** Printed between name and unit when the label runs on one line (the error bar). */
+  joiner?: string;
   unit: string;
   ticks: LegendTick[];
   /** Share of the strip given to the above-range band (diverging only). */
@@ -138,17 +166,20 @@ export interface Legend {
   summary: string;
 }
 
+/* Five ticks at 0, 1/4, 1/2, 3/4 and 1 of the main band (the same layout on every bar). */
+function fiveTicks(lo: number, hi: number, band: number, text: (v: number) => string): LegendTick[] {
+  return [0, 0.25, 0.5, 0.75, 1].map((f) => ({ t: f * band, text: text(lo + (hi - lo) * f) }));
+}
+
 /*
-  One unit per quantity across the site: surface pressure is kPa at one
-  decimal in every readout and colorbar (hero, chapter, home front). Only
-  the error field stays in Pa: its range is a few hundred pascals and would
-  read as 0.x kPa.
+  One unit per quantity across the site: surface pressure and its error are
+  kPa at one decimal in every readout and colorbar; speed is m/s at two.
+  Accepts the whole manifest or just its ranges.
 */
-export function legendFor(field: ViewerField, manifest: PinoManifest): Legend {
-  const r = manifest.ranges;
+export function legendFor(field: ViewerField, source: PinoManifest | { ranges: LegendRanges }): Legend {
+  const r = source.ranges;
   if (field === 'pressure') {
     const [lo, hi] = r.p;
-    const mid = (lo + hi) / 2;
     const f = (v: number) => formatKpa(v, 1);
     const unit = 'kPa';
     return {
@@ -156,33 +187,32 @@ export function legendFor(field: ViewerField, manifest: PinoManifest): Legend {
       colormap: 'turbo',
       name: 'pressure',
       unit,
-      ticks: [
-        { t: 0, text: f(lo) },
-        { t: 0.5, text: f(mid) },
-        { t: 1, text: f(hi) },
-      ],
+      ticks: fiveTicks(lo, hi, 1, f),
       overFraction: 0,
       summary: `Surface pressure from ${f(lo)} to ${f(hi)} ${unit}, one range for CFD and PINO.`,
     };
   }
   if (field === 'error') {
-    const m = r.p_err_abs_max;
-    const over = 0.08;
+    const m = errorScalePa(r);
+    // The above-range band is drawn only when some node lies past +scale.
+    const hasOver = r.p_err_max > m;
+    const over = hasOver ? 0.08 : 0;
     const main = 1 - over;
-    const txt = (v: number) => (v > 0 ? `+${formatInt(v)}` : formatInt(v));
+    const signed = (v: number) => (Math.abs(v) < 1e-9 ? '0' : `${v > 0 ? '+' : ''}${formatKpa(v, 1)}`);
+    const ticks = fiveTicks(-m, m, main, signed);
+    if (hasOver) ticks.push({ t: main + over / 2, text: `> ${signed(m)}`, over: true });
+    const scale = `±${formatKpa(m, 1)}`;
     return {
       field,
       colormap: 'diverging',
-      name: 'PINO − CFD',
-      unit: 'Pa',
-      ticks: [
-        { t: 0, text: txt(-m) },
-        { t: main * 0.5, text: '0' },
-        { t: main, text: txt(m) },
-        { t: main + over / 2, text: `> ${txt(m)}`, over: true },
-      ],
+      name: 'error · PINO − CFD',
+      joiner: ' · ',
+      unit: `${scale}${THIN}kPa`,
+      ticks,
       overFraction: over,
-      summary: `Pressure error PINO minus CFD on a symmetric range of ±${formatInt(m)} Pa; the throat exceeds +${formatInt(m)} Pa and is painted in the above-range color.`,
+      summary: hasOver
+        ? `Pressure error, PINO minus CFD, on a fixed symmetric scale of ${scale} kPa; nodes above +${formatKpa(m, 1)} kPa take the above-range color.`
+        : `Pressure error, PINO minus CFD, on a fixed symmetric scale of ${scale} kPa; this case runs from ${signed(r.p_err_min)} to ${signed(r.p_err_max)} kPa.`,
     };
   }
   const hi = r.vmag_wall_max;
@@ -192,12 +222,22 @@ export function legendFor(field: ViewerField, manifest: PinoManifest): Legend {
     colormap: 'viridis',
     name: 'near-wall speed',
     unit: 'm/s',
-    ticks: [
-      { t: 0, text: f(0) },
-      { t: 0.5, text: f(hi / 2) },
-      { t: 1, text: f(hi) },
-    ],
+    ticks: fiveTicks(0, hi, 1, f),
     overFraction: 0,
     summary: `Near-wall speed from 0 to ${f(hi)} m/s; inlet and outlet caps are masked.`,
   };
+}
+
+/* The mono note under the field toggle (chapter mode): what the error or speed field shows; none for pressure. */
+export function fieldNote(field: ViewerField, source: PinoManifest | { ranges: LegendRanges }): string {
+  const r = source.ranges;
+  if (field === 'error') {
+    const signed = (v: number) => `${v > 0 ? '+' : ''}${formatKpa(v, 1)}`;
+    return `PINO minus CFD at each node. Here ${signed(r.p_err_min)} to ${signed(r.p_err_max)}${THIN}kPa, largest at the throat.`;
+  }
+  if (field === 'speed') {
+    return 'Speed one node inside the no-slip wall; inlet and outlet caps masked.';
+  }
+  // Pressure needs none: the wipe and the shared bar say it.
+  return '';
 }

@@ -56,7 +56,7 @@ export function fracFromLeft(raster: Pick<Raster, 'tDomain'>, t: number): number
   return span === 0 ? 0 : (t - lo) / span;
 }
 
-function inferScale(spec: GridSpec): Scale {
+function inferScale(spec: Pick<GridSpec, 'f_scale' | 'f_hz'>): Scale {
   if (spec.f_scale) return spec.f_scale;
   const f = spec.f_hz;
   if (f.length < 3 || f[0] <= 0) return 'linear';
@@ -72,12 +72,19 @@ function inferScale(spec: GridSpec): Scale {
  */
 export const DB_BOTTOM_CLIP = 0.1;
 
-export function buildRaster(
-  grid: LoadedGrid,
+/**
+ * The axis geometry of a raster, without the pixels: what the server render
+ * needs to print the frequency and time ticks and the dB range before the
+ * .bin arrives (research.astro computes it from the pulse manifest at
+ * build; buildRaster computes the same values in the browser).
+ */
+export type RasterAxes = Pick<Raster, 'rows' | 'cols' | 'rowStart' | 'rowEnd' | 'scale' | 'fDomain' | 'fEdges' | 'tDomain' | 'dbLo' | 'dbHi'>;
+
+export function rasterAxes(
+  spec: Pick<GridSpec, 'f_hz' | 't_s' | 'rows' | 'cols' | 'f_scale' | 'db_display'>,
   crop?: [number, number],
   bottomClip: number = DB_BOTTOM_CLIP,
-): Raster {
-  const { spec, data } = grid;
+): RasterAxes {
   const f = spec.f_hz;
   const scale = inferScale(spec);
   const cropLo = crop ? Math.min(crop[0], crop[1]) : -Infinity;
@@ -122,6 +129,28 @@ export function buildRaster(
   const [d0, d1] = spec.db_display;
   const dbLo = d0 + (d1 - d0) * Math.min(0.9, Math.max(0, bottomClip));
   const dbHi = d1;
+  return {
+    rows,
+    cols,
+    rowStart,
+    rowEnd,
+    scale,
+    fDomain: [fLo, fHi],
+    fEdges: [bottomEdge, topEdge],
+    tDomain,
+    dbLo,
+    dbHi,
+  };
+}
+
+export function buildRaster(
+  grid: LoadedGrid,
+  crop?: [number, number],
+  bottomClip: number = DB_BOTTOM_CLIP,
+): Raster {
+  const { spec, data } = grid;
+  const axes = rasterAxes(spec, crop, bottomClip);
+  const { rows, cols, rowEnd, dbLo, dbHi } = axes;
   const inv = dbHi > dbLo ? 1 / (dbHi - dbLo) : 0;
 
   const source = document.createElement('canvas');
@@ -149,20 +178,7 @@ export function buildRaster(
   }
   ctx.putImageData(image, 0, 0);
 
-  return {
-    source,
-    cols,
-    rows,
-    rowStart,
-    rowEnd,
-    scale,
-    fDomain: [fLo, fHi],
-    fEdges: [bottomEdge, topEdge],
-    tDomain,
-    t_s: t,
-    dbLo,
-    dbHi,
-  };
+  return { ...axes, source, t_s: spec.t_s };
 }
 
 export interface Tick {

@@ -1,27 +1,35 @@
 ---
+import { pulseFacts } from '@/lib/schema';
 /*
   The CWT companion to the STFT artifact in the Pulse chapter: the same
-  60 s signal through a Morlet wavelet, framed with its method in the
-  corners. Numbers come from the pulse manifest.
+  recording through a Morlet wavelet, on a film plate with one caption.
+  The island, mounted bare, draws the clock, colorbar and method line;
+  numbers come from the pulse manifest. It shares the chapter's one Replay
+  control (replayGroup "pulse") with the STFT plate.
 */
 import Frame from '@/components/Frame.astro';
 import SpectrogramDevelop from '@/islands/SpectrogramDevelop';
-import { formatDecimal, formatInt } from '@/lib/format';
+import { rasterAxes } from '@/islands/pulse/raster';
 import { pulse, urls } from './data';
+import { formatSeconds } from '@/lib/format';
 
-const m = pulse.cwt.method;
-const fRange = `${formatDecimal(m.f_range_hz[0], 1)}–${formatDecimal(m.f_range_hz[1], 1)} Hz`;
-const wavelet = m.wavelet === 'morl' ? 'Morlet' : m.wavelet;
 const durationS = Math.round(pulse.cwt.t_s[pulse.cwt.t_s.length - 1]);
-/* The Frame carries the border and the name; the island, mounted bare, draws the clock, colorbar and method line. */
+/* Axes and method at build time, so the Hz and s ticks and the dB range are in the server HTML. */
+const axes = rasterAxes(pulse.cwt);
 ---
 
-<Frame as="figure" tl="PPG · CWT">
-  <SpectrogramDevelop client:visible manifestUrl={urls.pulseManifest} variant="cwt" bare />
-  <Fragment slot="what">Continuous wavelet transform</Fragment>
-  <Fragment slot="result">
-    <span class="rl">{wavelet}, {formatInt(m.n_scales)} scales, {fRange}</span>
-    <span class="rl">{formatInt(pulse.cwt.rows)} × {formatInt(pulse.cwt.cols)}, same {durationS} s recording</span>
-  </Fragment>
-  <Fragment slot="consequence">The second representation the ensemble reads; two of its six configurations see this.</Fragment>
-</Frame>
+<figure class="art">
+  <Frame plate class="art__frame art__frame--cwt" tl="PPG · CWT">
+    <SpectrogramDevelop
+      recordingS={pulseFacts.durationS}
+      client:visible
+      manifestUrl={urls.pulseManifest}
+      variant="cwt"
+      axes={axes}
+      method={pulse.cwt.method}
+      replayGroup="pulse"
+      bare
+    />
+  </Frame>
+  <figcaption class="art__caption">The same <span class="num">{formatSeconds(durationS, 0)}</span> recording as a wavelet scalogram, the second image the ensemble reads.</figcaption>
+</figure>

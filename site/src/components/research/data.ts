@@ -13,7 +13,7 @@ export interface PinoManifest {
   case_id: string;
   vertexCount: number;
   triangleCount: number;
-  ranges: { p: [number, number]; p_err_abs_max: number };
+  ranges: { p: [number, number]; p_err_abs_max: number; p_err_min: number; p_err_max: number; vmag_wall_max: number };
   geometry: { ffr_probes: { proximal: { s_mm: number }; distal: { s_mm: number } } };
   metrics: {
     case: {
@@ -32,6 +32,11 @@ export interface PinoManifest {
     };
   };
   timing: {
+    /** reference_pipeline mirrors content.ts cfdReference (lib/schema.ts checks they agree). */
+    cfd?: {
+      wall_time_s: number | null;
+      reference_pipeline?: { cpu_cores: number; wall_time_max_s: number; source: string; note?: string };
+    };
     pino: { gpu: string; inference_ms_median: number; query_points: string };
   };
   p_proximal_Pa: number;
@@ -46,12 +51,17 @@ export interface PulseManifest {
     cols: number;
     recommended_crop_hz: [number, number];
     method: { window: string; nperseg: number; noverlap: number; fs_hz: number };
+    f_hz: number[];
     t_s: number[];
+    db_display: [number, number];
   };
   cwt: {
     rows: number;
     cols: number;
+    f_hz: number[];
     t_s: number[];
+    f_scale?: 'linear' | 'log';
+    db_display: [number, number];
     method: { wavelet: string; n_scales: number; f_range_hz: [number, number]; fs_hz: number };
   };
   pipeline: {

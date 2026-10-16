@@ -248,6 +248,9 @@
   font-variant-numeric: tabular-nums;
   color: var(--ink-2);
 }
+.legend[hidden] {
+  display: none;
+}
 .legendName {
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;

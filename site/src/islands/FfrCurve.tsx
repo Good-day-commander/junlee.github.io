@@ -21,11 +21,18 @@
              followViewer   listen to the window 'vesselviewer:state' event
                             instead (for two separate Astro islands)
              mode           'hero' (flatter) | 'chapter'
-    SSR      renders a sized, labelled frame; measures and draws on mount.
+             ffr            { cfd, pino } on the distal plane, for the server
+                            render; defaults to a build-time copy of
+                            centerline.json's ffr when centerlineUrl is the
+                            shipped /data/pino/centerline.json
+    SSR      renders a sized, labelled frame and the FFR legend row with its
+             values (so the two numbers are in the server HTML); measures
+             and draws the chart on mount.
 */
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { formatDecimal, formatMm } from '@/lib/format';
 import { loadCenterline, VIEWER_STATE_EVENT, type Centerline } from './vessel/data';
+import { ffr as shippedFfr } from '../../public/data/pino/centerline.json';
 import s from './vessel/ffr.module.css';
 
 export interface FfrCurveProps {
@@ -35,8 +42,12 @@ export interface FfrCurveProps {
   wipe?: number;
   followViewer?: boolean;
   mode?: 'hero' | 'chapter';
+  /** FFR on the distal plane for the server render (the loaded centerline wins). */
+  ffr?: { cfd: number; pino: number };
   className?: string;
 }
+
+const SHIPPED_CENTERLINE = '/data/pino/centerline.json';
 
 /*
   top: the label band above the plot, two rows: the probe labels on the
@@ -45,10 +56,10 @@ export interface FfrCurveProps {
   bottom: x tick labels, then the axis title. The Frame around the chart pads
   its body clear of the corner chrome.
 */
-const PAD = { top: 44, right: 14, bottom: 42, left: 46 };
+const PAD = { top: 44, right: 14, bottom: 42, left: 50 };
 const PROBE_BASELINE = 14;
-/* Mono label metrics for collision checks: 0.7rem JetBrains Mono, about 0.6 em per glyph. */
-const LABEL_PX = 11.2;
+/* Mono label metrics for collision checks: the plate's 13px JetBrains Mono, 0.6 em per glyph. */
+const LABEL_PX = 13;
 const GLYPH_PX = LABEL_PX * 0.6;
 const FFR_DIGITS = 2;
 
@@ -67,7 +78,14 @@ function interp(xs: number[], ys: number[], x: number): number {
   return ys[lo] + (ys[hi] - ys[lo]) * f;
 }
 
-export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'chapter', className }: FfrCurveProps) {
+export function FfrCurve({
+  centerlineUrl,
+  wipe,
+  followViewer = false,
+  mode = 'chapter',
+  ffr: ffrProp,
+  className,
+}: FfrCurveProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<Centerline | null>(null);
   const [error, setError] = useState('');
@@ -196,6 +214,8 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
     : 'Loading the centerline pressure curve.';
 
   const aspectStyle = { aspectRatio: mode === 'hero' ? '1 / 0.38' : '2 / 1' };
+  const shipped = centerlineUrl.replace(/^https?:\/\/[^/]+/, '').split(/[?#]/)[0] === SHIPPED_CENTERLINE;
+  const ffrShown = data?.ffr ?? ffrProp ?? (shipped ? { cfd: shippedFfr.cfd, pino: shippedFfr.pino } : null);
 
   return (
     <div
@@ -280,18 +300,18 @@ export function FfrCurve({ centerlineUrl, wipe, followViewer = false, mode = 'ch
       )}
       {/* Always rendered, so the frame does not grow when the data arrives. */}
       <div className={s.legendRow}>
-        {chart && data && (
+        {ffrShown && (
           <>
           <span className={s.legendLead}>FFR, distal plane</span>
           <span className={s.key}>
             <span className={`${s.swatch} ${s.swatchCfd}`} aria-hidden="true" />
-            CFD <span className={s.keyValue}>{formatDecimal(data.ffr.cfd, FFR_DIGITS)}</span>
+            CFD <span className={s.keyValue}>{formatDecimal(ffrShown.cfd, FFR_DIGITS)}</span>
           </span>
           <span className={s.key}>
             <span className={`${s.swatch} ${s.swatchPino}`} aria-hidden="true" />
-            PINO <span className={`${s.keyValue} ${s.isPino}`}>{formatDecimal(data.ffr.pino, FFR_DIGITS)}</span>
+            PINO <span className={`${s.keyValue} ${s.isPino}`}>{formatDecimal(ffrShown.pino, FFR_DIGITS)}</span>
           </span>
-          {chart.hasWipe && (
+          {chart && chart.hasWipe && (
             <span className={s.station} aria-live="off">
               at {formatMm(chart.sW)}: CFD {formatDecimal(chart.wCfd, FFR_DIGITS)} · PINO{' '}
               {formatDecimal(chart.wPino, FFR_DIGITS)}
