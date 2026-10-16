@@ -566,7 +566,8 @@ export function VesselViewer({
       ? FIELDS.map((f) => ({ field: f.id, text: fieldNote(f.id, summary) })).filter((n) => n.text)
       : [];
   const pct = Math.round(wipe * 100);
-  const caseId = summary?.case_id ?? 'PINO-DEMO-01';
+  /* The case identifier stays in the manifest; readers see "a patient's coronary vessel" (owner, 2026-10-17). */
+  const subject = "A patient's coronary vessel";
   const nodes = summary ? formatInt(summary.vertexCount) : '';
   const pRange = summary ? formatPaRange(summary.ranges.p[0], summary.ranges.p[1]) : '';
   const fallback = fallbackSrc ?? fallbackImageUrl(manifestUrl);
@@ -581,8 +582,8 @@ export function VesselViewer({
   const srSummary = quiet
     ? ''
     : summary
-      ? `${caseId}, ${nodes} nodes: ${legendLine} CFD is on the left and PINO on the right; slide or toggle to compare.`
-      : `${caseId}, vessel surface pressure, CFD against PINO.`;
+      ? `${subject}, ${nodes} surface nodes: ${legendLine} CFD is on the left and PINO on the right; slide or toggle to compare.`
+      : `${subject}: surface pressure, CFD against PINO.`;
 
   return (
     <div
@@ -596,7 +597,7 @@ export function VesselViewer({
       data-control={useToggle ? 'toggle' : 'handle'}
       data-quiet={quiet ? 'true' : undefined}
       role="group"
-      aria-label={`${caseId} vessel viewer`}
+      aria-label="Coronary vessel viewer, CFD against the neural operator"
       aria-busy={status === 'loading' || undefined}
     >
       {srSummary && <p className={s.srOnly}>{srSummary}</p>}
@@ -609,7 +610,7 @@ export function VesselViewer({
             <img
               className={s.fallback}
               src={fallback}
-              alt={`${caseId}: vessel surface coloured by pressure ${pRange}, CFD on the left half and PINO on the right.`}
+              alt={`${subject} coloured by surface pressure ${pRange}, CFD on the left half and PINO on the right.`}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
                 setErrorText('WebGL is unavailable in this browser');
@@ -624,18 +625,12 @@ export function VesselViewer({
                 /* Quiet: the host caption under the plate already prints the case and node count. */
                 'loading'
               ) : (
-                <>
-                  <strong>{caseId}</strong>
-                  <br />
-                  {nodes ? `loading ${nodes} nodes` : 'loading the vessel'}
-                </>
+                <>{nodes ? `loading the vessel, ${nodes} nodes` : 'loading the vessel'}</>
               )}
             </p>
           )}
           {status === 'error' && (
             <p className={s.status} role="status">
-              <strong>{caseId}</strong>
-              <br />
               {errorText ? `the vessel did not load: ${errorText}` : 'the vessel did not load'}
               <br />
               {pRange ? `surface pressure ${pRange}` : 'reload the page to try again'}
