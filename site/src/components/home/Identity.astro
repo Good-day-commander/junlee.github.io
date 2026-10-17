@@ -104,6 +104,10 @@ const links = [
   .identity__fields {
     color: var(--ink-2);
   }
+  /* A field name never breaks inside itself; lines break only at the separators. */
+  .identity__item {
+    white-space: nowrap;
+  }
   .identity__tagline {
     font-family: var(--font-text);
     font-size: 1.125rem;
