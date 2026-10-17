@@ -101,6 +101,11 @@
   --ring-offset: 2px;
 }
 
+/* The CV page widens the column. Unlayered on purpose: tokens.css is unlayered, so a layered override in global.css would lose. */
+html[data-width='record'] {
+  --width-frame: var(--width-record);
+}
+
 /*
   Semantic aliases. The light box is the default; the film set is applied
   by the system dark scheme to the whole page, and by .plate to a data
