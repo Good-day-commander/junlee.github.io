@@ -272,7 +272,7 @@ export const experience: Experience[] = [
     location: "Seoul, Republic of Korea",
     start: "Sep. 2026",
     end: "Present",
-    notes: [`Appointment: ${profile.appointmentNote}`, `Concurrent: ${appointmentLine(profile.concurrent)}`],
+    notes: [`Appointment: ${profile.appointmentNote}`],
     bullets: [
       "Physics-informed neural operators for real-time, patient-specific prediction of coronary flow fields (journal manuscript in preparation).",
       "Wearable PPG biomarkers: deep-learning ensemble that predicts fluid-bolus needs from smartwatch PPG spectrograms [M1]; blood pressure, viscosity and hydration estimation.",

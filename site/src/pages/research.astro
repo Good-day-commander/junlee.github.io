@@ -82,17 +82,18 @@ const description = `${profile.name}'s research: a neural operator returning a p
             <FfrCurve client:visible centerlineUrl={urls.centerline} mode="chapter" />
           </Frame>
           <figcaption class="art__caption">
-            Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span> from the inlet. CFD and PINO differ by
+            Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span>. CFD and PINO differ by
             <span class="num">{flow.ffrDelta}</span> at the distal probe.
           </figcaption>
         </figure>
       </div>
     </Fragment>
 
+    <details class="more" open>
+      <summary class="more__summary">Method and metrics</summary>
     <p class="t-prose">
-      The current PINO is a geometry-informed neural operator (GINO backbone). From the vessel surface it returns pressure
-      and velocity at all {flow.volumeNodes} volume nodes, with a pressure-only Navier–Stokes residual in its loss. Each
-      case is predicted by the fold model that never saw it.
+      A geometry-informed neural operator returns pressure and velocity at all {flow.volumeNodes} volume nodes from the
+      vessel surface alone, with a Navier–Stokes residual in its loss. Every case is predicted by a model that never saw it.
     </p>
 
     <MetricsTable
@@ -103,6 +104,7 @@ const description = `${profile.name}'s research: a neural operator returning a p
       rows={flow.rows}
     />
 
+    </details>
     <Cite pub={C1} />
   </Chapter>
 
@@ -114,21 +116,22 @@ const description = `${profile.name}'s research: a neural operator returning a p
           <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={im} />
         </Frame>
         <figcaption class="art__caption">
-          Pressure and wall shear stress through one cardiac cycle; {image.acquiredList} acquired by CT, the other
-          {' '}{image.synthesized} synthesized.
+          One cardiac cycle: {image.acquiredList} acquired by CT, the other {image.synthesized} synthesized.
         </figcaption>
       </figure>
     </Fragment>
 
+    <details class="more" open>
+      <summary class="more__summary">Method and metrics</summary>
     <p class="t-prose">
-      A denoising diffusion deformable model synthesizes a full-cycle 4D coronary CT from two acquired phases. The
-      sequence is then meshed and solved, so FFR can be followed across the cycle instead of read from one static phase.
+      A diffusion deformable model synthesizes the full cardiac cycle from two acquired CT phases. Each phase is meshed
+      and solved, so FFR is followed across the cycle instead of read from one still.
     </p>
 
     <MetricsTable
       id="image-metrics"
       label="4D CT synthesis and CT-FFR metrics reported in the paper"
-      caption={`Reported in ${J1.id}, the 4D CT paper.`}
+      caption={`Reported in the 4D CT paper.`}
       head={['Metric', 'Value']}
       rows={[
         ['4D CT-FFR accuracy against invasive FFR', `${image.ffrAccuracy} %`],
@@ -138,6 +141,7 @@ const description = `${profile.name}'s research: a neural operator returning a p
       ]}
     />
 
+    </details>
     <Cite pub={J1} />
   </Chapter>
 
@@ -159,8 +163,7 @@ const description = `${profile.name}'s research: a neural operator returning a p
             />
           </Frame>
           <figcaption class="art__caption">
-            One <span class="num">{formatSeconds(pulseFacts.durationS, 0)}</span> smartwatch recording, taken before the first bolus; the
-            cardiac band is the bright line.
+            One <span class="num">{formatSeconds(pulseFacts.durationS, 0)}</span> recording before the first bolus; the bright band is the heartbeat.
           </figcaption>
         </figure>
         <CwtStrip />
@@ -174,17 +177,18 @@ const description = `${profile.name}'s research: a neural operator returning a p
       </div>
     </Fragment>
 
+    <details class="more" open>
+      <summary class="more__summary">Method and metrics</summary>
     <p class="t-prose">
-      Green-channel PPG at {pulseFacts.fs} Hz is band-passed, normalized in short windows and cut into overlapping
-      segments, each turned into an STFT or CWT image. Six CNN configurations, each kept as five fold checkpoints, make
-      {' '}{pulseFacts.networks} networks whose patient-level scores are combined by a non-negative weighted average. The
-      target is an intravenous fluid bolus within 24 hours of emergency-department arrival.
+      Smartwatch PPG is filtered, cut into overlapping segments and turned into STFT and CWT images. {pulseFacts.networks}
+      CNNs score them, and a weighted average predicts an intravenous fluid bolus within 24 hours of emergency-department
+      arrival.
     </p>
 
     <MetricsTable
       id="pulse-metrics"
       label="Fluid-bolus prediction at patient level"
-      caption={`From ${M1.id}, ${pulseFacts.status}. The development weights and cutoff were chosen on those predictions; the temporal set was scored unchanged.`}
+      caption={`${pulseFacts.status.replace(/^./, (s) => s.toUpperCase())}. Weights and cutoff were chosen on the development set; the temporal set was scored unchanged.`}
       head={['Set', 'AUC [95 % CI]', 'n']}
       rows={[
         ['Development, out-of-fold', `${pulseFacts.devAuc} [${pulseFacts.devCi}]`, pulseFacts.devN],
@@ -192,6 +196,7 @@ const description = `${profile.name}'s research: a neural operator returning a p
       ]}
     />
 
+    </details>
     <Cite pub={M1} />
   </Chapter>
 </Base>
@@ -284,4 +289,58 @@ const description = `${profile.name}'s research: a neural operator returning a p
     font-style: inherit;
     font-weight: inherit;
   }
+
+  /* Method and metrics: open on wide screens; on phones they start closed (the inline script below) and open with one tap. */
+  .more {
+    display: grid;
+    gap: var(--space-3);
+    width: 100%;
+  }
+  .more__summary {
+    font-family: var(--font-ui);
+    font-size: var(--size-ui);
+    color: var(--ink-2);
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .more__summary::-webkit-details-marker {
+    display: none;
+  }
+  .more__summary::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1px solid var(--ink-3);
+    border-bottom: 1px solid var(--ink-3);
+    transform: rotate(-45deg);
+    transition: transform var(--duration-quick) var(--ease-out);
+  }
+  .more[open] > .more__summary::before {
+    transform: rotate(45deg);
+  }
+  .more__summary:hover {
+    color: var(--ink);
+  }
+  .more__summary:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: var(--ring-offset);
+  }
+  @media (min-width: 600px) {
+    .more__summary {
+      pointer-events: none;
+    }
+    .more__summary::before {
+      display: none;
+    }
+  }
 </style>
+
+<script is:inline>
+  /* Phones start with the method and metrics folded; the markup ships open so agents and no-JS readers see everything. */
+  if (window.matchMedia('(max-width: 599.98px)').matches) {
+    document.querySelectorAll('details.more[open]').forEach((d) => d.removeAttribute('open'));
+  }
+</script>

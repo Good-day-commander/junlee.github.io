@@ -420,25 +420,25 @@ export const capabilities: { id: string; name: string; href: string; row: string
     id: 'simulation',
     name: 'Simulation',
     href: '/research/#flow',
-    row: `CFD of a patient's own vessels from CT, read out as FFR and wall shear stress; also applied to a tricuspid valve device.`,
+    row: `Patient-specific CFD from CT, read out as FFR and wall shear stress; also a tricuspid valve device.`,
   },
   {
     id: 'ai',
     name: 'Physics-informed AI',
     href: '/research/#image',
-    row: `Neural operators trained on CFD return an unseen vessel's pressure field in ${flow.inference}, not ${flow.cfdMaxMin} minutes; diffusion-synthesized 4D CT gives FFR across the cardiac cycle.`,
+    row: `Neural operators give a vessel's pressure field in ${flow.inference} instead of ${flow.cfdMaxMin} minutes; synthesized 4D CT gives FFR across the cycle.`,
   },
   {
     id: 'biosignals',
     name: 'Wearable biosignals',
     href: '/research/#pulse',
-    row: `Smartwatch PPG, read by deep learning, gives blood viscosity and predicts a fluid bolus within 24 h (AUC ${pulseFacts.devAuc}, ${pulseFacts.status}); patents cover blood pressure, glucose and glaucoma.`,
+    row: `Smartwatch PPG gives blood viscosity and predicts a fluid bolus within 24 h (AUC ${pulseFacts.devAuc}, under revision); patents cover blood pressure, glucose and glaucoma.`,
   },
   {
     id: 'devices',
     name: 'Devices and translation',
     href: '/cv/#patents',
-    row: `A point-of-care FFR simulator, an implantable tricuspid device, a negative-pressure tunnel and AI urodynamics; ${counts.patents} patents, ${counts.patentsRegistered} registered; CARDIOS and EASYCHECK carry parts of this work.`,
+    row: `FFR simulator, tricuspid implant, negative-pressure tunnel, AI urodynamics; ${counts.patents} patents, ${counts.patentsRegistered} registered; parts ship in CARDIOS and EASYCHECK.`,
   },
 ];
 
