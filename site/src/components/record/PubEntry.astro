@@ -27,6 +27,9 @@ const bib = bibtex(pub);
 const plate = PLATES[pub.id];
 /* The short venue (C1/C2 drop the conference location) keeps the mono line to one line; the full venue is in the BibTeX, cv.md and cv.json. */
 const cite = pub.type === 'under-review' ? `${pub.venue} · ${pub.status}` : citationLine(pub, { shortVenue: true });
+/* Phones: the venue as its code ("CMPB") so the citation line stays short; the full line is shown from 600px up. */
+const venueCode = pub.venueShort ?? pub.venue.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('');
+const citeShort = cite.replace(pub.venue, venueCode);
 ---
 
 <li class="pub" id={pub.id}>
@@ -35,12 +38,14 @@ const cite = pub.type === 'under-review' ? `${pub.venue} · ${pub.status}` : cit
     <p class="pub__title">{doi ? <a href={doi} rel="noopener">{pub.title}</a> : pub.title}</p>
     <Authors authors={pub.authors} class="pub__authors" />
     <div class="pub__meta t-mono">
-      <span class="pub__cite">{cite}</span>
+      <span class="pub__cite pub__cite--full">{cite}</span>
+      <span class="pub__cite pub__cite--short" aria-hidden="true">{citeShort}</span>
       <RoleMark role={pub.myRole} class="pub__role" />
       {
         doi && (
-          <a class="pub__doi" href={doi} rel="noopener">
-            doi:{pub.doi}
+          <a class="pub__doi" href={doi} rel="noopener" aria-label={`doi:${pub.doi}`}>
+            <span class="pub__doi-full">doi:{pub.doi}</span>
+            <span class="pub__doi-short" aria-hidden="true">DOI</span>
           </a>
         )
       }
@@ -121,6 +126,20 @@ const cite = pub.type === 'under-review' ? `${pub.venue} · ${pub.status}` : cit
   .pub__doi:hover,
   .pub__fig:hover {
     text-decoration-color: var(--signal);
+  }
+  .pub__cite--short,
+  .pub__doi-short {
+    display: none;
+  }
+  @media (max-width: 599.98px) {
+    .pub__cite--full,
+    .pub__doi-full {
+      display: none;
+    }
+    .pub__cite--short,
+    .pub__doi-short {
+      display: inline;
+    }
   }
   .pub__details summary {
     display: inline-block;

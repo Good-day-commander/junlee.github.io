@@ -101,6 +101,14 @@
   color: var(--ink-3);
   white-space: nowrap;
 }
+@media (max-width: 599.98px) {
+  .legendRow {
+    padding-left: 0;
+  }
+  .legendLead {
+    flex-basis: 100%;
+  }
+}
 .key {
   display: inline-flex;
   align-items: center;

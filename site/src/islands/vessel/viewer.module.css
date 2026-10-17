@@ -501,10 +501,9 @@
     min-height: 2.75rem;
     padding: 0.45rem 0.7rem;
   }
+  /* Narrow frames: the field note is for the wide reading view; it stays in the HTML for agents. */
   .root[data-mode='chapter'] .note {
-    position: static;
-    white-space: normal;
-    overflow: visible;
+    display: none;
   }
 }
 

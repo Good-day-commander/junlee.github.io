@@ -22,6 +22,8 @@ const { id, caption, head, rows, label } = Astro.props;
   the readings but never inside one.
 */
 const segments = (v: string) => v.split(' · ');
+/* Short column labels for the stacked phone layout ("Cohort median, n = 85" -> "Cohort median"). */
+const shortHead = head.map((h) => h.split(',')[0]);
 ---
 
 <figure class="metrics">
@@ -36,8 +38,8 @@ const segments = (v: string) => v.split(' · ');
           rows.map(([first, ...rest]) => (
             <tr>
               <th scope="row">{first}</th>
-              {rest.map((v) => (
-                <td>
+              {rest.map((v, j) => (
+                <td data-label={shortHead[j + 1]}>
                   {segments(v).map((seg, i, all) => (
                     <>
                       <span class="metrics__seg">{i < all.length - 1 ? `${seg} ·` : seg}</span>
@@ -117,19 +119,43 @@ const segments = (v: string) => v.split(' · ');
     white-space: nowrap;
   }
 
+  /* Phones: no column grid. Each metric is a short block: its name, then one "label  value" line per column. */
   @media (max-width: 599.98px) {
-    th,
-    td {
-      padding-right: var(--space-2);
+    thead {
+      display: none;
     }
-    thead th,
+    table,
+    tbody,
+    tr {
+      display: block;
+    }
+    tr {
+      padding-block: 0.45rem;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .metrics tbody tr > th,
+    .metrics tbody tr > td,
+    tbody th,
+    td {
+      display: block;
+      padding: 0;
+      border: 0;
+      white-space: normal;
+      max-width: none;
+    }
     tbody th {
-      white-space: normal;
-      max-width: 18ch;
-      text-wrap: pretty;
+      color: var(--ink);
+      padding-bottom: 0.15rem;
     }
     td {
-      white-space: normal;
+      display: flex;
+      gap: 0.6rem;
+      align-items: baseline;
+    }
+    td::before {
+      content: attr(data-label);
+      flex: 0 0 8.5rem;
+      color: var(--ink-3);
     }
   }
 </style>
