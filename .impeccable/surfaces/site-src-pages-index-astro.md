@@ -58,3 +58,7 @@ The identity block carries three mono proof lines (first-author papers and award
 ## Revision 2b (2026-10-17): one action word per viewport
 
 Peer verification measured every scroll position: the sticky nav meets the footer in the last viewport of every page, so the footer row is LinkedIn · Google Scholar · ORCID only (no Email, no CV (PDF)); the PDF is reached from the CV page's action bar and is linked from llms.txt, cv.md and cv.json. The home plate caption is one mono line (case id, node count, FFR CFD and PINO); the 1.78 s and the 35-minute CFD bound live in proof line 2 and in the sentence under the plate. Proof line 3 is plain text. The research closing row is plain text. The CV page's contact row prints only; on screen the nav and footer carry those links. No home link repeats a target.
+
+## Revision 2c (2026-10-18): the address in plain text
+
+The owner wants the e-mail address readable, not only behind the Email button. It appears as text in the home identity row (first item), in the CV header's contact row, and first in every footer link row; the home footer shows only the address, since the identity row carries LinkedIn, Google Scholar and ORCID. The one-action-per-viewport rule now counts the button and the written address as different things: an action and a fact.

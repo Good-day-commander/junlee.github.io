@@ -33,7 +33,7 @@ const shortVenue = (venue: string) =>
     .join('');
 ---
 
-<Base title={title} description={description} footer={{ links: false }}>
+<Base title={title} description={description} footer={{ omit: ['LinkedIn', 'Google Scholar', 'ORCID'] }}>
   <Identity />
   <Plate />
 

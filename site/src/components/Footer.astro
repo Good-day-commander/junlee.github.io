@@ -26,6 +26,7 @@ const { omit = [], links: showLinks = true } = Astro.props;
 
 const host = profile.links.site.replace(/^https?:\/\//, '');
 const links = [
+  { label: profile.email, href: `mailto:${profile.email}` },
   { label: 'LinkedIn', href: profile.links.linkedin },
   { label: 'Google Scholar', href: profile.links.scholar },
   { label: 'ORCID', href: profile.links.orcid },

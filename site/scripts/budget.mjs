@@ -13,7 +13,7 @@
               template, noscript and role="img" elements (a colorbar's
               ticks are the image's, not reading text): home <= 250, research <= 750, each
               research section[id] <= 230 (cv is measured, not budgeted)
-    mailto    no page carries more than 1 mailto: link (the nav's Email);
+    mailto    no page carries more than 3 mailto: links (the nav's Email, the visible address, the footer);
               a redirect stub carries none
     h1        the home <h1> text is the owner's name (cv.json basics.name)
     json-ld   every page (redirect stubs excepted) has at least one
@@ -43,8 +43,8 @@ const SOFT = process.argv.includes('--soft');
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist', 'public');
 
-/* mailto: 1 per page (the nav's Email; the footer carries none since revision 2a), 0 in a redirect stub. */
-const BUDGET = { home: 250, research: 750, researchSection: 230, mailto: 1, mailtoRedirect: 0 };
+/* mailto: up to 3 per page since revision 2c (the nav's Email, the address shown as text, the footer), 0 in a redirect stub. */
+const BUDGET = { home: 250, research: 750, researchSection: 230, mailto: 3, mailtoRedirect: 0 };
 const AGENT_FILES = ['llms.txt', 'llms-full.txt', 'index.md', 'research.md', 'cv.md', 'cv.json'];
 const CV_JSON_KEYS = ['basics', 'work', 'education', 'publications', 'awards', 'skills', 'projects'];
 

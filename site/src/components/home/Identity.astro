@@ -20,6 +20,8 @@ import { profile } from '@/data/content';
 import portrait from '@/assets/photos/profile-main.jpg';
 
 const links = [
+  /* The address as readable text (owner, 2026-10-18): people copy it into their own mail client. */
+  { label: profile.email, href: `mailto:${profile.email}`, me: false },
   { label: 'LinkedIn', href: profile.links.linkedin, me: true },
   { label: 'Google Scholar', href: profile.links.scholar, me: true },
   { label: 'ORCID', href: profile.links.orcid, me: true },

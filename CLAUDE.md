@@ -14,7 +14,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - No dataset identifiers in visible text (no case ids, no file or array names).
 - The vessel's idle drift stays ON everywhere, home plate included (`--drift-period`, `VesselViewer.tsx`). Only reduced motion stops it.
 - Home `<main>` holds at most 250 visible words (`scripts/budget.mjs` enforces it).
-- Exactly one `mailto:` per page (the nav's Email); redirect stubs carry none.
+- At most three `mailto:` per page: the nav's Email button, the address shown as text (home identity row, CV header) and the footer's address; redirect stubs carry none. The address is always `profile.email`.
 
 ## Where facts live
 

@@ -18,7 +18,7 @@
                (status "nowebgl" or "error" fails)
     wipe       on those pages a visible CFD | PINO control: the wipe handle
                (role=slider) or the two-state toggle (CFD and PINO buttons)
-    mailto     no page carries more than one mailto: anchor
+    mailto     no page carries more than three mailto: anchors
     redirect   /publications/ and /record/ land on /cv/#publications and
                /cv/#talks, and the anchors exist on the CV
     agents     /llms.txt and /cv.md are served, non-empty and start with a
@@ -255,7 +255,7 @@ async function checkPage(context, base, spec, vp) {
     await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
 
     const mailtos = await page.locator('a[href^="mailto:"]').count();
-    record('mailto', where, mailtos <= 1, `${mailtos} anchor${mailtos === 1 ? '' : 's'}`);
+    record('mailto', where, mailtos <= 3, `${mailtos} anchor${mailtos === 1 ? '' : 's'}`);
   } catch (e) {
     errors.push(`smoke: ${e.message}`);
   } finally {
