@@ -1,9 +1,9 @@
 ---
 /*
-  /research: three worked examples with public data (Flow, Image, Pulse),
+  /research: three worked examples (Flow, Image, Pulse),
   each a header row with its number, one artifact on film plates, one
   paragraph, the metrics table and one citation line. The page head is the
-  h1 and one line; a closing row names the work that has no public data
+  h1 only; no closing row
   yet and says it is on the CV, in plain text (round 3b: the nav's CV is
   in the same last viewport, so the row adds no second CV link). Budget (checked by the build): 750 visible words in
   <main>, 230 per chapter.
@@ -30,7 +30,7 @@ import { formatDecimal, formatMm, formatSeconds } from '@/lib/format';
 import { pino, pulse, urls } from '@/components/research/data';
 import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockwise.svg?raw';
 import Button from '@/components/Button.astro';
-import { flow, fronts, image, pulseFacts, researchClosing, researchLine } from '@/lib/schema';
+import { flow, fronts, image, pulseFacts } from '@/lib/schema';
 import centerline from '../../public/data/pino/centerline.json';
 
 /* Extent of the Pd/Pa curve's s axis, so the static HTML carries the plate's range. */
@@ -59,11 +59,10 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
   title="Research"
   description={description}
   ogImage="/og/research.png"
-  ogAlt={`${profile.name}, Research: the page heading and its line, "${researchLine}"`}
+  ogAlt={`${profile.name}, Research: the page heading over the film ground`}
 >
   <header class="r-head wrap">
     <h1 class="r-head__title">Research</h1>
-    <p class="r-head__line">{researchLine}</p>
   </header>
 
   <!-- ───────────────────────────── Flow ───────────────────────────── -->
@@ -196,12 +195,6 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
 
     <Cite pub={M1} />
   </Chapter>
-
-  <section class="r-more wrap" aria-label="More work on the CV">
-    <p class="r-more__line">
-      {researchClosing}
-    </p>
-  </section>
 </Base>
 
 <script>
@@ -228,13 +221,6 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     font-size: clamp(2.25rem, 1.6rem + 3vw, 4rem);
     line-height: 1;
     letter-spacing: -0.025em;
-  }
-  .r-head__line {
-    font-family: var(--font-text);
-    font-size: var(--size-prose);
-    line-height: var(--leading-prose);
-    color: var(--ink-2);
-    text-wrap: pretty;
   }
 
   /*
@@ -298,17 +284,5 @@ const description = `Three worked examples of ${profile.name}'s practice, with d
     font-family: inherit;
     font-style: inherit;
     font-weight: inherit;
-  }
-
-  .r-more {
-    padding-top: var(--space-6);
-  }
-  .r-more__line {
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--line);
-    font-family: var(--font-text);
-    font-size: var(--size-prose);
-    line-height: 1.5;
-    color: var(--ink-2);
   }
 </style>

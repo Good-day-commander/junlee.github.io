@@ -443,8 +443,8 @@ export const capabilities: { id: string; name: string; href: string; row: string
 ];
 
 /** The research page's one-line header and its closing row (page and research.md). */
-export const researchLine = 'Three examples with public data.';
-export const researchClosing = 'The valve, infection-control, urodynamics and glaucoma work has no public data yet.';
+export const researchLine = '';
+export const researchClosing = '';
 
 /** Home "Selected": the first-author journal paper, the first-author DMD 2026 proceedings paper, the co-first journal paper; newest first. */
 export const SELECTED = ['J2', 'C1', 'J4'].map(pub).sort((a, b) => Number(b.year) - Number(a.year));
@@ -731,10 +731,7 @@ export function researchMarkdown(): string {
   return [
     '# Research',
     '',
-    researchLine,
-    '',
     ...researchChapters(),
-    `${researchClosing} It is listed on the [CV](${abs('/cv/#patents')}).`,
     '',
     footerMd,
   ].join('\n');
