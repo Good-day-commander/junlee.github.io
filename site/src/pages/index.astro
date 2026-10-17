@@ -21,7 +21,7 @@ import { profile } from '@/data/content';
 import { SELECTED, capabilities, listAnd } from '@/lib/schema';
 
 const title = `${profile.role}, ${profile.university}`;
-const description = `${profile.name}, ${profile.role.toLowerCase()} at the ${profile.lab}, ${profile.university}. ${listAnd(profile.fields).replace(/^./, (c) => c.toUpperCase())}. ${profile.tagline}`;
+const description = `${profile.name}, ${profile.role.toLowerCase()} at ${profile.university}: ${listAnd(profile.fields)}.`;
 
 /* "Computer Methods and Programs in Biomedicine" → "CMPB"; a venue ending in "(DMD2026)" → "DMD" (the year has its own column). */
 const shortVenue = (venue: string) =>

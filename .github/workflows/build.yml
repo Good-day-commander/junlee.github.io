@@ -48,6 +48,14 @@ jobs:
         working-directory: site
         run: pnpm build
 
+      - name: Install Playwright chromium
+        working-directory: site
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Smoke test
+        working-directory: site
+        run: pnpm smoke
+
       - name: Upload artifact
         id: upload
         uses: actions/upload-pages-artifact@v4
