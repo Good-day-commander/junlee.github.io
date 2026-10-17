@@ -693,7 +693,7 @@ function researchChapters(): string[] {
     '',
     `Colour scales (the paper's renders): ${image.legends}.`,
     '',
-    `A denoising diffusion deformable model synthesizes a full-cycle 4D coronary CT from two acquired phases; the sequence is then meshed and solved, so FFR can be followed across the cardiac cycle instead of read from one static phase. The diffusion model is T.H. Han's work; mine is the CFD and FFR analysis on the synthesized frames.`,
+    `A denoising diffusion deformable model synthesizes a full-cycle 4D coronary CT from two acquired phases; the sequence is then meshed and solved, so FFR can be followed across the cardiac cycle instead of read from one static phase.`,
     '',
     '| Metric (reported in the paper) | Value |',
     '| --- | --- |',

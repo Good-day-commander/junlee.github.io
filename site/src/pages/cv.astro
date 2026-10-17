@@ -20,7 +20,7 @@
   (each restates a [J#]/[C#] row below) and the patent inventor lists are
   not printed here; cv.md, llms-full.txt and cv.json carry them in full.
 */
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CvSection from '@/components/record/CvSection.astro';
@@ -120,6 +120,8 @@ const photos = [
     caption: { text: 'Yonsei department symposium, 2024' } as { text: string; href?: string },
   },
 ].map((ph) => ({ ...ph, width: Math.round((PHOTO_H * ph.src.width) / ph.src.height) }));
+/* Full-size versions for the click-to-enlarge view (one optimized WebP per photo, at most 1800 px wide). */
+const photoFull = await Promise.all(photos.map((ph) => getImage({ src: ph.src, width: Math.min(1800, ph.src.width), format: 'webp', quality: 82 })));
 
 const links = [
   { label: 'Google Scholar', href: profile.links.scholar },
@@ -255,20 +257,29 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     <CvSection heading="Talks" id="talks">
       <ul class="photos">
         {
-          photos.map((ph) => (
+          photos.map((ph, i) => (
             <li class="photo">
               <figure class="photo__plate">
-                <Image
-                  src={ph.src}
-                  alt={ph.alt}
-                  width={ph.width}
-                  height={PHOTO_H}
-                  densities={[1, 2]}
-                  format="webp"
-                  quality={78}
-                  loading="lazy"
-                  class="photo__img"
-                />
+                <a
+                  class="photo__link"
+                  href={photoFull[i].src}
+                  data-lightbox
+                  data-alt={ph.alt}
+                  data-caption={ph.caption.text}
+                  aria-label={`Enlarge: ${ph.caption.text}`}
+                >
+                  <Image
+                    src={ph.src}
+                    alt={ph.alt}
+                    width={ph.width}
+                    height={PHOTO_H}
+                    densities={[1, 2]}
+                    format="webp"
+                    quality={78}
+                    loading="lazy"
+                    class="photo__img"
+                  />
+                </a>
                 <figcaption class="photo__caption t-mono">
                   {ph.caption.href ? <a href={ph.caption.href}>{ph.caption.text}</a> : ph.caption.text}
                 </figcaption>
@@ -277,6 +288,13 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
           ))
         }
       </ul>
+      <dialog class="lightbox plate" id="photo-lightbox" aria-label="Enlarged photograph">
+        <img class="lightbox__img" alt="" />
+        <div class="lightbox__bar">
+          <p class="lightbox__caption t-mono"></p>
+          <button type="button" class="lightbox__close t-mono" data-lightbox-close>Close</button>
+        </div>
+      </dialog>
       <p class="cv-note t-mono">
         {counts.talks} talks · {counts.talksInternational} international · {counts.talksDomestic} domestic · {presented} presented
         by me
@@ -753,8 +771,71 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     border-radius: var(--radius);
     background: var(--bg-1);
   }
+  .photo__link {
+    display: inline-block;
+    line-height: 0;
+    border-radius: var(--radius);
+  }
+  .photo__link:hover :global(.photo__img) {
+    border-color: var(--ink-3);
+  }
+  .photo__link:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: var(--ring-offset);
+  }
   .photo__caption {
     color: var(--ink-2);
+  }
+  /* Click-to-enlarge: one film plate in a native dialog; Escape, the button or the backdrop closes it. */
+  .lightbox {
+    /* The global reset zeroes margins; a dialog centres itself only with margin: auto. */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    max-width: min(92vw, 1800px);
+    max-height: 92vh;
+    overflow: hidden;
+  }
+  .lightbox::backdrop {
+    background: oklch(0.1 0.008 250 / 0.82);
+  }
+  .lightbox__img {
+    display: block;
+    max-width: min(92vw, 1800px);
+    max-height: calc(92vh - 3rem);
+    width: auto;
+    height: auto;
+  }
+  .lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 0.6rem 0.9rem;
+    border-top: 1px solid var(--line);
+  }
+  .lightbox__caption {
+    color: var(--ink-2);
+  }
+  .lightbox__close {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .lightbox__close:hover {
+    border-color: var(--signal);
+  }
+  .lightbox__close:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: var(--ring-offset);
   }
   .photo__caption a {
     color: var(--ink-2);
@@ -867,3 +948,30 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     }
   }
 </style>
+
+<script>
+  /* Talk photographs: open the full-size image in the dialog instead of navigating; without JS the link still opens the image. */
+  const dialog = document.getElementById('photo-lightbox') as HTMLDialogElement | null;
+  if (dialog && typeof dialog.showModal === 'function') {
+    const img = dialog.querySelector<HTMLImageElement>('.lightbox__img')!;
+    const cap = dialog.querySelector<HTMLElement>('.lightbox__caption')!;
+    document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        img.src = a.href;
+        img.alt = a.dataset.alt ?? '';
+        cap.textContent = a.dataset.caption ?? '';
+        dialog.showModal();
+      });
+    });
+    dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      const r = dialog.getBoundingClientRect();
+      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (e.target === dialog || !inside) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      img.removeAttribute('src');
+    });
+  }
+</script>
