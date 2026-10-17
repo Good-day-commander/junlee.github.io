@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "site/src/pages/cv.astro"
+        ],
+        "createdAt": "2026-10-17T05:26:11.728Z",
+        "reason": "agent decision: the img is the enlarge dialog's slot inside a closed <dialog>; src is set on open and removed on close, verified with Playwright (open/Escape/backdrop)"
+      }
+    ]
+  }
+}
