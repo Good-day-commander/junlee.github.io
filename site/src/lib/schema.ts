@@ -20,12 +20,15 @@ import {
   projectRole,
   projects,
   publications,
+  researchProjects,
   skills,
   talks,
   teaching,
   type AuthorRole,
   type Patent,
+  type Project,
   type Publication,
+  type ResearchProject,
   type Talk,
 } from '@/data/content';
 import { pino, pulse, parseCohortN, parseFolds, parseNetworkCount, parseRank } from '@/components/research/data';
@@ -49,7 +52,7 @@ const abs = (path: string) => new URL(path, `${SITE}/`).href;
 /** The three pages and their twins. */
 export const PAGES = [
   { path: '/', md: '/index.md', name: 'Home', line: 'Who I am, the live CFD | PINO vessel plate, four rows on what I work on, and three selected papers.' },
-  { path: '/research/', md: '/research.md', name: 'Research', line: 'Three worked examples with data (Flow, Image, Pulse), each with one artifact, one paragraph, a metrics table and the citation.' },
+  { path: '/research/', md: '/research.md', name: 'Research', line: 'Every research project, newest first, each with one sentence and its papers, patents, funded projects and talks; three carry a live demo with a metrics table and the citation.' },
   { path: '/cv/', md: '/cv.md', name: 'CV', line: 'The whole record: education, appointments, every publication, talks, patents, funded projects, awards, teaching and skills.' },
 ] as const;
 
@@ -389,58 +392,200 @@ export const links = [
 
 const linkRowMd = links.map((l) => `[${l.label}](${l.href})`).join(' · ');
 
-/** The three research fronts as one row each (home), and as a chapter header (research). */
-export const fronts = [
-  {
-    id: 'flow',
-    name: 'Flow',
-    row: `A neural operator returns the coronary pressure field; FFR ${flow.ffrCfd2} CFD, ${flow.ffrPino2} PINO.`,
-    timing: timingLine,
-  },
-  {
-    id: 'image',
-    name: 'Image',
-    row: `${numberWordCap(image.acquired.length)} acquired CT phases become ${numberWord(image.phases)}; 4D CT-FFR accuracy ${image.ffrAccuracy} % against invasive FFR.`,
-  },
-  {
-    id: 'pulse',
-    name: 'Pulse',
-    row: `Smartwatch PPG predicts a fluid bolus within 24 h at AUC ${pulseFacts.devAuc}; ${pulseFacts.status}.`,
-  },
-];
-
 /*
   What I work on, by capability rather than organ (home rows, index.md,
   llms.txt). One clause each with one number, every number computed; each
-  row links to its own target, once (no other home link points there).
+  row links to one research project that shows the field (its /research
+  anchor), once (no other home link points there).
 */
 const firstYear = Math.min(...experience.map((x) => Number(x.start.match(/\d{4}/)?.[0] ?? 9999)));
 export const capabilities: { id: string; name: string; href: string; row: string; inline?: { text: string; href: string } }[] = [
   {
     id: 'simulation',
     name: 'Simulation',
-    href: '/research/#flow',
+    href: '/research/#lbm-ctffr',
     row: `Patient-specific CFD from CT, read out as FFR and wall shear stress; also a tricuspid valve device.`,
   },
   {
     id: 'ai',
     name: 'Physics-informed AI',
-    href: '/research/#image',
+    href: '/research/#pino',
     row: `Neural operators give a vessel's pressure field in ${flow.inference} instead of ${flow.cfdMaxMin} minutes; synthesized 4D CT gives FFR across the cycle.`,
   },
   {
     id: 'biosignals',
     name: 'Wearable biosignals',
-    href: '/research/#pulse',
+    href: '/research/#viscosity',
     row: `Smartwatch PPG gives blood viscosity and predicts a fluid bolus within 24 h (AUC ${pulseFacts.devAuc}, under revision); patents cover blood pressure, glucose and glaucoma.`,
   },
   {
     id: 'devices',
     name: 'Devices and translation',
-    href: '/cv/#patents',
+    href: '/research/#ffr-simulator',
     row: `FFR simulator, tricuspid implant, negative-pressure tunnel, AI urodynamics; ${counts.patents} patents, ${counts.patentsRegistered} registered; parts ship in CARDIOS and EASYCHECK.`,
   },
 ];
+
+/* ---------- research projects (/research, research.md, llms*.txt, cv.json, JSON-LD) ---------- */
+
+/*
+  content.ts researchProjects, resolved: every output id looked up (a
+  missing id throws, so the build fails instead of rendering a hole), every
+  {token} in a summary filled from the manifests, the years set by the
+  site's range rule, and the outputs line composed for the page.
+*/
+const yearOf = (label: string) => label.match(/\d{4}/)?.[0] ?? '';
+const projectR1 = projects.find((r) => r.id === 'R1');
+
+const researchTokens: Record<string, string> = {
+  'pino.inference': flow.inference,
+  'cfd.minutes': String(flow.cfdMaxMin),
+  'pino.patients': flow.cohortN,
+  'pino.folds': String(pinoFolds),
+  'image.acquired': numberWordCap(image.acquired.length),
+  'image.ffrAccuracy': `${image.ffrAccuracy}${THIN}%`,
+  'pulse.networks': numberWordCap(pulseFacts.networks),
+  'pulse.auc': pulseFacts.devAuc,
+  'pulse.status': pulseFacts.status,
+  ...(paperAward?.forPublication ? { [`award.${paperAward.forPublication}`]: `${paperAward.title} ${paperAward.year}` } : {}),
+  ...(projectR1 ? { 'project.R1.years': numberWord(Number(yearOf(projectR1.end)) - Number(yearOf(projectR1.start))) } : {}),
+};
+
+function fillTokens(text: string, owner: string): string {
+  return text.replace(/\{([\w.]+)\}/g, (_, key: string) => {
+    const v = researchTokens[key];
+    if (v === undefined) throw new Error(`lib/schema.ts: research project "${owner}" uses the unknown token {${key}}`);
+    return v;
+  });
+}
+
+function lookup<T extends { id: string }>(list: readonly T[], kind: string, owner: string) {
+  return (id: string): T => {
+    const x = list.find((item) => item.id === id);
+    if (!x) throw new Error(`lib/schema.ts: research project "${owner}" names ${kind} ${id}, which is not in content.ts`);
+    return x;
+  };
+}
+
+/** A link into the CV on a project's outputs line. */
+export interface OutputItem {
+  text: string;
+  href: string;
+}
+
+export interface ResearchEntry {
+  id: string;
+  title: string;
+  /** "2024–2026", "2024 –" (ongoing) or "2022". */
+  years: string;
+  /** ISO 8601 interval for JSON-LD: "2024/2026", "2024/..", "2022". */
+  temporal: string;
+  start: string;
+  end?: string;
+  summary: string;
+  pubs: Publication[];
+  patents: Patent[];
+  projects: Project[];
+  talks: Talk[];
+  outputs: OutputItem[];
+  demo?: ResearchProject['demo'];
+}
+
+const ROLE_WORD: Record<AuthorRole, string> = { first: 'first author', 'co-first': 'co-first author', 'co-author': 'co-author' };
+/** "patent" for one, "3 patents" for more. */
+const counted = (n: number, word: string) => (n === 1 ? word : `${n} ${word}s`);
+
+/** "DMD 2026" from "(DMD2026)", "ACFM 2025" from "(ACFM)" and the year, else the venue (which may carry its year). */
+function talkVenueYear(t: Talk): string {
+  const tag = /\(([A-Z][A-Za-z0-9-]*)\)/.exec(t.venue)?.[1];
+  if (tag) return tag.includes(t.year) ? tag.replace(t.year, ` ${t.year}`) : `${tag} ${t.year}`;
+  return t.venue.includes(t.year) ? t.venue : `${t.venue} ${t.year}`;
+}
+
+/*
+  The outputs line: papers (short venue and year, role), registered patents
+  one by one, pending patents as one item, funded projects (short funder,
+  years), then up to two talks and a count of the rest. Each item links to
+  its row on the CV.
+*/
+function outputItems(e: Pick<ResearchEntry, 'pubs' | 'patents' | 'projects' | 'talks'>): OutputItem[] {
+  const items: OutputItem[] = [];
+  for (const p of e.pubs) {
+    const where = p.year
+      ? shortVenueYear(p)
+      : `${p.venueShort && !/\s/.test(p.venueShort) ? p.venueShort : venueInitials(p.venue)} manuscript`;
+    items.push({ text: `${where}, ${ROLE_WORD[p.myRole]}`, href: `/cv/#${p.id}` });
+  }
+  for (const p of e.patents.filter((x) => x.status === 'registered')) {
+    items.push({ text: `patent, registered ${yearOf(p.registrationDate ?? '') || p.year}`, href: `/cv/#${p.id}` });
+  }
+  const pending = e.patents.filter((x) => x.status === 'pending');
+  if (pending.length) {
+    const years = pending.map((p) => Number(p.year));
+    const span = period(String(Math.min(...years)), String(Math.max(...years)));
+    items.push({ text: `${counted(pending.length, 'patent')}, pending ${span}`, href: `/cv/#${pending[0].id}` });
+  }
+  for (const r of e.projects) {
+    items.push({ text: `${r.short} project ${period(yearOf(r.start), yearOf(r.end))}`, href: `/cv/#${r.id}` });
+  }
+  for (const t of e.talks.slice(0, 2)) items.push({ text: `talk, ${talkVenueYear(t)}`, href: `/cv/#${t.id}` });
+  const rest = e.talks.length - 2;
+  if (rest > 0) items.push({ text: `+${rest} ${rest === 1 ? 'talk' : 'talks'}`, href: `/cv/#${e.talks[2].id}` });
+  return items;
+}
+
+/** The old chapter anchors, kept as empty spans inside the demo projects. */
+export const LEGACY_ANCHORS: Record<NonNullable<ResearchProject['demo']>, string> = { flow: 'flow', image: 'image', pulse: 'pulse' };
+
+export const researchEntries: ResearchEntry[] = (() => {
+  const seen = new Set<string>();
+  const legacy = Object.values(LEGACY_ANCHORS);
+  const resolved = researchProjects.map((rp, index) => {
+    if (seen.has(rp.id) || legacy.includes(rp.id)) {
+      throw new Error(`lib/schema.ts: research project id "${rp.id}" is repeated or collides with an old anchor`);
+    }
+    seen.add(rp.id);
+    if (!/^\d{4}$/.test(rp.start) || (rp.end !== undefined && !/^\d{4}$/.test(rp.end))) {
+      throw new Error(`lib/schema.ts: research project "${rp.id}" years must be YYYY`);
+    }
+    const entry: ResearchEntry = {
+      id: rp.id,
+      title: rp.title,
+      years: rp.end === undefined ? `${rp.start} –` : period(rp.start, rp.end),
+      temporal: rp.end === undefined ? `${rp.start}/..` : rp.start === rp.end ? rp.start : `${rp.start}/${rp.end}`,
+      start: rp.start,
+      end: rp.end,
+      summary: fillTokens(rp.summary, rp.id),
+      pubs: (rp.pubs ?? []).map(lookup(publications, 'publication', rp.id)),
+      patents: (rp.patents ?? []).map(lookup(patents, 'patent', rp.id)).filter((p) => p.status !== 'withdrawn'),
+      projects: (rp.projects ?? []).map(lookup(projects, 'project', rp.id)),
+      talks: (rp.talks ?? []).map(lookup(talks, 'talk', rp.id)),
+      outputs: [],
+      demo: rp.demo,
+    };
+    entry.outputs = outputItems(entry);
+    return { entry, index };
+  });
+  /* Newest first by start year; within a year the demo projects first, then content.ts order. */
+  resolved.sort(
+    (a, b) =>
+      Number(b.entry.start) - Number(a.entry.start) ||
+      Number(Boolean(b.entry.demo)) - Number(Boolean(a.entry.demo)) ||
+      a.index - b.index,
+  );
+  const demos = resolved.flatMap((x) => (x.entry.demo ? [x.entry.demo] : []));
+  for (const d of Object.keys(LEGACY_ANCHORS)) {
+    if (demos.filter((x) => x === d).length !== 1) throw new Error(`lib/schema.ts: the ${d} demo must belong to exactly one research project`);
+  }
+  return resolved.map((x) => x.entry);
+})();
+
+/** The project a demo belongs to (the research page mounts each demo inside it). */
+export function researchEntryFor(demo: NonNullable<ResearchProject['demo']>): ResearchEntry {
+  const e = researchEntries.find((x) => x.demo === demo);
+  if (!e) throw new Error(`lib/schema.ts: no research project carries the ${demo} demo`);
+  return e;
+}
 
 /** The research page's one-line header and its closing row (page and research.md). */
 export const researchLine = '';
@@ -538,20 +683,32 @@ export function cvGraph(imageUrl?: string): JsonLdNode[] {
 }
 
 export function researchGraph(imageUrl?: string): JsonLdNode[] {
-  const chapter = (id: string, name: string, description: string, cites: Publication[]) => ({
+  const pageId = `${abs('/research/')}#webpage`;
+  /* One CreativeWork per research project; papers are cited by their DOI URL where they have one. */
+  const part = (e: ResearchEntry): JsonLdNode => ({
     '@type': 'CreativeWork',
-    '@id': `${abs('/research/')}#${id}`,
-    url: `${abs('/research/')}#${id}`,
-    name,
-    description,
+    '@id': `${abs('/research/')}#${e.id}`,
+    url: `${abs('/research/')}#${e.id}`,
+    name: e.title,
+    description: e.summary,
+    temporalCoverage: e.temporal,
     author: { '@id': PERSON_ID },
-    citation: cites.filter((p) => p.doi).map((p) => ({ '@id': `https://doi.org/${p.doi}` , '@type': 'ScholarlyArticle', name: p.title })),
+    isPartOf: { '@id': pageId },
+    ...(e.pubs.length
+      ? {
+          citation: e.pubs.map((p) =>
+            p.doi
+              ? { '@type': 'ScholarlyArticle', '@id': doiUrl(p), url: doiUrl(p), name: p.title }
+              : { '@type': 'ScholarlyArticle', name: p.title },
+          ),
+        }
+      : {}),
   });
   return [
     ...baseGraph(imageUrl),
     {
       '@type': 'WebPage',
-      '@id': `${abs('/research/')}#webpage`,
+      '@id': pageId,
       url: abs('/research/'),
       name: `Research · ${profile.name}`,
       isPartOf: { '@id': WEBSITE_ID },
@@ -559,11 +716,7 @@ export function researchGraph(imageUrl?: string): JsonLdNode[] {
       author: { '@id': PERSON_ID },
       dateModified: BUILD_DATE,
       inLanguage: 'en',
-      hasPart: [
-        chapter('flow', 'Flow', fronts[0].row, [pub('C1'), pub('J4')]),
-        chapter('image', 'Image', fronts[1].row, [pub('J1'), pub('C2')]),
-        chapter('pulse', 'Pulse', fronts[2].row, [pub('M1'), pub('J2')]),
-      ],
+      hasPart: researchEntries.map(part),
     },
   ];
 }
@@ -657,18 +810,9 @@ export function homeMarkdown(): string {
   ].join('\n');
 }
 
-function researchChapters(): string[] {
-  const C1 = pub('C1');
-  const C2 = pub('C2');
-  const J1 = pub('J1');
-  const J2 = pub('J2');
-  const J4 = pub('J4');
-  const p = pulseFacts;
+/* The demo blocks under their projects in research.md and llms-full.txt (artifact, colorbars, method, metrics). */
+function flowDemoMd(): string[] {
   return [
-    '## Flow',
-    '',
-    `${fronts[0].row}`,
-    '',
     `\`${timingLine}\``,
     '',
     `Artifact: a real patient vessel (${flow.caseId}, ${flow.nodes} surface nodes, ${flow.triangles} triangles, ${flow.streamlines} streamlines) painted with its CFD pressure field and the field the PINO returned for the same geometry, with a CFD | PINO wipe, a Pressure | Error | Speed toggle and the Pd/Pa curve along the vessel. FFR is read on the probe planes at s = ${flow.probes}; the CFD and PINO readings are ${flow.ffrDelta} apart.`,
@@ -682,13 +826,12 @@ function researchChapters(): string[] {
     flowTableMd(),
     '',
     `A well-predicted case, not a typical one: its pressure R² ranks ${flow.rank} in the cohort.`,
-    '',
-    `Citation: ${C1.title}. ${pubCitationMd(C1)}. Related: ${J4.title}. ${pubCitationMd(J4)}.`,
-    '',
-    '## Image',
-    '',
-    `${fronts[1].row}`,
-    '',
+  ];
+}
+
+function imageDemoMd(): string[] {
+  const J1 = pub('J1');
+  return [
     `Artifact: ${image.caseLabel} from the 4D CT paper (${J1.id}, ${image.figure}) through one cardiac cycle, pressure and wall shear stress at each of ${image.phases} phases; ${image.acquiredList} were acquired by CT, the other ${image.synthesized} synthesized, and CFD solved every one.`,
     '',
     `Colour scales (the paper's renders): ${image.legends}.`,
@@ -702,13 +845,12 @@ function researchChapters(): string[] {
     `| Synthesis PSNR | ${image.psnr} |`,
     `| Synthesis SSIM | ${image.ssim} |`,
     `| Synthesis Dice | ${image.dice} |`,
-    '',
-    `Citation: ${J1.title}. ${pubCitationMd(J1)}. Companion: ${C2.title}. ${pubCitationMd(C2)}.`,
-    '',
-    '## Pulse',
-    '',
-    `${fronts[2].row}`,
-    '',
+  ];
+}
+
+function pulseDemoMd(): string[] {
+  const p = pulseFacts;
+  return [
     `Artifact: a ${p.durationS} s smartwatch PPG recording as the network sees it, an STFT spectrogram (${p.stftSize}, ${p.crop[0]}–${p.crop[1]} Hz shown) and a CWT strip (${p.cwtSize}), from the development cohort, taken before the first bolus.`,
     '',
     `Green-channel PPG at ${p.fs} Hz is band-passed, normalized in short windows and cut into overlapping segments; each segment becomes an STFT or CWT image. Six CNN configurations across four backbones, each kept as five fold checkpoints, make ${p.networks} networks. Segment scores are averaged per patient, rank-normalized within each fold and combined by a non-negative weighted average. Validation is ${p.folds}-fold stratified cross-validation with out-of-fold, patient-level scores.`,
@@ -721,17 +863,57 @@ function researchChapters(): string[] {
     `| Same-center temporal set | ${p.tempAuc} [${p.tempCi}] | ${p.tempN} |`,
     '',
     'The development figure is internally selected (ensemble weights and cutoff were chosen on those predictions); the temporal set was scored with the model, weights and cutoff unchanged.',
-    '',
-    `Citation: ${M1.title}. ${pubCitationMd(M1)}. Earlier on the same signal: ${J2.title}. ${pubCitationMd(J2)}.`,
-    '',
   ];
+}
+
+const DEMO_MD: Record<NonNullable<ResearchProject['demo']>, () => string[]> = {
+  flow: flowDemoMd,
+  image: imageDemoMd,
+  pulse: pulseDemoMd,
+};
+
+function patentStatusMd(p: Patent): string {
+  const status = p.status === 'registered' ? `Registered ${p.registrationDate ?? ''}`.trim() : `Pending, filed ${p.year}`;
+  const number = p.registrationNo ? `${applicationLabel(p)} (reg. ${p.registrationNo})` : applicationLabel(p);
+  return `${status} · ${number}`;
+}
+
+/** A project's outputs in full: paper titles with citations, patent titles with status and number, funded projects, talks. */
+function outputsMd(e: ResearchEntry): string[] {
+  const lines = [
+    ...e.pubs.map((p) => `- Paper: ${p.title}. ${pubCitationMd(p)}`),
+    ...e.patents.map((p) => `- Patent: ${p.title}. ${patentStatusMd(p)}`),
+    ...e.projects.map(
+      (r) => `- Funded project: ${r.title}. ${r.funder}${r.program ? `, ${r.program}` : ''} · ${period(r.start, r.end)} (${projectRole})`,
+    ),
+    ...e.talks.map((t) => `- Talk: ${t.title}. ${t.venue}, ${t.location}, ${t.year} · ${t.format} · ${t.role === 'presenter' ? 'presenter' : 'co-author'}`),
+  ];
+  return lines.length ? ['Outputs:', '', ...lines] : [];
+}
+
+/** One section per research project, in page order: heading with years, the sentence, the outputs, and the demo blocks where there is one. */
+function researchProjectsMd(): string[] {
+  return researchEntries.flatMap((e) => {
+    const outputs = outputsMd(e);
+    const demo = e.demo ? DEMO_MD[e.demo]() : [];
+    return [
+      `## ${e.title} (${e.years})`,
+      '',
+      `Page: ${abs(`/research/#${e.id}`)}`,
+      '',
+      e.summary,
+      '',
+      ...(outputs.length ? [...outputs, ''] : []),
+      ...(demo.length ? [...demo, ''] : []),
+    ];
+  });
 }
 
 export function researchMarkdown(): string {
   return [
     '# Research',
     '',
-    ...researchChapters(),
+    ...researchProjectsMd(),
     '',
     footerMd,
   ].join('\n');
@@ -858,8 +1040,8 @@ export function llmsTxt(): string {
     `- Ph.D. in Mechanical Engineering, ${education[0].institution}, completed ${profile.phdCompleted}.`,
     `- Fields: ${listAnd(profile.fields)}.`,
     ...capabilities.map((c) => `  - ${c.name}: ${c.row}`),
-    `- Worked examples with data (/research): ${fronts.map((f) => f.name).join(', ')}.`,
-    ...fronts.map((f) => `  - ${f.name}: ${f.row}${'timing' in f ? ` ${f.timing}.` : ''}`),
+    `- Research projects (/research), newest first:`,
+    ...researchEntries.map((e) => `  - ${e.title} (${e.years})`),
     `- In brief:`,
     ...proofText.map((t) => `  - ${t}`),
     `- Record: ${countsLine}.`,
@@ -875,7 +1057,7 @@ export function llmsTxt(): string {
     '',
     '## Machine-readable',
     '',
-    `- [llms-full.txt](${abs('/llms-full.txt')}): the full CV and the three research chapters with their metrics, in one markdown file.`,
+    `- [llms-full.txt](${abs('/llms-full.txt')}): the full CV and every research project with its outputs (the three demos with their metrics), in one markdown file.`,
     `- [cv.json](${abs('/cv.json')}): the CV in JSON Resume format.`,
     `- [CV (PDF)](${abs(CV_PDF)}): the printable CV.`,
     '',
@@ -909,7 +1091,7 @@ export function llmsFullTxt(): string {
     '',
     '# Part 1. Research',
     '',
-    ...researchChapters(),
+    ...researchProjectsMd(),
     '# Part 2. Curriculum vitae',
     '',
     `${roleLine}`,
@@ -937,6 +1119,25 @@ function locationOf(label: string) {
 
 const compact = <T extends Record<string, unknown>>(o: T): T =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0))) as T;
+
+/* The demo numbers cv.json carries under each demo project (the old research.flow / image / pulse objects). */
+const researchDemoJson: Record<NonNullable<ResearchProject['demo']>, Record<string, unknown>> = {
+  flow: {
+    caption: plateCaption,
+    timing: timingLine,
+    cfdReference,
+    metricsLabel: flow.label,
+    rank: flow.rank,
+    table: flow.rows.map(([metric, kase, cohort]) => ({ metric, case: kase, cohortMedian: cohort })),
+    colorbars: flowLegends,
+  },
+  image: { phases: image.phases, acquired: image.acquiredList, legends: image.legends, ffrAccuracyPercent: image.ffrAccuracy, psnr: image.psnr, ssim: image.ssim, dice: image.dice },
+  pulse: {
+    status: pulseFacts.status,
+    development: { auc: pulseFacts.devAuc, ci95: pulseFacts.devCi, n: pulseFacts.devN },
+    temporal: { auc: pulseFacts.tempAuc, ci95: pulseFacts.tempCi, n: pulseFacts.tempN },
+  },
+};
 
 export function cvJson(imageUrl?: string): Record<string, unknown> {
   const degree = (d: string) => {
@@ -1040,13 +1241,23 @@ export function cvJson(imageUrl?: string): Record<string, unknown> {
     ),
     talks: talks.map((t) => compact({ ...t })),
     teaching: teaching.map((t) => ({ ...t })),
-    research: {
-      flow: { caption: plateCaption, timing: timingLine, cfdReference, metricsLabel: flow.label, rank: flow.rank, table: flow.rows.map(([metric, kase, cohort]) => ({ metric, case: kase, cohortMedian: cohort })) },
-      flowColorbars: flowLegends,
-      image: { phases: image.phases, acquired: image.acquiredList, legends: image.legends, ffrAccuracyPercent: image.ffrAccuracy, psnr: image.psnr, ssim: image.ssim, dice: image.dice },
-      pulse: { status: pulseFacts.status, development: { auc: pulseFacts.devAuc, ci95: pulseFacts.devCi, n: pulseFacts.devN }, temporal: { auc: pulseFacts.tempAuc, ci95: pulseFacts.tempCi, n: pulseFacts.tempN } },
-      counts,
-    },
+    /* Every research project as /research lists it; the three demo projects carry their demo's numbers. */
+    research: researchEntries.map((e) =>
+      compact({
+        id: e.id,
+        name: e.title,
+        startDate: e.start,
+        endDate: e.end,
+        ongoing: e.end === undefined ? true : undefined,
+        summary: e.summary,
+        url: abs(`/research/#${e.id}`),
+        publications: e.pubs.map((x) => x.id),
+        patents: e.patents.map((x) => x.id),
+        projects: e.projects.map((x) => x.id),
+        talks: e.talks.map((x) => x.id),
+        demo: e.demo ? { name: e.demo, ...researchDemoJson[e.demo] } : undefined,
+      }),
+    ),
     meta: {
       canonical: abs('/cv.json'),
       version: 'v1.0.0',

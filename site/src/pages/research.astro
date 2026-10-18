@@ -1,12 +1,14 @@
 ---
 /*
-  /research: three worked examples (Flow, Image, Pulse),
-  each a header row with its number, one artifact on film plates, one
-  paragraph, the metrics table and one citation line. The page head is the
-  h1 only; no closing row
-  yet and says it is on the CV, in plain text (round 3b: the nav's CV is
-  in the same last viewport, so the row adds no second CV link). Budget (checked by the build): 750 visible words in
-  <main>, 230 per chapter.
+  /research: every research project, project by project as the owner did
+  them (2026-10-19), not grouped into the home's four fields. A flat list,
+  newest first (lib/schema.ts researchEntries orders it): each project is a
+  header row (title, years), one sentence and its outputs line, every output
+  a link to its CV row. The three live demos sit inside the projects they
+  belong to (PINO, 4D CT, fluid bolus), each with its plates, the method
+  and metrics and one citation line, and each keeps its old anchor
+  (#flow, #image, #pulse). The page head is the h1 only. Budget (checked
+  by the build): 1000 visible words in <main>, 260 per project.
 
   Every number is computed from content.ts or the PINO / pulse / image
   manifests through lib/schema.ts and components/research/data.ts, the
@@ -14,7 +16,7 @@
 */
 import Base from '@/layouts/Base.astro';
 import Frame from '@/components/Frame.astro';
-import Chapter from '@/components/research/Chapter.astro';
+import Project from '@/components/research/Project.astro';
 import MetricsTable from '@/components/research/MetricsTable.astro';
 import Cite from '@/components/research/Cite.astro';
 import CwtStrip from '@/components/research/CwtStrip.astro';
@@ -30,7 +32,7 @@ import { formatDecimal, formatMm, formatSeconds } from '@/lib/format';
 import { pino, pulse, urls } from '@/components/research/data';
 import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockwise.svg?raw';
 import Button from '@/components/Button.astro';
-import { flow, fronts, image, pulseFacts } from '@/lib/schema';
+import { flow, image, pulseFacts, researchEntries, LEGACY_ANCHORS } from '@/lib/schema';
 import centerline from '../../public/data/pino/centerline.json';
 
 /* Extent of the Pd/Pa curve's s axis, so the static HTML carries the plate's range. */
@@ -52,7 +54,7 @@ const im = imageManifest;
 /* Spectrogram axes at build time (the STFT shows its recommended crop), so the ticks and dB range are in the server HTML. */
 const stftAxes = rasterAxes(pulse.stft, pulse.stft.recommended_crop_hz);
 
-const description = `${profile.name}'s research: a neural operator returning a pressure field in ${flow.inference}, 4D CT for time-resolved FFR, smartwatch PPG for fluid-bolus prediction.`;
+const description = `${profile.name}'s research, project by project, newest first: a neural operator returning a pressure field in ${flow.inference}, 4D CT for time-resolved FFR, smartwatch PPG for fluid-bolus prediction.`;
 ---
 
 <Base
@@ -65,144 +67,142 @@ const description = `${profile.name}'s research: a neural operator returning a p
     <h1 class="r-head__title">Research</h1>
   </header>
 
-  <!-- ───────────────────────────── Flow ───────────────────────────── -->
-  <Chapter id="flow" heading="Flow" claim={fronts[0].row}>
-    <Fragment slot="artifact">
-      <div class="art-grid">
-        <figure class="art">
-          <Frame plate class="art__frame art__frame--viewer">
-            <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
-          </Frame>
-          <figcaption class="art__caption">
-            CFD left, PINO right. Pressure R² <span class="num">{formatDecimal(c.pressure_Pa.R2, 3)}</span>.
-          </figcaption>
-        </figure>
-        <figure class="art">
-          <Frame plate class="art__frame art__frame--curve">
-            <FfrCurve client:visible centerlineUrl={urls.centerline} mode="chapter" />
-          </Frame>
-          <figcaption class="art__caption">
-            Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span>. CFD and PINO differ by
-            <span class="num">{flow.ffrDelta}</span> at the distal probe.
-          </figcaption>
-        </figure>
-      </div>
-    </Fragment>
+  {
+    researchEntries.map((entry) =>
+      entry.demo === 'flow' ? (
+        <Project entry={entry} anchor={LEGACY_ANCHORS.flow}>
+          <div class="art-grid">
+            <figure class="art">
+              <Frame plate class="art__frame art__frame--viewer">
+                <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
+              </Frame>
+              <figcaption class="art__caption">
+                CFD left, PINO right. Pressure R² <span class="num">{formatDecimal(c.pressure_Pa.R2, 3)}</span>.
+              </figcaption>
+            </figure>
+            <figure class="art">
+              <Frame plate class="art__frame art__frame--curve">
+                <FfrCurve client:visible centerlineUrl={urls.centerline} mode="chapter" />
+              </Frame>
+              <figcaption class="art__caption">
+                Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span>. CFD and PINO differ by
+                <span class="num">{flow.ffrDelta}</span> at the distal probe.
+              </figcaption>
+            </figure>
+          </div>
 
-    <details class="more" open>
-      <summary class="more__summary">Method and metrics</summary>
-    <p class="t-prose">
-      A geometry-informed neural operator returns pressure and velocity at all {flow.volumeNodes} volume nodes from the
-      vessel surface alone, with a Navier–Stokes residual in its loss. Every case is predicted by a model that never saw it.
-    </p>
+          <details class="more" open>
+            <summary class="more__summary">Method and metrics</summary>
+            <p class="t-prose">
+              A geometry-informed neural operator returns pressure and velocity at all {flow.volumeNodes} volume nodes from the
+              vessel surface alone, with a Navier–Stokes residual in its loss. Every case is predicted by a model that never saw it.
+            </p>
 
-    <MetricsTable
-      id="flow-metrics"
-      label="PINO metrics, this case against the cohort"
-      caption={`${flow.label.replace(/^./, (s) => s.toUpperCase())}. This case ranks ${flow.rank} by pressure R².`}
-      head={['Metric', 'This case', `Cohort median, n = ${flow.cohortN}`]}
-      rows={flow.rows}
-    />
-
-    </details>
-    <Cite pub={C1} />
-  </Chapter>
-
-  <!-- ───────────────────────────── Image ──────────────────────────── -->
-  <Chapter id="image" heading="Image" claim={fronts[1].row}>
-    <Fragment slot="artifact">
-      <figure class="art">
-        <Frame plate class="art__frame">
-          <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={im} />
-        </Frame>
-        <figcaption class="art__caption">
-          One cardiac cycle: {image.acquiredList} acquired by CT, the other {image.synthesized} synthesized.
-        </figcaption>
-      </figure>
-    </Fragment>
-
-    <details class="more" open>
-      <summary class="more__summary">Method and metrics</summary>
-    <p class="t-prose">
-      A diffusion deformable model synthesizes the full cardiac cycle from two acquired CT phases. Each phase is meshed
-      and solved, so FFR is followed across the cycle instead of read from one still.
-    </p>
-
-    <MetricsTable
-      id="image-metrics"
-      label="4D CT synthesis and CT-FFR metrics reported in the paper"
-      caption={`Reported in the 4D CT paper.`}
-      head={['Metric', 'Value']}
-      rows={[
-        ['4D CT-FFR accuracy against invasive FFR', `${image.ffrAccuracy} %`],
-        ['Synthesis PSNR', image.psnr],
-        ['Synthesis SSIM', image.ssim],
-        ['Synthesis Dice', image.dice],
-      ]}
-    />
-
-    </details>
-    <Cite pub={J1} />
-  </Chapter>
-
-  <!-- ───────────────────────────── Pulse ──────────────────────────── -->
-  <Chapter id="pulse" heading="Pulse" claim={fronts[2].row}>
-    <Fragment slot="artifact">
-      <div class="art-grid">
-        <figure class="art">
-          <Frame plate class="art__frame art__frame--stft">
-            <SpectrogramDevelop
-              recordingS={pulseFacts.durationS}
-              client:visible
-              manifestUrl={urls.pulseManifest}
-              variant="stft"
-              axes={stftAxes}
-              method={pulse.stft.method}
-              replayGroup="pulse"
-              bare
+            <MetricsTable
+              id="flow-metrics"
+              label="PINO metrics, this case against the cohort"
+              caption={`${flow.label.replace(/^./, (s) => s.toUpperCase())}. This case ranks ${flow.rank} by pressure R².`}
+              head={['Metric', 'This case', `Cohort median, n = ${flow.cohortN}`]}
+              rows={flow.rows}
             />
-          </Frame>
-          <figcaption class="art__caption">
-            One <span class="num">{formatSeconds(pulseFacts.durationS, 0)}</span> recording before the first bolus; the bright band is the heartbeat.
-          </figcaption>
-        </figure>
-        <CwtStrip />
-      </div>
-      <!-- One Replay for both plates; shown once the islands can hear it (hidden without JS). -->
-      <div class="pulse-replay" data-replay-group="pulse" hidden>
-        <Button variant="ghost" size="compact" aria-label="Replay both spectrograms">
-          Replay
-          <span slot="icon" aria-hidden="true" set:html={replayIcon} />
-        </Button>
-      </div>
-    </Fragment>
 
-    <details class="more" open>
-      <summary class="more__summary">Method and metrics</summary>
-    <p class="t-prose">
-      Smartwatch PPG is filtered, cut into overlapping segments and turned into STFT and CWT images. {pulseFacts.networks}
-      CNNs score them, and a weighted average predicts an intravenous fluid bolus within 24 hours of emergency-department
-      arrival.
-    </p>
+          </details>
+          <Cite pub={C1} />
+        </Project>
+      ) : entry.demo === 'image' ? (
+        <Project entry={entry} anchor={LEGACY_ANCHORS.image}>
+          <figure class="art">
+            <Frame plate class="art__frame">
+              <PhaseScrubber client:visible manifestUrl={imageManifestUrl} manifest={im} />
+            </Frame>
+            <figcaption class="art__caption">
+              One cardiac cycle: {image.acquiredList} acquired by CT, the other {image.synthesized} synthesized.
+            </figcaption>
+          </figure>
 
-    <MetricsTable
-      id="pulse-metrics"
-      label="Fluid-bolus prediction at patient level"
-      caption={`${pulseFacts.status.replace(/^./, (s) => s.toUpperCase())}. Weights and cutoff were chosen on the development set; the temporal set was scored unchanged.`}
-      head={['Set', 'AUC [95 % CI]', 'n']}
-      rows={[
-        ['Development, out-of-fold', `${pulseFacts.devAuc} [${pulseFacts.devCi}]`, pulseFacts.devN],
-        ['Same-center temporal set', `${pulseFacts.tempAuc} [${pulseFacts.tempCi}]`, pulseFacts.tempN],
-      ]}
-    />
+          <details class="more" open>
+            <summary class="more__summary">Method and metrics</summary>
+            <p class="t-prose">
+              A diffusion deformable model synthesizes the full cardiac cycle from two acquired CT phases. Each phase is meshed
+              and solved, so FFR is followed across the cycle instead of read from one still.
+            </p>
 
-    </details>
-    <Cite pub={M1} />
-  </Chapter>
+            <MetricsTable
+              id="image-metrics"
+              label="4D CT synthesis and CT-FFR metrics reported in the paper"
+              caption={`Reported in the 4D CT paper.`}
+              head={['Metric', 'Value']}
+              rows={[
+                ['4D CT-FFR accuracy against invasive FFR', `${image.ffrAccuracy} %`],
+                ['Synthesis PSNR', image.psnr],
+                ['Synthesis SSIM', image.ssim],
+                ['Synthesis Dice', image.dice],
+              ]}
+            />
+
+          </details>
+          <Cite pub={J1} />
+        </Project>
+      ) : entry.demo === 'pulse' ? (
+        <Project entry={entry} anchor={LEGACY_ANCHORS.pulse}>
+          <div class="art-grid">
+            <figure class="art">
+              <Frame plate class="art__frame art__frame--stft">
+                <SpectrogramDevelop
+                  recordingS={pulseFacts.durationS}
+                  client:visible
+                  manifestUrl={urls.pulseManifest}
+                  variant="stft"
+                  axes={stftAxes}
+                  method={pulse.stft.method}
+                  replayGroup="pulse"
+                  bare
+                />
+              </Frame>
+              <figcaption class="art__caption">
+                One <span class="num">{formatSeconds(pulseFacts.durationS, 0)}</span> recording before the first bolus; the bright band is the heartbeat.
+              </figcaption>
+            </figure>
+            <CwtStrip />
+          </div>
+          <!-- One Replay for both plates; shown once the islands can hear it (hidden without JS). -->
+          <div class="pulse-replay" data-replay-group="pulse" hidden>
+            <Button variant="ghost" size="compact" aria-label="Replay both spectrograms">
+              Replay
+              <span slot="icon" aria-hidden="true" set:html={replayIcon} />
+            </Button>
+          </div>
+
+          <details class="more" open>
+            <summary class="more__summary">Method and metrics</summary>
+            <p class="t-prose">
+              Smartwatch PPG is filtered, cut into overlapping segments and turned into STFT and CWT images; the
+              {pulseFacts.networks} CNNs score each segment and the scores are pooled per patient.
+            </p>
+
+            <MetricsTable
+              id="pulse-metrics"
+              label="Fluid-bolus prediction at patient level"
+              caption={`Weights and cutoff were chosen on the development set; the temporal set was scored unchanged.`}
+              head={['Set', 'AUC [95 % CI]', 'n']}
+              rows={[
+                ['Development, out-of-fold', `${pulseFacts.devAuc} [${pulseFacts.devCi}]`, pulseFacts.devN],
+                ['Same-center temporal set', `${pulseFacts.tempAuc} [${pulseFacts.tempCi}]`, pulseFacts.tempN],
+              ]}
+            />
+
+          </details>
+          <Cite pub={M1} />
+        </Project>
+      ) : (
+        <Project entry={entry} />
+      ),
+    )
+  }
 </Base>
 
 <script>
-  /* The Pulse chapter's one Replay restarts both spectrogram plates (SpectrogramDevelop replayGroup). */
+  /* The fluid-bolus project's one Replay restarts both spectrogram plates (SpectrogramDevelop replayGroup). */
   for (const box of document.querySelectorAll<HTMLElement>('[data-replay-group]')) {
     const group = box.dataset.replayGroup;
     box.hidden = false;

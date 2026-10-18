@@ -11,8 +11,8 @@
   Checks
     words     visible words in <main> after removing script, style, svg,
               template, noscript and role="img" elements (a colorbar's
-              ticks are the image's, not reading text): home <= 250, research <= 750, each
-              research section[id] <= 230 (cv is measured, not budgeted)
+              ticks are the image's, not reading text): home <= 250, research <= 1000, each
+              research article[id] (one project) <= 260 (cv is measured, not budgeted)
     mailto    no page carries more than 3 mailto: links (the nav's Email, the visible address, the footer);
               a redirect stub carries none
     h1        the home <h1> text is the owner's name (cv.json basics.name)
@@ -44,7 +44,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist', 'public');
 
 /* mailto: up to 3 per page since revision 2c (the nav's Email, the address shown as text, the footer), 0 in a redirect stub. */
-const BUDGET = { home: 250, research: 750, researchSection: 230, mailto: 3, mailtoRedirect: 0 };
+const BUDGET = { home: 250, research: 1000, researchArticle: 260, mailto: 3, mailtoRedirect: 0 };
 const AGENT_FILES = ['llms.txt', 'llms-full.txt', 'index.md', 'research.md', 'cv.md', 'cv.json'];
 const CV_JSON_KEYS = ['basics', 'work', 'education', 'publications', 'awards', 'skills', 'projects'];
 
@@ -251,13 +251,13 @@ for (const page of PAGES) {
     fail(`words: ${page.route} <main> has ${words} visible words (budget ${page.budget}, over by ${words - page.budget})`);
   }
   if (page.key === 'research') {
-    for (const s of elements(mains[0].inner, 'section', /<section(?=[\s>])/)) {
+    for (const s of elements(mains[0].inner, 'article', /<article(?=[\s>])/)) {
       const id = attr(s.open, 'id');
       if (!id) continue;
       const n = wordCount(s.inner);
-      sectionRows.push([`#${id}`, n, BUDGET.researchSection]);
-      if (n > BUDGET.researchSection) {
-        fail(`words: /research section#${id} has ${n} visible words (budget ${BUDGET.researchSection}, over by ${n - BUDGET.researchSection})`);
+      sectionRows.push([`#${id}`, n, BUDGET.researchArticle]);
+      if (n > BUDGET.researchArticle) {
+        fail(`words: /research article#${id} has ${n} visible words (budget ${BUDGET.researchArticle}, over by ${n - BUDGET.researchArticle})`);
       }
     }
   }
@@ -403,7 +403,7 @@ function table(title, head, rows) {
 
 console.log(`budget: ${relative(process.cwd(), DIST) || DIST}${SOFT ? ' (soft: report only)' : ''}`);
 table('Visible words in <main>', ['page', 'words', 'budget', 'note'], pageRows);
-if (sectionRows.length) table('Research section[id]', ['section', 'words', 'budget'], sectionRows);
+if (sectionRows.length) table('Research article[id]', ['project', 'words', 'budget'], sectionRows);
 table('mailto: links per page', ['page', 'mailto', 'max'], mailRows);
 table('JSON-LD', ['page', 'blocks and @types'], ldRows);
 table('Agent files', ['file', 'size', 'words'], agentRows);

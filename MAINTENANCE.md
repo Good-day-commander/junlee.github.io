@@ -98,7 +98,7 @@ From `site/`:
 Runs after `astro build` inside `pnpm build`; reads `dist/public` only. `node scripts/budget.mjs --soft` prints the same report and exits 0.
 
 It fails (exit 1) on:
-- `words:` home `<main>` over 250 visible words, research over 750, any research `section[id]` over 230. Scripts, styles, SVG, `hidden` and `role="img"` elements do not count. CV is measured, not budgeted.
+- `words:` home `<main>` over 250 visible words, research over 1000, any research `article[id]` (one project) over 260. Scripts, styles, SVG, `hidden` and `role="img"` elements do not count. CV is measured, not budgeted.
 - `mailto:` more than one `mailto:` on a page, any on a redirect stub, or any `mailto:` in dist (HTML, text, JSON, scripts, on-page PDF links) that is not `cv.json basics.email`.
 - `h1:` the home h1 is not the owner's name.
 - `json-ld:` a page without an `application/ld+json` block, a block that does not parse, or no `Person` node.

@@ -169,6 +169,31 @@ export type Project = {
   grantNo: string;
   start: string;
   end: string;
+  /** Short funder or program label for link rows ("KHIDI project 2024–2026"): an acronym the funder, program or grant number already carries. */
+  short: string;
+};
+
+/**
+  One research project as /research lists it: what he actually did, newest
+  first, each with its outputs. Years are 'YYYY'; no `end` means ongoing
+  (printed "YYYY –"). Output arrays hold ids from publications, patents,
+  projects and talks below; lib/schema.ts throws at build when an id is
+  missing. A summary may carry {tokens} for numbers that live in the data
+  manifests (the PINO, image and pulse manifests, cfdReference, awards);
+  lib/schema.ts fills them and throws on an unknown token, so no number is
+  typed here twice.
+*/
+export type ResearchProject = {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  summary: string;
+  pubs?: string[];
+  patents?: string[];
+  projects?: string[];
+  talks?: string[];
+  demo?: "flow" | "image" | "pulse";
 };
 
 export type Award = {
@@ -744,6 +769,7 @@ export const projects: Project[] = [
     grantNo: "NRF-2022R1A5A1022977",
     start: "Jun. 2022",
     end: "Feb. 2029",
+    short: "NRF",
   },
   {
     id: "R2",
@@ -753,6 +779,7 @@ export const projects: Project[] = [
     grantNo: "RS-2024-00406717",
     start: "Apr. 2024",
     end: "Dec. 2026",
+    short: "KHIDI",
   },
   {
     id: "R3",
@@ -763,6 +790,7 @@ export const projects: Project[] = [
     grantNo: "RS-2025-02263580",
     start: "Apr. 2025",
     end: "Dec. 2028",
+    short: "KHIDI",
   },
   {
     id: "R4",
@@ -772,6 +800,7 @@ export const projects: Project[] = [
     grantNo: "RS-2024-00441761",
     start: "Jul. 2024",
     end: "Jun. 2026",
+    short: "TIPS",
   },
   {
     id: "R5",
@@ -781,6 +810,7 @@ export const projects: Project[] = [
     grantNo: "KMDF_PR_20200901_0104",
     start: "Sep. 2020",
     end: "Dec. 2025",
+    short: "KMDF",
   },
   {
     id: "R6",
@@ -790,6 +820,7 @@ export const projects: Project[] = [
     grantNo: "HG22C0001",
     start: "Apr. 2022",
     end: "Dec. 2024",
+    short: "KHIDI",
   },
   {
     id: "R7",
@@ -799,6 +830,151 @@ export const projects: Project[] = [
     grantNo: "2017M3A9E907337122",
     start: "Feb. 2020",
     end: "May 2022",
+    short: "NRF",
+  },
+];
+
+/*
+  The research projects, in the order /research prints them (start year,
+  newest first; within a year the demo projects first). Copy agreed with the
+  owner on 2026-10-19: "project by project, by what I actually did", not the
+  home's four fields.
+*/
+export const researchProjects: ResearchProject[] = [
+  {
+    id: "anomalous-origin",
+    title: "4D flow risk assessment for anomalous coronary origin in children",
+    start: "2025",
+    end: "2028",
+    summary:
+      "In this device project, 4D flow grades the risk of an anomalous aortic origin of a coronary artery in children and adolescents.",
+    projects: ["R3"],
+  },
+  {
+    id: "pino",
+    title: "Neural operator for patient-specific coronary flow",
+    start: "2024",
+    summary:
+      "A physics-informed neural operator trained on CFD returns a vessel's pressure and velocity field in {pino.inference} instead of a {cfd.minutes}-minute run, tested on {pino.patients} cases with {pino.folds}-fold cross-validation.",
+    pubs: ["C1"],
+    patents: ["P3"],
+    talks: ["I1", "I3", "D8"],
+    demo: "flow",
+  },
+  {
+    id: "ct4d",
+    title: "Dynamic FFR from diffusion-synthesized 4D CT",
+    start: "2024",
+    end: "2026",
+    summary:
+      "{image.acquired} acquired CT phases become a full cardiac cycle; each synthesized phase is meshed and solved, so FFR is read across the cycle at {image.ffrAccuracy} accuracy against invasive FFR.",
+    pubs: ["J1", "C2"],
+    patents: ["P4", "P5", "P8"],
+    projects: ["R2"],
+    talks: ["I2", "D2"],
+    demo: "image",
+  },
+  {
+    id: "bolus",
+    title: "Fluid-bolus prediction from smartwatch PPG",
+    start: "2024",
+    summary:
+      "{pulse.networks} CNNs read PPG spectrograms and a weighted average predicts an intravenous fluid bolus within 24 hours of emergency-department arrival (AUC {pulse.auc}).",
+    pubs: ["M1"],
+    demo: "pulse",
+  },
+  {
+    id: "cad-software",
+    title: "Patient-specific coronary artery disease risk analysis software",
+    start: "2024",
+    end: "2026",
+    summary: "In this SME-funded software project, a patient's CT becomes hemodynamic risk indices.",
+    projects: ["R4"],
+  },
+  {
+    id: "viscosity",
+    title: "Blood viscosity from smartwatch PPG",
+    start: "2023",
+    end: "2025",
+    summary:
+      "A physics-constrained CNN–LSTM with a Carreau–Yasuda prior estimates a patient's non-Newtonian blood viscosity from PPG and basic biometrics; the paper received the {award.J2}.",
+    pubs: ["J2"],
+    patents: ["P6", "P7", "P11", "P12"],
+    talks: ["D1", "I4", "D3", "D5"],
+  },
+  {
+    id: "wearable-screening",
+    title: "Wearable screening for glucose, diabetes and glaucoma",
+    start: "2023",
+    end: "2024",
+    summary:
+      "PPG and contactless biosignal models estimate blood glucose and diabetes risk and flag glaucoma suspects; they are filed as patents.",
+    patents: ["P9", "P13", "P10", "P14", "P15"],
+    talks: ["D7"],
+  },
+  {
+    id: "platform",
+    title: "Real-time precision medicine platform on smart hemodynamic indices",
+    start: "2022",
+    end: "2029",
+    summary:
+      "This {project.R1.years}-year NRF Leading Research Center project studies hemodynamic indices for real-time precision medicine.",
+    projects: ["R1"],
+  },
+  {
+    id: "tunnel",
+    title: "Variable negative-pressure tunnel for respiratory infection control",
+    start: "2022",
+    end: "2024",
+    summary: "This KHIDI project develops a variable negative-pressure tunnel for respiratory infection control.",
+    projects: ["R6"],
+  },
+  {
+    id: "urodynamics",
+    title: "AI-based non-invasive urodynamics test",
+    start: "2022",
+    end: "2022",
+    summary: "A registered patent covers a non-invasive urodynamics test method and apparatus.",
+    patents: ["P1"],
+  },
+  {
+    id: "gray-zone",
+    title: "FFR prediction in the gray zone",
+    start: "2020",
+    end: "2022",
+    summary:
+      "An AI algorithm combines hemodynamic features, synthetic vessel models and biometrics to call the FFR gray zone; it is published and patented, with a quantum-ML follow-up.",
+    pubs: ["J4"],
+    patents: ["P2", "P16"],
+    talks: ["I5", "D9", "D4"],
+  },
+  {
+    id: "lbm-ctffr",
+    title: "CFD-based CT-FFR with the lattice Boltzmann method",
+    start: "2020",
+    end: "2022",
+    summary:
+      "Image-based, patient-specific coronary CFD runs on a lattice Boltzmann solver after automatic 3D segmentation.",
+    talks: ["I6", "D10"],
+  },
+  {
+    id: "ffr-simulator",
+    title: "High-speed point-of-care FFR simulator",
+    start: "2020",
+    end: "2022",
+    summary: "This NRF project works toward a fast FFR simulator for diagnosis and treatment at the point of care.",
+    projects: ["R7"],
+  },
+  {
+    id: "tricuspid",
+    title: "Tricuspid regurgitation membrane device",
+    start: "2020",
+    end: "2025",
+    summary:
+      "CFD optimizes a carved membrane device for tricuspid regurgitation; the goal is a patient-specific implant made with 3D heart printing.",
+    pubs: ["J3"],
+    projects: ["R5"],
+    talks: ["D6"],
   },
 ];
 

@@ -283,7 +283,6 @@
 }
 .note {
   margin: 0;
-  max-width: 44ch;
   font-family: var(--font-text);
   font-style: italic;
   font-size: 0.95rem;
