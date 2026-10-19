@@ -56,6 +56,8 @@ import portrait from '@/assets/photos/profile-main.jpg';
 import photoAcfm from '@/assets/photos/gallery-acfm-2025.jpg';
 import photoDmd from '@/assets/photos/gallery-dmd-2026.jpg';
 import photoYonsei from '@/assets/photos/gallery-talk-yonsei.jpg';
+import photoBesco25 from '@/assets/photos/gallery-besco-2025.jpg';
+import photoBesco24 from '@/assets/photos/gallery-besco-2024.jpg';
 
 const pubGroups: { heading: string; items: Publication[] }[] = [
   { heading: 'Journal articles (SCIE)', items: publications.filter((p) => p.type === 'journal') },
@@ -98,26 +100,40 @@ function talkCaption(t: Talk | undefined, fallback: string): { text: string; hre
   if (!t) return { text: fallback };
   const a = acronym(t.venue);
   const name = a ? (a.includes(t.year) ? a.replace(t.year, ` ${t.year}`) : `${a} ${t.year}`) : `${t.venue} ${t.year}`;
-  return { text: `${name}, ${t.location.split(',')[0]} · ${capitalize(t.format)}`, href: `#${t.id}` };
+  /* Venue and year plus the format; the city stays in the talk row, so five captions fit one line of photos. */
+  return { text: `${name} · ${capitalize(t.format)}`, href: `#${t.id}` };
 }
 const I3 = talkById('I3');
 const I1 = talkById('I1');
+const D1 = talkById('D1');
+const D3 = talkById('D3');
 const PHOTO_H = 120;
+/* Newest first. Each photo is the owner's own, from the conference named in its caption (owner's shared album, 2026-10-19). */
 const photos = [
+  {
+    src: photoDmd,
+    alt: I1 ? `${profile.name} presenting the poster "${I1.title}" at the ${I1.venue}, ${I1.location}.` : `${profile.name} presenting a conference poster.`,
+    caption: talkCaption(I1, 'DMD 2026, Minneapolis'),
+  },
   {
     src: photoAcfm,
     alt: I3 ? `${profile.name} presenting at the podium of the ${I3.venue}, ${I3.location}.` : `${profile.name} at a conference podium.`,
     caption: talkCaption(I3, 'ACFM 2025, Seoul'),
   },
   {
-    src: photoDmd,
-    alt: I1 ? `The poster presented at the ${I1.venue}: ${I1.title}.` : 'Conference poster.',
-    caption: talkCaption(I1, 'DMD 2026, Minneapolis'),
+    src: photoBesco25,
+    alt: D1 ? `${profile.name} beside the poster "${D1.title}" at the ${D1.venue}, ${D1.location}.` : `${profile.name} beside a conference poster.`,
+    caption: talkCaption(D1, 'BESCO 2025'),
+  },
+  {
+    src: photoBesco24,
+    alt: D3 ? `${profile.name} beside the poster "${D3.title}" at the ${D3.venue}, ${D3.location}.` : `${profile.name} beside a conference poster.`,
+    caption: talkCaption(D3, 'BESCO 2024'),
   },
   {
     src: photoYonsei,
     alt: `${profile.name} presenting cardiovascular AI research at a Yonsei department symposium.`,
-    caption: { text: 'Yonsei department symposium, 2024' } as { text: string; href?: string },
+    caption: { text: 'Yonsei symposium 2024' } as { text: string; href?: string },
   },
 ].map((ph) => ({ ...ph, width: Math.round((PHOTO_H * ph.src.width) / ph.src.height) }));
 /* Full-size versions for the click-to-enlarge view (one optimized WebP per photo, at most 1800 px wide). */
