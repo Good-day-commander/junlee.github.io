@@ -318,6 +318,10 @@ const description = `${profile.name}'s research, project by project, newest firs
     transform: rotate(-45deg);
     transition: transform var(--duration-quick) var(--ease-out);
   }
+  /* The citation line that follows carries the closing rule; the table's own bottom rule would double it. */
+  .more :global(table) {
+    border-bottom: 0;
+  }
   .more[open] > .more__summary::before {
     transform: rotate(45deg);
   }

@@ -315,7 +315,14 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
                     {shortVenue(t.venue)}
                   </abbr>
                   <span class="talk__format t-mono">
-                    {capitalize(t.format)} · {t.role === 'presenter' ? 'presented' : 'co-author'}
+                    {capitalize(t.format)
+                      .split('; ')
+                      .map((part, i, all) => (
+                        <>
+                          <span class="talk__unit">{part}{i < all.length - 1 && ';'}</span>{' '}
+                        </>
+                      ))}
+                    <span class="talk__unit">· {t.role === 'presenter' ? 'presented' : 'co-author'}</span>
                   </span>
                 </li>
               ))}
@@ -361,7 +368,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
               <div class="row__main">
                 <p class="row__title">{r.title}</p>
                 <p class="row__meta row__meta--wide">
-                  {r.program ? `${r.funder}, ${r.program}` : r.funder} · <span class="t-mono">{r.grantNo}</span>
+                  {r.program ? `${r.funder}, ${r.program}` : r.funder}
+                  <span class="row__grant t-mono">{r.grantNo}</span>
                 </p>
               </div>
             </li>
@@ -623,6 +631,11 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     text-wrap: pretty;
   }
   /* The place (institution, city) is its own line under the title, never run on after it. */
+  /* The grant number under the funder line (a wrapped " · number" used to open a line with the separator). */
+  .row__grant {
+    display: block;
+    margin-top: 0.1rem;
+  }
   .row__inline {
     display: block;
     font-family: var(--font-text);
@@ -671,7 +684,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   /* Talks: one row each: year, title (authors only where not mine et al.), short venue, format and role */
   .talk {
     display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) 8rem 12rem;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 7rem 15rem;
     gap: 0 var(--space-2);
     align-items: baseline;
     padding-block: 0.3rem;
@@ -708,6 +721,10 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     color: var(--ink-2);
     text-align: right;
   }
+  /* A format ("Short oral & poster") or the role with its separator ("· presented") never breaks inside itself. */
+  .talk__unit {
+    white-space: nowrap;
+  }
   /* Patents: one row each (packet §6): id · title · status · number */
   .patent {
     display: grid;
@@ -740,6 +757,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   }
   .patent__no {
     color: var(--ink);
+    min-width: 10rem; /* the longest application label; every status then ends on the same x */
+    text-align: right;
   }
   .patent__status {
     display: inline-flex;
@@ -907,6 +926,10 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       grid-column: 2;
       justify-content: flex-start;
       white-space: normal;
+    }
+    .patent__no {
+      min-width: 0;
+      text-align: left;
     }
     .photo :global(.photo__img) {
       height: 96px;
