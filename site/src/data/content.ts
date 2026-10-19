@@ -66,6 +66,8 @@ export function appointmentLine(appointment: Appointment): string {
 
 export type Profile = {
   name: string;
+  /** The name in Korean, shown beside the English one in the home lead and printed in the agent files' headings. */
+  nameKo: string;
   role: string;
   lab: string;
   department: string;
@@ -227,6 +229,8 @@ export type Skills = {
 
 export const profile: Profile = {
   name: "Hyeong Jun Lee",
+  // Hangul spelling set on 2026-10-19; the owner may correct it here in one edit.
+  nameKo: "이형준",
   role: "Postdoctoral Researcher",
   lab: "Multiscale Fluid Dynamics Lab",
   department: "School of Mechanical Engineering",

@@ -1,0 +1,119 @@
+---
+/*
+  One closed Updates row under the identity block (contract revision 2d).
+  Closed, it is one ruled row: the newest update's date in mono and its
+  sentence. Open, the remaining updates follow as rows in the same columns.
+  No heading, no label word, no links (the nav's CV is the way into the
+  record) and no JavaScript: a native <details> that ships closed at every
+  width. The date column is sized to the date, so the sentence starts close
+  to it and the row reads as one line, not as a table with an empty cell.
+
+  The items are lib/schema.ts updates, derived from the record in
+  content.ts (newest first, at most UPDATES_MAX); /index.md, /llms.txt and
+  /llms-full.txt print the same list. The budget gate counts only the
+  summary of a closed <details>.
+*/
+import { updates } from '@/lib/schema';
+
+const [first, ...rest] = updates;
+---
+
+{
+  first && (
+    <details class="updates wrap" id="updates">
+      <summary class="updates__summary">
+        <span class="updates__when t-mono">{first.label}</span>
+        <span class="updates__text">{first.text}</span>
+        <span class="updates__chevron" aria-hidden="true" />
+      </summary>
+      {rest.length > 0 && (
+        <ol class="updates__list">
+          {rest.map((u) => (
+            <li class="updates__row">
+              <span class="updates__when t-mono">{u.label}</span>
+              <span class="updates__text">{u.text}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </details>
+  )
+}
+
+<style>
+  .updates {
+    margin-bottom: var(--space-3);
+  }
+  .updates__summary,
+  .updates__row {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: baseline;
+    padding-block: 0.6rem;
+    border-top: 1px solid var(--line);
+  }
+  .updates__row {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+  /* The closing rule: under the summary while closed, under the list once open; it spans the column, not the gutters. */
+  .updates:not([open]) > .updates__summary,
+  .updates__summary:last-child,
+  .updates__list {
+    border-bottom: 1px solid var(--line);
+  }
+  .updates__summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .updates__summary::-webkit-details-marker {
+    display: none;
+  }
+  .updates__when {
+    font-size: var(--size-mono);
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .updates__text {
+    font-family: var(--font-text);
+    font-size: var(--size-prose);
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  /* The research page's chevron: a square with two hairline sides, turned to point down, up once open. */
+  .updates__chevron {
+    justify-self: end;
+    align-self: center;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-inline: 0.1rem; /* the turned square stays inside the column */
+    border-right: 1px solid var(--ink-3);
+    border-bottom: 1px solid var(--ink-3);
+    transform: rotate(45deg);
+    transition:
+      transform var(--duration-quick) var(--ease-out),
+      border-color var(--duration-quick) var(--ease-out);
+  }
+  .updates[open] .updates__chevron {
+    transform: rotate(-135deg);
+  }
+  .updates__summary:hover .updates__text {
+    color: var(--ink);
+  }
+  .updates__summary:hover .updates__chevron {
+    border-color: var(--ink);
+  }
+  .updates__summary:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: var(--ring-offset);
+  }
+
+  /* Phones: the same columns, a tighter gap; nothing stacks. */
+  @media (max-width: 640px) {
+    .updates__summary,
+    .updates__row {
+      column-gap: var(--space-2);
+    }
+  }
+</style>

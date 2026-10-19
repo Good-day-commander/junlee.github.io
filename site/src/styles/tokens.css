@@ -85,6 +85,8 @@
   --width-frame: clamp(50rem, 58vw, 64rem);
   --width-record: clamp(60rem, 66vw, 78rem); /* the CV's denser rows */
   --width-text: 72rem;
+  /* The label column of home's rows (Work names, Updates dates): the row text after it shares one left edge. */
+  --width-label: 11rem;
   --nav-h: 3rem;
   --radius: 2px;
 

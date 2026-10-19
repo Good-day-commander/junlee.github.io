@@ -36,6 +36,7 @@ import '@fontsource/stix-two-text/600.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '@/styles/global.css';
 import archivoLatin from '@/assets/fonts/archivo-latin-wght400-600-wdth92-100.woff2?url';
+import nameKoFont from '@/assets/fonts/pretendard-500-name-ko.woff2?url';
 import stixLatin from '@fontsource/stix-two-text/files/stix-two-text-latin-400-normal.woff2?url';
 
 import Nav from '@/components/Nav.astro';
@@ -88,6 +89,7 @@ const ogAlt =
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1b1f" />
     <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={stixLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={nameKoFont} as="font" type="font/woff2" crossorigin />
     <meta name="author" content={profile.name} />
     <meta property="og:type" content={isHome ? 'profile' : 'website'} />
     <meta property="og:site_name" content={profile.name} />

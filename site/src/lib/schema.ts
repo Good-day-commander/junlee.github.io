@@ -426,6 +426,88 @@ export const capabilities: { id: string; name: string; href: string; row: string
   },
 ];
 
+/* ---------- updates (home, index.md, llms.txt, llms-full.txt) ---------- */
+
+/*
+  The home Updates row and its twins: dated events taken from the record,
+  newest first, at most UPDATES_MAX. Sources: the current appointment, the
+  completed Ph.D., publications with a year, awards, registered patents and
+  funded projects. Talks and pending patents are not updates; a publication
+  without a year (the manuscript under revision) has no date to place it.
+  `when` is the sort key: "YYYY-MM" when the month is known, "YYYY-00" when
+  only the year is, so a year-only item follows every dated item of its
+  year. Ties keep UPDATE_KINDS order, then content.ts order.
+*/
+export interface UpdateItem {
+  when: string;
+  label: string;
+  text: string;
+}
+export const UPDATES_MAX = 8;
+
+const UPDATE_KINDS = ['appointment', 'degree', 'publication', 'award', 'patent', 'project'] as const;
+type UpdateKind = (typeof UPDATE_KINDS)[number];
+
+/** "09" → "Sep" (from MONTHS, so the month names live in one table). */
+const MONTH_ABBR: Record<string, string> = Object.fromEntries(
+  Object.entries(MONTHS).map(([abbr, mm]) => [mm, abbr.charAt(0).toUpperCase() + abbr.slice(1)]),
+);
+
+/** "Sep. 2026", "2026-09" or "2026-09-14" → "2026-09"; "2026" → "2026-00"; "Present" or no year → undefined. */
+function updateWhen(label: string | undefined): string | undefined {
+  if (!label) return undefined;
+  const iso = /^(\d{4})-(\d{2})/.exec(label.trim());
+  if (iso) return `${iso[1]}-${iso[2]}`;
+  const m = isoMonth(label);
+  if (!m) return undefined;
+  return m.length === 4 ? `${m}-00` : m;
+}
+
+/** "2026-09" → "Sep 2026"; "2026-00" → "2026". */
+function updateLabel(when: string): string {
+  const [year, mm] = when.split('-');
+  return mm === '00' ? year : `${MONTH_ABBR[mm]} ${year}`;
+}
+
+/** The author role as the update sentence's adjective: "A first-author paper appeared in DMD." */
+const UPDATE_ROLE: Record<AuthorRole, string> = { first: 'first-author', 'co-first': 'co-first-author', 'co-author': 'co-authored' };
+/** "CMPB 2025" → "CMPB": the date column already carries the year. */
+const shortVenue = (p: Publication) => shortVenueYear(p).replace(new RegExp(`\\s*${p.year}$`), '');
+
+export const updates: UpdateItem[] = (() => {
+  const pool: { when: string; kind: UpdateKind; order: number; text: string }[] = [];
+  const add = (kind: UpdateKind, date: string | undefined, text: string) => {
+    const when = updateWhen(date);
+    if (when) pool.push({ when, kind, order: pool.length, text });
+  };
+  for (const x of experience.filter((e) => e.end === 'Present')) {
+    add('appointment', x.start, `Started as a ${profile.role.toLowerCase()} at ${profile.university}.`);
+  }
+  for (const e of education.filter((d) => /^Ph\.D\./.test(d.degree))) {
+    add('degree', e.end, `Completed the ${e.degree.replace(/\s*\([^)]*\)/g, '').trim()} at ${e.institution}.`);
+  }
+  for (const p of publications.filter((x) => x.year)) {
+    add('publication', p.year, `A ${UPDATE_ROLE[p.myRole]} paper appeared in ${shortVenue(p)}.`);
+  }
+  for (const a of awards) {
+    add('award', a.year, `Received the ${a.title} from the ${a.org}.`);
+  }
+  for (const p of publicPatents.filter((x) => x.status === 'registered')) {
+    add('patent', p.registrationDate ?? p.year, `The patent “${p.title}” was registered.`);
+  }
+  for (const r of projects) {
+    add('project', r.start, `Joined the ${r.funder} project “${r.title}” as ${projectRole}.`);
+  }
+  const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+  pool.sort(
+    (a, b) => cmp(b.when, a.when) || UPDATE_KINDS.indexOf(a.kind) - UPDATE_KINDS.indexOf(b.kind) || a.order - b.order,
+  );
+  return pool.slice(0, UPDATES_MAX).map(({ when, text }) => ({ when, label: updateLabel(when), text }));
+})();
+
+/** The updates as markdown list lines: "- Sep 2026: Started as …". */
+const updatesMd = (indent = '') => updates.map((u) => `${indent}- ${u.label}: ${u.text}`);
+
 /* ---------- research projects (/research, research.md, llms*.txt, cv.json, JSON-LD) ---------- */
 
 /*
@@ -603,6 +685,7 @@ export function personNode(imageUrl?: string): JsonLdNode {
     '@type': 'Person',
     '@id': PERSON_ID,
     name: profile.name,
+    alternateName: profile.nameKo,
     jobTitle: profile.role,
     affiliation: {
       '@type': 'Organization',
@@ -769,9 +852,12 @@ function flowTableMd(): string {
 const proofMd = (line: ProofItem[]) =>
   line.map((i) => (i.href ? `[${i.md ?? i.text}](${abs(i.href)})` : (i.md ?? i.text))).join(' · ');
 
+/** "# Hyeong Jun Lee (이형준)": the agent files' heading, the English name with the Korean one. */
+const headingMd = `# ${profile.name} (${profile.nameKo})`;
+
 function identityMd(): string[] {
   return [
-    `# ${profile.name}`,
+    headingMd,
     '',
     `${profile.role} · ${profile.lab}, ${profile.university} · ${focusLine}`,
     '',
@@ -789,6 +875,10 @@ function identityMd(): string[] {
 export function homeMarkdown(): string {
   return [
     ...identityMd(),
+    '## Recent',
+    '',
+    ...updatesMd(),
+    '',
     '## The plate',
     '',
     plateSentence,
@@ -1032,7 +1122,7 @@ export function cvMarkdown(): string {
 
 export function llmsTxt(): string {
   return [
-    `# ${profile.name}`,
+    headingMd,
     '',
     `> ${profile.role} at the ${profile.lab}, ${profile.department}, ${profile.university} (Seoul). ${tagline}`,
     '',
@@ -1042,6 +1132,8 @@ export function llmsTxt(): string {
     ...capabilities.map((c) => `  - ${c.name}: ${c.row}`),
     `- Research projects (/research), newest first:`,
     ...researchEntries.map((e) => `  - ${e.title} (${e.years})`),
+    `- Recent:`,
+    ...updatesMd('  '),
     `- In brief:`,
     ...proofText.map((t) => `  - ${t}`),
     `- Record: ${countsLine}.`,
@@ -1074,7 +1166,7 @@ export function llmsTxt(): string {
 
 export function llmsFullTxt(): string {
   return [
-    `# ${profile.name}`,
+    headingMd,
     '',
     `> ${profile.role} at the ${profile.lab}, ${profile.university}. ${tagline}`,
     '',
@@ -1088,6 +1180,10 @@ export function llmsFullTxt(): string {
     '',
     ...proofText.map((t) => `- ${t}`),
     `- Record: ${countsLine}.`,
+    '',
+    '## Recent',
+    '',
+    ...updatesMd(),
     '',
     '# Part 1. Research',
     '',

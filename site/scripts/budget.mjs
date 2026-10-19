@@ -11,7 +11,9 @@
   Checks
     words     visible words in <main> after removing script, style, svg,
               template, noscript and role="img" elements (a colorbar's
-              ticks are the image's, not reading text): home <= 250, research <= 1000, each
+              ticks are the image's, not reading text) and everything in a
+              closed <details> (no open attribute) but its <summary> (what a
+              reader sees before opening it): home <= 250, research <= 1000, each
               research article[id] (one project) <= 260 (cv is measured, not budgeted)
     mailto    no page carries more than 3 mailto: links (the nav's Email, the visible address, the footer);
               a redirect stub carries none
@@ -146,10 +148,33 @@ function removeImages(html) {
   return out;
 }
 
+/*
+  A closed <details> (its open tag has no `open` attribute, like the home
+  Updates row) shows only its <summary> until a reader opens it, so each
+  one is replaced by its summary's inner HTML. An open <details> (the
+  research page's Method and metrics) counts in full; a closed one inside
+  it is still reduced.
+*/
+function collapseClosedDetails(html) {
+  const openRe = /<details(?=[\s>/])[^>]*>/gi;
+  let out = '';
+  let pos = 0;
+  let m;
+  while ((m = openRe.exec(html))) {
+    if (/\sopen(?=[\s=/>])/i.test(m[0])) continue;
+    const end = matchingClose(html, m.index, 'details');
+    const summary = elements(html.slice(m.index, end), 'summary', /<summary(?=[\s>])/)[0]?.inner ?? '';
+    out += `${html.slice(pos, m.index)} ${summary} `;
+    pos = end;
+    openRe.lastIndex = end;
+  }
+  return out + html.slice(pos);
+}
+
 const STRIP = ['script', 'style', 'svg', 'template', 'noscript'];
 function visibleText(html) {
   return decode(
-    removeElements(removeImages(removeHidden(html)), STRIP)
+    removeElements(removeImages(removeHidden(collapseClosedDetails(html))), STRIP)
       .replace(/<!--[\s\S]*?-->/g, ' ')
       .replace(/<[^>]+>/g, ' '),
   )

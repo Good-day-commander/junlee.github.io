@@ -1,19 +1,18 @@
 ---
 /*
   The first thing on the home page: who this is. A small portrait plate
-  with a hairline, the name as the page's h1, one Archivo line (role, lab,
-  university, then the four fields), the owner's tagline in STIX, three
-  mono proof lines (contract revision 2a: first-author papers and the paper
-  award; the PINO cohort and CFD against PINO time; patent, project and
-  award counts, the project and award counts linked to the CV, the patent
-  count plain because the Devices row is home's one link to /cv/#patents),
-  and one mono link row (LinkedIn, Google Scholar, ORCID). No Email and no
-  CV here: the nav carries both, so the first viewport shows each action
-  once. Home's footer drops its link row, so this is the page's only one.
+  with a hairline at the right edge; at the left, the lead, one run-in
+  block in Archivo at one size (contract revision 2d): the name as the
+  page's h1 and the Korean name in ink, then the owner's tagline in ink-2.
+  Under the lead, one Archivo line (role, lab, university, then the four
+  fields) and one mono link row (the address as text, LinkedIn, Google
+  Scholar, ORCID). No Email button and no CV here: the nav carries both, so
+  the first viewport shows each action once. Home's footer shows only the
+  address, so this is the page's only LinkedIn, Scholar and ORCID row.
 
-  Every string comes from content.ts (profile.role, lab, university,
-  fields, tagline, links) or lib/schema.ts the machine layer, the same helper
-  /index.md and /llms.txt print; swapping the tagline is one edit there.
+  Every string comes from content.ts (profile.name, nameKo, role, lab,
+  university, fields, tagline, email, links); swapping the tagline or the
+  Korean name is one edit there.
 */
 import { Image } from 'astro:assets';
 import { profile } from '@/data/content';
@@ -41,7 +40,10 @@ const links = [
     class="identity__portrait"
   />
   <div class="identity__text">
-    <h1 id="identity-name" class="identity__name">{profile.name}</h1>
+    <div class="identity__lead">
+      <h1 id="identity-name" class="identity__name">{profile.name}</h1>
+      <span class="identity__name-ko" lang="ko">{profile.nameKo}</span>
+    </div>
     <p class="identity__role">
       <span>{profile.role} · {profile.lab}, {profile.university}</span>
       <span class="identity__fields">{profile.fields.map((f, i) => <><span class="identity__item">{f}{i < profile.fields.length - 1 && " ·"}</span>{" "}</>)}</span>
@@ -85,6 +87,17 @@ const links = [
     gap: 0.6rem;
     min-width: 0;
   }
+  /*
+    The lead: the name as the page's h1, with the Korean name beside it on
+    the same baseline, smaller and in the lighter ink (two inks on one line;
+    revision 2d). The tagline stays a STIX line under the role line.
+  */
+  .identity__lead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.6rem;
+  }
   .identity__name {
     font-family: var(--font-display);
     font-variation-settings: 'wdth' 92;
@@ -93,6 +106,21 @@ const links = [
     line-height: 1;
     letter-spacing: -0.025em;
     color: var(--ink);
+  }
+  /* Archivo has no Hangul; the Korean name is a Pretendard Medium subset (fonts.css), with the system Gothic behind it. */
+  .identity__name-ko {
+    font-family: 'Pretendard Name', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    font-size: clamp(1.125rem, 0.8rem + 1.1vw, 1.5rem);
+    line-height: 1;
+    color: var(--ink-2);
+  }
+  .identity__tagline {
+    font-family: var(--font-text);
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: pretty;
   }
   .identity__role {
     display: grid;
@@ -109,13 +137,6 @@ const links = [
   /* A field name never breaks inside itself; lines break only at the separators. */
   .identity__item {
     white-space: nowrap;
-  }
-  .identity__tagline {
-    font-family: var(--font-text);
-    font-size: 1.125rem;
-    line-height: 1.5;
-    color: var(--ink);
-    text-wrap: pretty;
   }
   .identity__links {
     display: flex;
@@ -134,12 +155,12 @@ const links = [
     border-bottom-color: var(--signal);
   }
 
-  /* Phones: the portrait sits beside the name; the lines below run the full width. */
+  /* Phones: the portrait sits beside the lead; the role line and the links run the full width. */
   @media (max-width: 640px) {
     .identity {
       grid-template-columns: minmax(0, 1fr) 4rem;
       column-gap: var(--space-2);
-      padding-block: var(--space-3) var(--space-2);
+      padding-block: var(--space-3); /* the same 1.5rem above the Updates rule as on wide screens */
     }
     .identity :global(.identity__portrait) {
       width: 4rem;
@@ -152,7 +173,7 @@ const links = [
     .identity__text {
       display: contents;
     }
-    .identity__name {
+    .identity__lead {
       grid-column: 1;
       grid-row: 1;
       align-self: center;

@@ -59,6 +59,12 @@ Facts live only in `site/src/data/content.ts`; pages, twins (`*.md.ts`, `llms*.t
 - Patent: add to `patents` with `id` (next P-number), `title`, `jurisdiction` (`KR`, `US`, `PCT`), `applicationNo`, `year`, `status` (`registered` or `pending`), `inventors`; for registered add `registrationNo` and `registrationDate`. `withdrawn` keeps a row on record but hides it from every list and count.
 - Counts (patents, registered, projects, awards) are computed. Validate.
 
+## Updates and the Korean name
+
+- The home Updates row and the "Recent" lists in `/index.md`, `/llms.txt` and `/llms-full.txt` need no editing. `updates` in `src/lib/schema.ts` derives them from the record in `content.ts` (the current appointment, the completed Ph.D., publications with a year, awards, registered patents, funded projects), newest first. Add the fact to `content.ts` and the lists follow; talks and pending patents never appear.
+- Change how many are kept with `UPDATES_MAX` in `src/lib/schema.ts`. The home row shows the newest one closed and the rest when opened; only the closed row counts toward the 250 words.
+- The Korean name beside the English one in the lead (and in the agent files' headings) is `profile.nameKo` in `content.ts`. Its glyphs ship as a Pretendard Medium subset: after changing the name, run `python -X utf8 scripts/subset-name-ko.py <path to Pretendard-Medium.woff2>` (from the npm package `pretendard`; `npm pack pretendard` in a temp folder gives it) and paste the `unicode-range` the script prints into the `Pretendard Name` face in `src/styles/fonts.css`. Validate.
+
 ## Regenerate the OG images and the no-WebGL still
 
 Both are screenshots of the built site, so build first.
@@ -85,7 +91,7 @@ From `site/`:
 1. `pnpm install --frozen-lockfile` (first run, or after a lockfile change).
 2. `pnpm check`: 0 errors.
 3. `pnpm build`: ends with `budget: all checks passed.`
-3a. `pnpm smoke`: 33 checks, exit 0 (the same test CI runs before deploying).
+3a. `pnpm smoke`: 35 checks, exit 0 (the same test CI runs before deploying).
 4. `pnpm preview`, then in another shell `pnpm shots` (`SCHEMES=light` or `ROUTES=/,/research` to narrow). Inspect `.impeccable/review/` at desktop and mobile, light and dark: one left and one right edge, plates 2:1, drift running, no mono prose, no identifiers.
 5. From the repo root: `~/.claude/skills/impeccable/scripts/impeccable detect --json site/src/styles site/src/components site/src/layouts site/src/islands site/src/pages site/src/lib`. Fix every finding or record why it stays.
 6. Wire size of the home first load, against preview, each URL the home requests (DevTools Network lists them):
@@ -98,7 +104,7 @@ From `site/`:
 Runs after `astro build` inside `pnpm build`; reads `dist/public` only. `node scripts/budget.mjs --soft` prints the same report and exits 0.
 
 It fails (exit 1) on:
-- `words:` home `<main>` over 250 visible words, research over 1000, any research `article[id]` (one project) over 260. Scripts, styles, SVG, `hidden` and `role="img"` elements do not count. CV is measured, not budgeted.
+- `words:` home `<main>` over 250 visible words, research over 1000, any research `article[id]` (one project) over 260. Scripts, styles, SVG, `hidden` and `role="img"` elements do not count, nor anything in a closed `<details>` but its `<summary>`. CV is measured, not budgeted.
 - `mailto:` more than one `mailto:` on a page, any on a redirect stub, or any `mailto:` in dist (HTML, text, JSON, scripts, on-page PDF links) that is not `cv.json basics.email`.
 - `h1:` the home h1 is not the owner's name.
 - `json-ld:` a page without an `application/ld+json` block, a block that does not parse, or no `Person` node.

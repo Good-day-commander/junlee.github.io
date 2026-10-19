@@ -13,14 +13,14 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - One left edge and one right edge: every block spans the centred column. Narrow text by measure (ch), never by a narrower box.
 - No dataset identifiers in visible text (no case ids, no file or array names).
 - The vessel's idle drift stays ON everywhere, home plate included (`--drift-period`, `VesselViewer.tsx`). Only reduced motion stops it.
-- Home `<main>` holds at most 250 visible words (`scripts/budget.mjs` enforces it).
+- Home `<main>` holds at most 250 visible words (`scripts/budget.mjs` enforces it; a closed `<details>` counts only its `<summary>`).
 - At most three `mailto:` per page: the nav's Email button, the address shown as text (home identity row, CV header) and the footer's address; redirect stubs carry none. The address is always `profile.email`.
 
 ## Where facts live
 
 - `site/src/data/content.ts` is the single source of truth, derived from the October 2026 CV. The CV wins over older site copy.
 - Never type a number, count, date, DOI or name in a component, page or twin. Import it from content.ts and format it with `src/lib/format.ts`; shared lines come from `src/lib/schema.ts`.
-- `profile.email` is the only public address. `profile.tagline` is the owner's one sentence (swap it in one edit). `profile.fields` holds the four fields in display order. `cfdReference` holds the CFD bound (up to 35 min on 64 CPU cores); `public/data/pino/manifest.json` mirrors it and schema.ts fails the build if they drift.
+- `profile.email` is the only public address. `profile.tagline` is the owner's one sentence (swap it in one edit). `profile.nameKo` is the Korean name shown beside the English one in the lead (and in the agent files' headings); its glyphs ship as a Pretendard subset (recipe in MAINTENANCE.md). `profile.fields` holds the four fields in display order. `cfdReference` holds the CFD bound (up to 35 min on 64 CPU cores); `public/data/pino/manifest.json` mirrors it and schema.ts fails the build if they drift.
 - Everything exported from content.ts ships in the JS bundle: export only public fields. Maintainer notes go in comments.
 - Never export or render the phone number, the referee section, or anything patient-identifiable.
 
@@ -56,6 +56,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 
 - `public/robots.txt` keeps explicit AI user-agent groups with `Content-Signal: search=yes, ai-input=yes` (ai-train unstated).
 - Generated from content.ts via `lib/schema.ts`: `/llms.txt`, `/llms-full.txt`, markdown twins `/index.md`, `/research.md`, `/cv.md`, `/cv.json` (JSON Resume with `meta.canonical`), and JSON-LD (`Person` and friends) on every page.
+- `updates` is derived in `schema.ts` from experience, education, awards, publications, registered patents and funded projects, newest first, capped at `UPDATES_MAX`, and printed on home (one closed `<details>` under the identity block), `index.md`, `llms.txt` and `llms-full.txt`. Never type an update by hand.
 - Every visible number must also be in the server-rendered HTML (Astro markup, not only inside an island) and in the twins. Change a page, change its twin in the same edit.
 
 ## Build gate and checks
@@ -66,7 +67,7 @@ Run from `site/` (pnpm; Node 20.3 or newer):
 - `pnpm build`: astro build, then `scripts/budget.mjs`. It fails on words, mailto count and targets, home h1, JSON-LD and agent files. `node scripts/budget.mjs --soft` reports without failing.
 - `pnpm preview`: serves `dist/public` on 4321.
 - `pnpm shots`: with preview running; writes light and dark, desktop and mobile captures to `.impeccable/review/`.
-- `pnpm smoke`: after a build; starts its own preview, drives headless Chromium through /, /research/ and /cv/ at two widths and fails on console errors, a missing viewer or wipe control, extra mailto links, broken redirects or missing agent files. CI runs it before deploying.
+- `pnpm smoke`: after a build; starts its own preview, drives headless Chromium through /, /research/ and /cv/ at two widths and fails on console errors, a missing viewer or wipe control, a home Updates row that is missing, open on load or does not open on click, extra mailto links, broken redirects or missing agent files. CI runs it before deploying.
 - Impeccable detector (from the repo root; user-level skill install):
   `~/.claude/skills/impeccable/scripts/impeccable detect --json site/src/styles site/src/components site/src/layouts site/src/islands site/src/pages site/src/lib`
 - Wire size: home first load (HTML, CSS, JS, fonts, portrait, `manifest.json`, `vessel.bin.gz`) at most 450 KB. Per URL:

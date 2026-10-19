@@ -13,6 +13,9 @@
   Checks
     console    no console error and no page error on any page
     h1         the home <h1> reads "Hyeong Jun Lee"
+    updates    on / the Updates row (details.updates) ships closed, its
+               summary has a sentence and a mono (t-mono) date, the list
+               holds at least one row, and a click on the summary opens it
     viewer     on / and /research/ the vessel viewer reaches
                data-status="ready" within 15 s of being scrolled into view
                (status "nowebgl" or "error" fails)
@@ -52,7 +55,7 @@ const VIEWPORTS = [
   { label: '390', width: 390, height: 844 },
 ];
 const PAGES = [
-  { route: '/', viewer: true, h1: OWNER },
+  { route: '/', viewer: true, h1: OWNER, updates: true },
   { route: '/research/', viewer: true },
   { route: '/cv/' },
 ];
@@ -218,6 +221,37 @@ async function checkViewer(page, where, navStart) {
   record('wipe', where, ok, ok ? (control === 'toggle' ? 'two-state toggle' : 'wipe handle') : `data-control="${control}", handle ${handleOk}, toggle ${toggleOk}`);
 }
 
+/* The home Updates row: closed on load, a dated sentence in the summary, more rows behind it, opened by a click. */
+async function checkUpdates(page, where) {
+  try {
+    const details = page.locator('details.updates');
+    const n = await details.count();
+    if (n !== 1) {
+      record('updates', where, false, `${n} details.updates on the page`);
+      return;
+    }
+    const closed = (await details.getAttribute('open')) === null;
+    const summary = details.locator(':scope > summary');
+    const text = ((await summary.textContent()) ?? '').replace(/\s+/g, ' ').trim();
+    const dateEl = summary.locator('.t-mono');
+    const date = (await dateEl.count()) ? ((await dateEl.first().textContent()) ?? '').trim() : '';
+    const rows = await details.locator(':scope > ol > li').count();
+    await summary.click();
+    const opened = (await details.getAttribute('open')) !== null;
+    const ok = closed && text.length > date.length && date.length > 0 && rows > 0 && opened;
+    record(
+      'updates',
+      where,
+      ok,
+      ok
+        ? `closed on load, "${date}" + sentence, ${rows} more row${rows === 1 ? '' : 's'}, opens on click`
+        : `closed ${closed}, summary "${clip(text, 40)}", date "${date}", rows ${rows}, opened ${opened}`,
+    );
+  } catch (e) {
+    record('updates', where, false, clip(String(e)));
+  }
+}
+
 async function checkPage(context, base, spec, vp) {
   const where = `${spec.route} @${vp.label}`;
   const page = await context.newPage();
@@ -237,6 +271,8 @@ async function checkPage(context, base, spec, vp) {
       const text = ((await h1.textContent().catch(() => null)) ?? '').replace(/\s+/g, ' ').trim();
       record('h1', where, text === spec.h1, `"${text}"`);
     }
+
+    if (spec.updates) await checkUpdates(page, where);
 
     if (spec.viewer) await checkViewer(page, where, navStart);
 

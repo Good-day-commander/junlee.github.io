@@ -1,13 +1,14 @@
 ---
 /*
-  Home, a Read surface (contract revision 2): identity first, then the one
-  live plate, then four rows on what I work on (by capability, not organ),
-  three selected papers, and the shared footer without its link row (the
-  identity block carries LinkedIn, Google Scholar and ORCID once; round
-  3b). Each home link has its own target. The counts line moved into
-  the identity block's proof lines (revision 2a). Two screens at
-  1440 x 900; 240 visible words in <main> at most (the build's budget gate
-  checks it).
+  Home, a Read surface (contract revision 2): identity first, then one
+  closed Updates row (revision 2d), then the one live plate, then four rows
+  on what I work on (by capability, not organ), three selected papers,
+  and the shared footer without its link row (the identity block carries
+  LinkedIn, Google Scholar and ORCID once; round 3b). Each home link has
+  its own target. The counts line moved into the identity block's proof
+  lines (revision 2a). Two screens at 1440 x 900; 250 visible words in
+  <main> at most (the build's budget gate checks it; a closed <details>
+  counts only its <summary>).
 
   Every fact comes from content.ts or the data manifests through
   lib/schema.ts, the same module that writes /index.md and /llms.txt, so the
@@ -15,6 +16,7 @@
 */
 import Base from '@/layouts/Base.astro';
 import Identity from '@/components/home/Identity.astro';
+import Updates from '@/components/home/Updates.astro';
 import Plate from '@/components/home/Plate.astro';
 import RoleMark from '@/components/RoleMark.astro';
 import { profile } from '@/data/content';
@@ -35,6 +37,7 @@ const shortVenue = (venue: string) =>
 
 <Base title={title} description={description} footer={{ omit: ['LinkedIn', 'Google Scholar', 'ORCID'] }}>
   <Identity />
+  <Updates />
   <Plate />
 
   <section class="home-sec wrap" aria-labelledby="work-heading">
@@ -101,7 +104,7 @@ const shortVenue = (venue: string) =>
   /* Capability rows: the name (the row's link), one clause; rows, not frames. */
   .caps__row {
     display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
+    grid-template-columns: var(--width-label) minmax(0, 1fr);
     gap: 0.25rem var(--space-3);
     align-items: baseline;
     padding-block: 0.65rem;
