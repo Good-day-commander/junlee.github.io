@@ -2,7 +2,8 @@
 /*
   One research project on /research: a header row (the title, the years on
   the right), the one-sentence summary and the outputs line, each output a
-  link to its row on the CV. A demo project passes its plates, method and
+  link to its row on the CV (on phones the first output and a +N control
+  that shows the rest). A demo project passes its plates, method and
   citation in the default slot and keeps its old chapter anchor (an empty
   span, so /research/#flow still lands here). Everything spans the column.
 */
@@ -14,8 +15,12 @@ export interface Props {
   anchor?: string;
 }
 
+import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
+
 const { entry, anchor } = Astro.props;
 const headingId = `${entry.id}-title`;
+const [first, ...rest] = entry.outputs;
+const restId = `${entry.id}-outputs`;
 ---
 
 <article class="project wrap" id={entry.id} aria-labelledby={headingId}>
@@ -26,10 +31,14 @@ const headingId = `${entry.id}-title`;
   </header>
   <p class="project__summary">{entry.summary}</p>
   {
-    entry.outputs.length > 0 && (
+    first && (
       <p class="project__outputs t-mono">
-        {/* One line of markup: no whitespace between an item and its dot, so a wrap falls after the dot. */}
-        {entry.outputs.map((o, i) => <>{i > 0 && <span class="project__sep">{'\u00a0· '}</span>}<a href={o.href}>{o.text}</a></>)}
+        {/*
+          One line of markup: no whitespace between an item and its dot, so a wrap falls after the dot.
+          Items 2 to n sit in one span with their dots. On phones the inline script in research.astro
+          shows the +N control and folds that span behind it; without it every item shows.
+        */}
+        <a href={first.href}>{first.text}</a>{rest.length > 0 && <><button type="button" class="project__more" aria-expanded="false" aria-controls={restId} aria-label={`Show ${rest.length} more`} hidden set:html={caretDown} /><span class="project__outputs-rest" id={restId}>{rest.map((o) => <><span class="project__sep">{'\u00a0· '}</span><a href={o.href}>{o.text}</a></>)}</span></>}
       </p>
     )
   }
@@ -70,7 +79,7 @@ const headingId = `${entry.id}-title`;
   }
   .project__summary {
     font-family: var(--font-text);
-    font-size: 1.1875rem;
+    font-size: var(--size-summary);
     line-height: 1.45;
     color: var(--ink);
     text-wrap: pretty;
@@ -91,6 +100,54 @@ const headingId = `${entry.id}-title`;
   .project__sep {
     color: var(--ink-3);
   }
+  /* The disclosure control, phones only: a Phosphor caret after the first output; a tap shows or hides the rest in place. */
+  .project__more {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.5em;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-2);
+    vertical-align: -0.15em;
+    cursor: pointer;
+    transition:
+      transform var(--duration-quick) var(--ease-out),
+      color var(--duration-quick) var(--ease-out);
+  }
+  .project__more :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+  .project__more[aria-expanded='true'] {
+    transform: rotate(180deg);
+  }
+  /* A touch target about 44px square that does not move the line. */
+  .project__more::after {
+    content: '';
+    position: absolute;
+    inset: -0.9rem;
+  }
+  .project__more:hover {
+    color: var(--ink);
+  }
+  .project__more:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+  .project__more[hidden] {
+    display: none;
+  }
+  @media not (max-width: 640px) {
+    .project__more {
+      display: none;
+    }
+  }
   .project__demo {
     display: grid;
     gap: var(--space-3);
@@ -103,8 +160,8 @@ const headingId = `${entry.id}-title`;
     .project__head {
       grid-template-columns: minmax(0, 1fr);
     }
-    .project__summary {
-      font-size: 1.0625rem;
+    .project__outputs[data-collapsed] .project__outputs-rest {
+      display: none;
     }
   }
 </style>

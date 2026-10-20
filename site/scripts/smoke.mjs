@@ -21,6 +21,19 @@
                (status "nowebgl" or "error" fails)
     wipe       on those pages a visible CFD | PINO control: the wipe handle
                (role=slider) or the two-state toggle (CFD and PINO buttons)
+    layer      the phone layer (640px and under) at 390, and its absence at
+               1440. On /: the Work section is hidden at 390 and each
+               Selected DOI shows as the word "DOI"; at 1440 the rows and the
+               full DOIs show. On /research/: at 390 every outputs line with
+               more than one item shows a caret control (aria-label "Show N
+               more") and hides the rest; a tap shows it and a second tap
+               hides it; at 1440 there is no control and every line is whole. On /cv/: at 390 the folding sections
+               (details.cv-fold) are closed on load, a click on the Talks
+               heading opens it, and the jump row shows one link per section;
+               at 1440 every fold is open and the jump row is hidden.
+    anchor     at 390, /cv/#P3 loaded cold lands on P3 inside an opened
+               Patents section, and a hashchange to #I1 opens Talks and
+               lands on it
     mailto     no page carries more than three mailto: anchors
     redirect   /publications/ and /record/ land on /cv/#publications and
                /cv/#talks, and the anchors exist on the CV
@@ -55,10 +68,12 @@ const VIEWPORTS = [
   { label: '390', width: 390, height: 844 },
 ];
 const PAGES = [
-  { route: '/', viewer: true, h1: OWNER, updates: true },
-  { route: '/research/', viewer: true },
-  { route: '/cv/' },
+  { route: '/', viewer: true, h1: OWNER, updates: true, layer: 'home' },
+  { route: '/research/', viewer: true, layer: 'research' },
+  { route: '/cv/', layer: 'cv' },
 ];
+/* The phone layer's breakpoint (the identity block's): at or under it the pages fold, above it nothing does. */
+const PHONE_MAX = 640;
 const REDIRECTS = [
   { route: '/publications/', to: '/cv/', hash: '#publications' },
   { route: '/record/', to: '/cv/', hash: '#talks' },
@@ -252,6 +267,155 @@ async function checkUpdates(page, where) {
   }
 }
 
+/* The phone layer at 390 and its absence at 1440 (see "layer" above). Runs right after load, before the walk. */
+async function checkLayer(page, where, spec, vp) {
+  const phone = vp.width <= PHONE_MAX;
+  try {
+    if (spec.layer === 'home') {
+      const s = await page.evaluate(() => {
+        const shown = (sel) => [...document.querySelectorAll(sel)].filter((el) => el.checkVisibility()).length;
+        const all = (sel) => document.querySelectorAll(sel).length;
+        return {
+          names: shown('.caps__name a'),
+          texts: shown('.caps__row-text'),
+          rows: all('.caps__row-text'),
+          dois: shown('.sel__doi'),
+          doiAll: all('.sel__doi'),
+          doiShort: shown('.sel__doi-short'),
+          doiFull: shown('.sel__doi-full'),
+          venues: shown('.sel__venue'),
+        };
+      });
+      /* Phones: the whole Work section is hidden and each Selected DOI shows as the word "DOI"; wider: everything shows. */
+      const ok =
+        s.rows > 0 &&
+        s.doiAll > 0 &&
+        s.venues > 0 &&
+        s.dois === s.doiAll &&
+        (phone
+          ? s.names === 0 && s.texts === 0 && s.doiShort === s.doiAll && s.doiFull === 0
+          : s.names === s.rows && s.texts === s.rows && s.doiFull === s.doiAll && s.doiShort === 0);
+      record(
+        'layer',
+        where,
+        ok,
+        `${s.names} Work names, row texts ${s.texts}/${s.rows} shown, Selected DOIs ${s.dois}/${s.doiAll} (short ${s.doiShort}, full ${s.doiFull})`,
+      );
+      return;
+    }
+    if (spec.layer === 'research') {
+      const s = await page.evaluate(() => {
+        const lines = [...document.querySelectorAll('.project__outputs')].filter((p) => p.querySelector('.project__outputs-rest'));
+        return {
+          multi: lines.length,
+          buttons: lines.filter((p) => p.querySelector('.project__more')?.checkVisibility()).length,
+          rests: lines.filter((p) => p.querySelector('.project__outputs-rest').checkVisibility()).length,
+          counts: lines.every(
+            (p) => p.querySelector('.project__more')?.getAttribute('aria-label') === `Show ${p.querySelectorAll('.project__outputs-rest a').length} more`,
+          ),
+        };
+      });
+      if (!phone) {
+        const ok = s.multi > 0 && s.buttons === 0 && s.rests === s.multi;
+        record('layer', where, ok, `${s.multi} outputs lines with more than one item: ${s.buttons} +N controls shown, ${s.rests} lines whole`);
+        return;
+      }
+      const button = page.locator('.project__more:visible').first();
+      const id = await button.getAttribute('aria-controls');
+      await button.click();
+      const after = await page.evaluate((restId) => {
+        const b = document.querySelector(`[aria-controls="${restId}"]`);
+        return { rest: document.getElementById(restId).checkVisibility(), button: b.checkVisibility(), expanded: b.getAttribute('aria-expanded') };
+      }, id);
+      await button.click();
+      const again = await page.evaluate((restId) => {
+        const b = document.querySelector(`[aria-controls="${restId}"]`);
+        return { rest: document.getElementById(restId).checkVisibility(), expanded: b.getAttribute('aria-expanded') };
+      }, id);
+      const ok =
+        s.multi > 0 && s.buttons === s.multi && s.rests === 0 && s.counts && after.rest && after.button && after.expanded === 'true' && !again.rest && again.expanded === 'false';
+      record(
+        'layer',
+        where,
+        ok,
+        ok
+          ? `${s.buttons} caret controls, the rest hidden; a tap shows #${id}, a second tap hides it again`
+          : `lines ${s.multi}, controls ${s.buttons}, rests shown ${s.rests}, labels ${s.counts}, after click ${JSON.stringify(after)}, again ${JSON.stringify(again)}`,
+      );
+      return;
+    }
+    if (spec.layer === 'cv') {
+      const s = await page.evaluate(() => {
+        const folds = [...document.querySelectorAll('details.cv-fold')];
+        const jump = document.querySelector('nav.cv-jump');
+        const links = jump ? [...jump.querySelectorAll('a')] : [];
+        return {
+          folds: folds.length,
+          open: folds.filter((d) => d.open).length,
+          jump: Boolean(jump?.checkVisibility()),
+          links: links.length,
+          targets: links.filter((a) => document.getElementById(a.hash.slice(1))?.matches('section.cv-section')).length,
+          sections: document.querySelectorAll('section.cv-section').length,
+        };
+      });
+      if (!phone) {
+        const ok = s.folds > 0 && s.open === s.folds && !s.jump;
+        record('layer', where, ok, `${s.open} of ${s.folds} folds open, jump row ${s.jump ? 'shown' : 'hidden'}`);
+        return;
+      }
+      await page.locator('#talks details.cv-fold > summary').click();
+      const talks = await page.evaluate(() => document.querySelector('#talks details.cv-fold')?.open === true);
+      const ok = s.folds > 0 && s.open === 0 && talks && s.jump && s.links === s.sections && s.targets === s.links;
+      record(
+        'layer',
+        where,
+        ok,
+        `${s.folds - s.open} of ${s.folds} folds closed on load, Talks ${talks ? 'opens' : 'does not open'} on click; jump row ${s.jump ? 'shown' : 'hidden'}, ${s.targets} of ${s.sections} sections linked`,
+      );
+    }
+  } catch (e) {
+    record('layer', where, false, clip(String(e)));
+  }
+}
+
+/* A cold load of /cv/#P3 at phone width, then a hashchange to #I1: each lands inside a section the handler opened. */
+async function checkAnchor(context, base) {
+  const where = '/cv/#P3 @390';
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const at = (id, section) =>
+    page.evaluate(
+      ({ id, section }) => {
+        const r = document.getElementById(id).getBoundingClientRect();
+        return { open: document.querySelector(`#${section} details.cv-fold`)?.open === true, top: Math.round(r.top), vh: window.innerHeight };
+      },
+      { id, section },
+    );
+  try {
+    await page.goto(`${base}/cv/#P3`, { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const p3 = await at('P3', 'patents');
+    await page.evaluate(() => {
+      window.location.hash = '#I1';
+    });
+    await page.waitForTimeout(500);
+    const i1 = await at('I1', 'talks');
+    const lands = (x) => x.open && x.top >= 0 && x.top < x.vh / 2;
+    const ok = lands(p3) && lands(i1) && errors.length === 0;
+    record(
+      'anchor',
+      where,
+      ok,
+      `P3 at y ${p3.top} in ${p3.open ? 'an open' : 'a closed'} Patents section; #I1 by hashchange at y ${i1.top}, Talks ${i1.open ? 'open' : 'closed'}${errors.length ? `; ${clip(errors.join(' | '), 80)}` : ''}`,
+    );
+  } catch (e) {
+    record('anchor', where, false, clip(String(e)));
+  } finally {
+    await page.close();
+  }
+}
+
 async function checkPage(context, base, spec, vp) {
   const where = `${spec.route} @${vp.label}`;
   const page = await context.newPage();
@@ -273,6 +437,8 @@ async function checkPage(context, base, spec, vp) {
     }
 
     if (spec.updates) await checkUpdates(page, where);
+
+    if (spec.layer) await checkLayer(page, where, spec, vp);
 
     if (spec.viewer) await checkViewer(page, where, navStart);
 
@@ -345,6 +511,7 @@ async function main() {
         reducedMotion: 'no-preference',
       });
       for (const spec of PAGES) await checkPage(context, base, spec, vp);
+      if (vp.width <= PHONE_MAX) await checkAnchor(context, base);
       await context.close();
     }
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });

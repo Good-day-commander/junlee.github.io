@@ -19,6 +19,11 @@
   Short for people, complete for agents (round 3): the appointment bullets
   (each restates a [J#]/[C#] row below) and the patent inventor lists are
   not printed here; cv.md, llms-full.txt and cv.json carry them in full.
+
+  Phones (640px and under): a jump row of the section headings under the
+  header, and Talks, Patents, Funded projects, Awards, Teaching and Skills
+  folded to their heading rows (CvSection fold; the inline script after the
+  article closes them on load and opens the one an anchor points into).
 */
 import { Image, getImage } from 'astro:assets';
 import Base from '@/layouts/Base.astro';
@@ -144,6 +149,19 @@ const links = [
   { label: 'ORCID', href: profile.links.orcid },
 ];
 
+/* The phone jump row: one link per section, in the page's order, with the section headings' own words. */
+const jump = [
+  { id: 'education', label: 'Education' },
+  { id: 'appointments', label: 'Appointments' },
+  { id: 'publications', label: 'Publications' },
+  { id: 'talks', label: 'Talks' },
+  { id: 'patents', label: 'Patents' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'awards', label: 'Awards' },
+  { id: 'teaching', label: 'Teaching' },
+  { id: 'skills', label: 'Skills' },
+];
+
 const description = `Curriculum vitae of ${profile.name}: education, appointments, publications, talks, patents, funded projects, awards, teaching and skills.`;
 ---
 
@@ -205,6 +223,11 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
         </ul>
       </div>
     </header>
+
+    <nav class="cv-jump t-mono" aria-label="Sections">
+      {/* One line of markup: a wrap falls after a dot, never before one. */}
+      {jump.map((j, i) => <>{i > 0 && <span class="cv-jump__sep">{'\u00a0· '}</span>}<a href={`#${j.id}`}>{j.label}</a></>)}
+    </nav>
 
     <CvSection heading="Education" id="education" flow>
       <ol class="rows">
@@ -270,7 +293,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       }
     </CvSection>
 
-    <CvSection heading="Talks" id="talks">
+    <CvSection heading="Talks" id="talks" fold>
       <ul class="photos">
         {
           photos.map((ph, i) => (
@@ -312,7 +335,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
         </div>
       </dialog>
       <p class="cv-note t-mono">
-        {counts.talks} talks · {counts.talksInternational} international · {counts.talksDomestic} domestic · {presented} presented
+        <span class="cv-note__unit">{counts.talks} talks</span> · <span class="cv-note__unit">{counts.talksInternational} international</span> ·{' '}
+        <span class="cv-note__unit">{counts.talksDomestic} domestic</span> · <span class="cv-note__unit">{presented} presented</span>
         by me
       </p>
       {
@@ -348,7 +372,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       }
     </CvSection>
 
-    <CvSection heading="Patents" id="patents">
+    <CvSection heading="Patents" id="patents" fold>
       <p class="cv-note t-mono">
         {counts.patents} filings · {counts.patentsRegistered} registered · {counts.patents - counts.patentsRegistered} pending
       </p>
@@ -375,7 +399,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading={projectsHeading} id="projects">
+    <CvSection heading={projectsHeading} id="projects" fold>
       <ol class="rows">
         {
           projects.map((r) => (
@@ -394,7 +418,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Awards and fellowships" id="awards" flow>
+    <CvSection heading="Awards and fellowships" id="awards" flow fold>
       <ol class="rows">
         {
           awards.map((a) => {
@@ -432,7 +456,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Teaching" id="teaching" flow>
+    <CvSection heading="Teaching" id="teaching" flow fold>
       <ol class="rows">
         {
           teaching.map((t) => (
@@ -448,7 +472,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Skills" id="skills" flow>
+    <CvSection heading="Skills" id="skills" flow fold>
       <dl class="skills">
         {
           skillGroups.map((g) => (
@@ -461,6 +485,58 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </dl>
     </CvSection>
   </article>
+  <script is:inline>
+    /*
+      Phones: the folding sections start closed (the markup ships them open, so
+      agents, print and no-JS readers see everything). An anchor into a folded
+      section (/cv/#P3, #talks, #I1) opens it before the browser scrolls: on
+      load, on an in-page link, and on hashchange.
+    */
+    (() => {
+      const phone = window.matchMedia('(max-width: 640px)');
+      const folds = document.querySelectorAll('details.cv-fold');
+      const reveal = (hash) => {
+        let el = null;
+        try {
+          el = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+        } catch (e) {
+          return null;
+        }
+        const fold = el && (el.closest('details.cv-fold') || el.querySelector(':scope > details.cv-fold'));
+        if (!fold || fold.open) return null;
+        fold.open = true;
+        return el;
+      };
+      /* Desktop: the summaries leave the tab order and a fold can never close; phones: the folds start closed. */
+      const sync = () => {
+        folds.forEach((d) => {
+          const summary = d.querySelector(':scope > summary');
+          if (phone.matches) {
+            if (summary) summary.tabIndex = 0;
+          } else {
+            if (summary) summary.tabIndex = -1;
+            d.open = true;
+          }
+        });
+      };
+      folds.forEach((d) => d.addEventListener('toggle', () => { if (!phone.matches && !d.open) d.open = true; }));
+      if (phone.matches) folds.forEach((d) => d.removeAttribute('open'));
+      sync();
+      reveal(location.hash);
+      document.addEventListener(
+        'click',
+        (e) => {
+          const a = e.target instanceof Element ? e.target.closest('a[href*="#"]') : null;
+          if (a && a.pathname === location.pathname) reveal(a.hash);
+        },
+        true,
+      );
+      window.addEventListener('hashchange', () => reveal(location.hash)?.scrollIntoView());
+      /* Wider than a phone (a turned phone) or printing: every section open, as on desktop. */
+      phone.addEventListener('change', sync);
+      window.addEventListener('beforeprint', () => folds.forEach((d) => (d.open = true)));
+    })();
+  </script>
 </Base>
 
 <style is:global>
@@ -475,6 +551,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     .footer,
     .skip-link,
     .cv-bar,
+    .cv-jump,
     .cv-head__portrait,
     .photos,
     .pub__details {
@@ -614,9 +691,38 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     text-wrap: pretty;
     margin-bottom: 0.2rem;
   }
+  .cv-note__unit {
+    white-space: nowrap;
+  }
   .cv-note {
     color: var(--ink-3);
     margin-bottom: var(--space-1);
+  }
+
+  /* The jump row: phones only, one mono line of section links in ink-2 with a hairline under it. */
+  .cv-jump {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .cv-jump {
+      display: block;
+      padding-block: 0.45rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-2);
+      line-height: 2;
+    }
+    .cv-jump a {
+      color: inherit;
+      text-decoration-color: var(--line);
+      white-space: nowrap;
+    }
+    .cv-jump a:hover {
+      color: var(--ink);
+      text-decoration-color: var(--signal);
+    }
+    .cv-jump__sep {
+      color: var(--ink-3);
+    }
   }
 
   /* Period rows (education, appointments, projects, awards, teaching) */

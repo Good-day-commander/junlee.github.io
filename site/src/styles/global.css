@@ -195,7 +195,7 @@
     font-style: italic;
   }
   .t-caption {
-    font-size: 0.95rem;
+    font-size: var(--size-caption);
     line-height: 1.5;
     color: var(--ink-2);
   }

@@ -77,7 +77,7 @@ const description = `${profile.name}'s research, project by project, newest firs
                 <VesselViewer client:visible manifestUrl={urls.pinoManifest} mode="chapter" />
               </Frame>
               <figcaption class="art__caption">
-                CFD left, PINO right. Pressure R² <span class="num">{formatDecimal(c.pressure_Pa.R2, 3)}</span>.
+                <span class="art__caption-wide">CFD left, PINO right. </span>Pressure R² <span class="num">{formatDecimal(c.pressure_Pa.R2, 3)}</span>.
               </figcaption>
             </figure>
             <figure class="art">
@@ -199,6 +199,21 @@ const description = `${profile.name}'s research, project by project, newest firs
       ),
     )
   }
+  <script is:inline>
+    /* Phones: each outputs line shows its first item and a +N control that shows the rest in place. The markup ships whole with the control hidden, so wide screens, agents and no-JS readers see every item. */
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      document.querySelectorAll('.project__more').forEach((button) => {
+        const line = button.closest('.project__outputs');
+        line.setAttribute('data-collapsed', '');
+        button.hidden = false;
+        button.addEventListener('click', () => {
+          const open = line.hasAttribute('data-collapsed');
+          line.toggleAttribute('data-collapsed', !open);
+          button.setAttribute('aria-expanded', String(open));
+        });
+      });
+    }
+  </script>
 </Base>
 
 <script>
@@ -278,12 +293,18 @@ const description = `${profile.name}'s research, project by project, newest firs
   :global(.art) :global(.art__caption) {
     font-family: var(--font-text);
     font-style: italic;
-    font-size: 0.95rem;
+    font-size: var(--size-caption);
     line-height: 1.5;
     color: var(--ink-2);
     text-wrap: pretty;
   }
   /* Numbers inside a caption read in the caption's own face; mono is for tables and chrome. */
+  /* Phones show the viewer with a CFD | PINO toggle, not the wipe, so "left" and "right" would be wrong there. */
+  @media (max-width: 640px) {
+    :global(.art__caption-wide) {
+      display: none;
+    }
+  }
   :global(.art__caption .num) {
     font-family: inherit;
     font-style: inherit;

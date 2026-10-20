@@ -7,6 +7,7 @@
   record) and no JavaScript: a native <details> that ships closed at every
   width. The date column is sized to the date, so the sentence starts close
   to it and the row reads as one line, not as a table with an empty cell.
+  On phones the date sits on its own line above the sentence.
 
   The items are lib/schema.ts updates, derived from the record in
   content.ts (newest first, at most UPDATES_MAX); /index.md, /llms.txt and
@@ -109,11 +110,30 @@ const [first, ...rest] = updates;
     outline-offset: var(--ring-offset);
   }
 
-  /* Phones: the same columns, a tighter gap; nothing stacks. */
+  /*
+    Phones: one column. The date has its own line above the sentence, with
+    the caret on that line at the right edge; the open rows stack the same way.
+  */
   @media (max-width: 640px) {
     .updates__summary,
     .updates__row {
-      column-gap: var(--space-2);
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0.1rem;
+    }
+    .updates__summary {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .updates__summary > .updates__when {
+      grid-row: 1;
+      grid-column: 1;
+    }
+    .updates__summary > .updates__chevron {
+      grid-row: 1;
+      grid-column: 2;
+    }
+    .updates__summary > .updates__text {
+      grid-row: 2;
+      grid-column: 1 / -1;
     }
   }
 </style>

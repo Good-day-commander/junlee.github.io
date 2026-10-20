@@ -3,21 +3,46 @@
   One CV section: a ruled heading in the PDF's order, dense body, and a page
   break before it in print. Tighter than Section.astro on purpose: the CV is
   a document, not a landing surface.
+
+  fold: the heading row and the body sit in a <details> that ships open. On
+  phones the heading row is the summary, with a caret, and the inline script
+  in cv.astro closes it on load; above phone width the summary is inert and the
+  caret hidden, so the heading and its rule look exactly as without fold.
 */
+import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
+
 export interface Props {
   heading: string;
   id: string;
   /** Keep this section on the same printed page as the one before it. */
   flow?: boolean;
+  /** Fold the section to its heading row on phones. */
+  fold?: boolean;
 }
-const { heading, id, flow = false } = Astro.props;
+const { heading, id, flow = false, fold = false } = Astro.props;
 ---
 
 <section class:list={['cv-section', { 'cv-section--flow': flow }]} id={id} aria-labelledby={`${id}-heading`}>
-  <h2 id={`${id}-heading`} class="cv-section__heading">{heading}</h2>
-  <div class="cv-section__body">
-    <slot />
-  </div>
+  {
+    fold ? (
+      <details class="cv-fold" open>
+        <summary class="cv-fold__summary">
+          <h2 id={`${id}-heading`} class="cv-section__heading">{heading}</h2>
+          <span class="cv-fold__caret" aria-hidden="true" set:html={caretDown} />
+        </summary>
+        <div class="cv-section__body">
+          <slot />
+        </div>
+      </details>
+    ) : (
+      <>
+        <h2 id={`${id}-heading`} class="cv-section__heading">{heading}</h2>
+        <div class="cv-section__body">
+          <slot />
+        </div>
+      </>
+    )
+  }
 </section>
 
 <style>
@@ -40,7 +65,57 @@ const { heading, id, flow = false } = Astro.props;
     display: grid;
     gap: var(--space-1);
   }
+  .cv-fold__summary {
+    display: block;
+    position: relative;
+    list-style: none;
+  }
+  .cv-fold__summary::-webkit-details-marker {
+    display: none;
+  }
+  .cv-fold__caret {
+    display: none;
+  }
+  @media not (max-width: 640px) {
+    .cv-fold__summary {
+      pointer-events: none;
+    }
+  }
+  /* Phones: the heading row opens and closes its section; the caret points down while closed, up while open. */
+  @media (max-width: 640px) {
+    .cv-section:has(> .cv-fold:not([open])) {
+      padding-top: var(--space-2);
+    }
+    .cv-fold__summary {
+      cursor: pointer;
+    }
+    .cv-fold__summary > .cv-section__heading {
+      padding-right: 2rem;
+    }
+    .cv-fold__caret {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      width: 1rem;
+      height: 1.6875rem; /* the heading's first line: 1.25rem at line height 1.35 */
+      color: var(--ink-2);
+      transition: transform var(--duration-quick) var(--ease-out);
+    }
+    .cv-fold__caret :global(svg) {
+      width: 1rem;
+      height: 1rem;
+      fill: currentColor;
+    }
+    .cv-fold[open] .cv-fold__caret {
+      transform: rotate(180deg);
+    }
+  }
   @media print {
+    .cv-fold__caret {
+      display: none;
+    }
     .cv-section {
       padding-top: 1.25rem;
       break-before: page;

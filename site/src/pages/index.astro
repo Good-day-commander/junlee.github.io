@@ -40,7 +40,7 @@ const shortVenue = (venue: string) =>
   <Updates />
   <Plate />
 
-  <section class="home-sec wrap" aria-labelledby="work-heading">
+  <section class="home-sec home-sec--work wrap" aria-labelledby="work-heading">
     <h2 id="work-heading" class="home-sec__heading">Work</h2>
     <ul class="caps">
       {
@@ -75,8 +75,8 @@ const shortVenue = (venue: string) =>
               <span class="sel__venue t-mono">{shortVenue(p.venueShort ?? p.venue)}</span>
               <RoleMark role={p.myRole} />
               {p.doi && (
-                <a class="sel__doi t-mono" href={`https://doi.org/${p.doi}`} rel="noopener">
-                  doi:{p.doi}
+                <a class="sel__doi t-mono" href={`https://doi.org/${p.doi}`} rel="noopener" aria-label={`doi:${p.doi}`}>
+                  <span class="sel__doi-full">doi:{p.doi}</span><span class="sel__doi-short">DOI</span>
                 </a>
               )}
             </span>
@@ -190,6 +190,25 @@ const shortVenue = (venue: string) =>
     .caps__row {
       grid-template-columns: minmax(0, 1fr);
       gap: 0.2rem;
+    }
+  }
+  .sel__doi-short {
+    display: none;
+  }
+  /*
+    Phones: the Work rows go (their four names are the fields line two screens up, and the nav's Research
+    carries the sentences); Selected keeps its DOI as the word "DOI" so each paper still has its link. The
+    HTML keeps everything.
+  */
+  @media (max-width: 640px) {
+    .home-sec--work {
+      display: none;
+    }
+    .sel__doi-full {
+      display: none;
+    }
+    .sel__doi-short {
+      display: inline;
     }
   }
 </style>

@@ -42,6 +42,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - One centred fluid column: `--width-frame: clamp(50rem, 58vw, 64rem)`; the CV uses `--width-record: clamp(60rem, 66vw, 78rem)` (`src/styles/tokens.css`).
 - Every block (nav, identity, plates, rows, tables, footer) spans that column edge to edge.
 - Plates are 2:1 (3:4 portrait on narrow screens). The portrait sits on the right of the identity block.
+- Phones (640px and under) are a disclosure layer, never a different site: the home Work rows are hidden (the fields line and the nav's Research carry them), Selected prints its DOI as the word "DOI", a research outputs line shows its first item and a caret that reveals the rest, the CV folds Talks, Patents, Funded projects, Awards, Teaching and Skills behind their headings (open on desktop, inert there) under a jump row of section links, and prose steps down one size. The server HTML keeps every word; `scripts/smoke.mjs` checks the layer at 390 and its absence at 1440.
 - Theme follows the system: light box by default, film under `prefers-color-scheme: dark`. Plates are film in both. No toggle, no per-page surface switch. Components read semantic aliases only (`--bg`, `--ink`, `--line` and their tiers).
 - Keep dark and light consistent: same ink family, same red; on film secondary ink at least 0.80 L and mono at least 13px; AA contrast in both.
 - No shadows, glows, gradients (outside colormaps), blur, kickers, eyebrows or section numbers. Icons are inline Phosphor SVG.

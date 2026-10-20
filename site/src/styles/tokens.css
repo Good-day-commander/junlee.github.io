@@ -57,6 +57,8 @@
   --size-heading: clamp(1.75rem, 1.35rem + 1.2vw, 2.25rem);
   --size-subheading: 1.25rem;
   --size-prose: 1.0625rem;
+  --size-summary: 1.1875rem; /* the one sentence under a research project's title */
+  --size-caption: 0.95rem; /* figure and table captions, STIX italic */
   --size-ui: 0.95rem;
   --size-mono: 0.8rem;
   --size-label: 0.75rem; /* corner chrome and ticks: 12px on the light box; 13px on film (below) */
@@ -101,6 +103,19 @@
   /* Focus ring */
   --ring: 2px solid var(--signal);
   --ring-offset: 2px;
+}
+
+/*
+  Phones (the identity block's 640px breakpoint): running prose, the research
+  project summaries and the captions one step smaller. One rule here, none
+  per component.
+*/
+@media (max-width: 640px) {
+  :root {
+    --size-prose: 1rem;
+    --size-summary: 1rem;
+    --size-caption: 0.9rem;
+  }
 }
 
 /* The CV page widens the column. Unlayered on purpose: tokens.css is unlayered, so a layered override in global.css would lose. */

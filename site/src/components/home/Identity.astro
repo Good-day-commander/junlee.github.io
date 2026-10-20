@@ -6,7 +6,8 @@
   page's h1 and the Korean name in ink, then the owner's tagline in ink-2.
   Under the lead, one Archivo line (role, lab, university, then the four
   fields) and one mono link row (the address as text, LinkedIn, Google
-  Scholar, ORCID). No Email button and no CV here: the nav carries both, so
+  Scholar, ORCID). On phones the role line leaves out the lab and the address
+  takes the link row's first line. No Email button and no CV here: the nav carries both, so
   the first viewport shows each action once. Home's footer shows only the
   address, so this is the page's only LinkedIn, Scholar and ORCID row.
 
@@ -45,7 +46,12 @@ const links = [
       <span class="identity__name-ko" lang="ko">{profile.nameKo}</span>
     </div>
     <p class="identity__role">
-      <span>{profile.role} · {profile.lab}, {profile.university}</span>
+      {/*
+        The full line is one text run, so wide screens render it exactly as before; phones show the
+        short line instead (role and university, no lab), the PubEntry full/short pattern.
+      */}
+      <span class="identity__role-full">{profile.role} · {profile.lab}, {profile.university}</span>
+      <span class="identity__role-short">{profile.role} · {profile.university}</span>
       <span class="identity__fields">{profile.fields.map((f, i) => <><span class="identity__item">{f}{i < profile.fields.length - 1 && " ·"}</span>{" "}</>)}</span>
     </p>
     <p class="identity__tagline">{profile.tagline}</p>
@@ -134,6 +140,9 @@ const links = [
   .identity__fields {
     color: var(--ink-2);
   }
+  .identity__role-short {
+    display: none;
+  }
   /* A field name never breaks inside itself; lines break only at the separators. */
   .identity__item {
     white-space: nowrap;
@@ -185,6 +194,17 @@ const links = [
     }
     .identity__tagline {
       font-size: 1.0625rem;
+    }
+    /* The role line reads "Postdoctoral Researcher · Yonsei University"; the full line stays in the HTML. */
+    .identity__role-full {
+      display: none;
+    }
+    .identity__role-short {
+      display: block;
+    }
+    /* The address takes the first line; LinkedIn, Google Scholar and ORCID share the second. */
+    .identity__links li:first-child {
+      flex-basis: 100%;
     }
   }
 </style>
