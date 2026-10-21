@@ -36,6 +36,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - Never state a speed-up above "about 1,000x", never convert the CFD bound to hours, never extrapolate it to fewer cores.
 - Never fabricate testimonials, press, citation counts or download numbers.
 - Join value and unit with U+202F; use a true minus; write ranges with an en dash and one trailing unit.
+- A plate prints nothing while it loads, and a plate that fails prints one of four approved sentences: "The vessel did not load. Reload the page to try again." (likewise "The pressure curve", "The recording", "The CT frames"). Never a file name, URL or status code in a plate; the reason goes to the console.
 
 ## Layout rules
 
@@ -46,6 +47,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - Research demos: each Method and metrics row ships closed at every width and is a real control everywhere. There is no citation line (the outputs line links the CV); PINO keeps its Pd/Pa curve in view under the viewer.
 - Theme follows the system: light box by default, film under `prefers-color-scheme: dark`. Plates are film in both. No toggle, no per-page surface switch. Components read semantic aliases only (`--bg`, `--ink`, `--line` and their tiers).
 - Keep dark and light consistent: same ink family, same red; on film secondary ink at least 0.80 L and mono at least 13px; AA contrast in both.
+- Print is ink on white paper in either scheme: `tokens.css` forces the light aliases on `:root` under `@media print` (plates keep their film).
 - No shadows, glows, gradients (outside colormaps), blur, kickers, eyebrows or section numbers. Icons are inline Phosphor SVG.
 
 ## Conversion rule
@@ -69,7 +71,7 @@ Run from `site/` (pnpm; Node 20.3 or newer):
 - `pnpm build`: astro build, then `scripts/budget.mjs`. It fails on words, mailto count and targets, home h1, JSON-LD and agent files. `node scripts/budget.mjs --soft` reports without failing.
 - `pnpm preview`: serves `dist/public` on 4321.
 - `pnpm shots`: with preview running; writes light and dark, desktop and mobile captures to `.impeccable/review/`.
-- `pnpm smoke`: after a build; starts its own preview, drives headless Chromium through /, /research/ and /cv/ at two widths and fails on console errors, a missing viewer or wipe control, a home Updates row that is missing, open on load or does not open on click, extra mailto links, broken redirects or missing agent files. CI runs it before deploying.
+- `pnpm smoke`: after a build; starts its own preview, drives headless Chromium through /, /research/ and /cv/ at two widths and fails on console errors, a missing viewer or wipe control, a home Updates row that is missing, open on load or does not open on click, a home plate without its poster when JavaScript is off, a failed plate that prints anything but its sentence, extra mailto links, broken redirects or missing agent files. CI runs it before deploying.
 - Impeccable detector (from the repo root; user-level skill install):
   `~/.claude/skills/impeccable/scripts/impeccable detect --json site/src/styles site/src/components site/src/layouts site/src/islands site/src/pages site/src/lib`
 - Wire size: home first load (HTML, CSS, JS, fonts, portrait, `manifest.json`, `vessel.bin.gz`) at most 450 KB. Per URL:

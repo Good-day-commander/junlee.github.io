@@ -24,8 +24,9 @@
   Server render: the page passes axes (rasterAxes of the manifest grid,
   computed at build), so the frequency and time ticks and the dB range are
   in the server HTML; the loaded raster replaces them with the same values.
-  The loading line is printed only after hydration, never in the static
-  markup.
+  Nothing is printed while the data loads. A failed load prints one
+  sentence, FAILED below, with the Retry button; the reason goes to the
+  console only.
 
   Exports
     SpectrogramDevelop  props { manifestUrl, variant = 'stft', crop, axes, ... }
@@ -37,7 +38,7 @@ import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockw
 import { cssGradient } from '@/lib/colormaps';
 import { formatDecimal, formatSeconds } from '@/lib/format';
 import { loadVariant } from './pulse/manifest';
-import type { PulseManifest, Variant } from './pulse/manifest';
+import type { Variant } from './pulse/manifest';
 import { buildRaster, frequencyTicks, paintRaster, timeTicks } from './pulse/raster';
 import type { Raster, RasterAxes } from './pulse/raster';
 import './pulse/spectrogram.css';
@@ -73,6 +74,8 @@ export interface SpectrogramDevelopProps {
 }
 
 const VIRIDIS_BAR = cssGradient('viridis', 16, 'to right');
+/* The one sentence a failed plate prints (owner-approved wording, 2026-10-21). */
+const FAILED = 'The recording did not load. Reload the page to try again.';
 
 type Status = 'loading' | 'ready' | 'error';
 type Phase = 'latent' | 'developing' | 'done';
@@ -120,18 +123,12 @@ function SpectrogramCore({
   const startedRef = useRef(false);
 
   const [status, setStatus] = useState<Status>('loading');
-  const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [manifest, setManifest] = useState<PulseManifest | null>(null);
   const [raster, setRaster] = useState<Raster | null>(null);
   const [phase, setPhase] = useState<Phase>('latent');
   const [visible, setVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
   const reactId = useId();
   const headingId = `${id ?? reactId}-what`;
-
-  const spec = manifest ? manifest[variant] : null;
 
   /* Paint at a given progress and move the playhead + readout. Pure DOM work, no React state. */
   const paint = useCallback(
@@ -162,9 +159,8 @@ function SpectrogramCore({
   useEffect(() => {
     const controller = new AbortController();
     setStatus('loading');
-    setError(null);
     loadVariant(manifestUrl, variant, controller.signal)
-      .then(({ manifest: m, grid }) => {
+      .then(({ grid }) => {
         if (controller.signal.aborted) return;
         const cropNow = crop ?? (variant === 'stft' ? grid.spec.recommended_crop_hz : undefined);
         const r = buildRaster(grid, cropNow);
@@ -172,7 +168,6 @@ function SpectrogramCore({
         progressRef.current = 0;
         elapsedRef.current = 0;
         startedRef.current = false;
-        setManifest(m);
         setRaster(r);
         setPhase('latent');
         setStatus('ready');
@@ -181,7 +176,7 @@ function SpectrogramCore({
       })
       .catch((e: unknown) => {
         if (controller.signal.aborted) return;
-        setError(e instanceof Error ? e.message : String(e));
+        console.error('SpectrogramDevelop: the recording did not load.', e);
         setStatus('error');
       });
     return () => controller.abort();
@@ -356,17 +351,9 @@ function SpectrogramCore({
         <div className="pulse__stage" ref={stageRef} style={{ aspectRatio: stageAspect }}>
           <canvas ref={canvasRef} className="pulse__canvas" role="img" aria-label={altText} />
           {develop && <div ref={playheadRef} className="pulse__playhead" data-on={phase === 'developing'} />}
-          {status === 'loading' && mounted && (
-            <div className="pulse__state" role="status">
-              <p>
-                loading {variant}.bin
-                {spec ? ` (${formatDecimal(spec.byteLength / 1024, 0)} kB)` : ''}
-              </p>
-            </div>
-          )}
           {status === 'error' && (
-            <div className="pulse__state pulse__state--error" role="alert">
-              <p>The spectrogram data did not load{error ? `: ${error}` : ''}.</p>
+            <div className="pulse__state" role="alert">
+              <p>{FAILED}</p>
               <div>
                 <button type="button" className="pulse__btn" onClick={() => setAttempt((n) => n + 1)}>
                   Retry

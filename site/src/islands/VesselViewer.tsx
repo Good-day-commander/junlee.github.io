@@ -26,8 +26,8 @@
                            motion) stay
              summary       { case_id, vertexCount, ranges } from the
                            manifest, so the server render prints the
-                           colorbar ticks and the loading line; defaults to
-                           a build-time copy when manifestUrl is the shipped
+                           colorbar ticks; defaults to a build-time copy
+                           when manifestUrl is the shipped
                            /data/pino/manifest.json
     state    ViewerState { wipe, field, ready, webgl, develop, elapsedS,
              developDone, error? }
@@ -66,8 +66,13 @@
              the speed arrays are a second file (vessel-speed.bin),
              requested the first time Speed or Error is chosen, so the
              quiet home plate never downloads them
-    fallback no WebGL → the static PNG (or a labelled frame) and the same
-             DOM colorbar; never a blank
+    fallback no WebGL → the static PNG (the same render as the home
+             plate's poster) and the same DOM colorbar. Nothing is printed
+             while the data loads (the colorbar holds the plate); a failed
+             load prints one sentence on the film, FAILED below, and sends
+             the reason (status, URL) to the console only. The wipe grip
+             slides along its hairline (--w) so it stays inside the frame
+             at both ends.
 */
 import {
   useCallback,
@@ -129,7 +134,7 @@ export interface VesselViewerProps {
   control?: 'auto' | 'handle' | 'toggle';
   /** Home plate: pressure only, wipe and colorbar, no toggle, note, drift or orbit. */
   quiet?: boolean;
-  /** Manifest values for the server render (colorbar ticks, loading line). */
+  /** Manifest values for the server render (colorbar ticks). */
   summary?: ViewerSummary;
   className?: string;
 }
@@ -141,6 +146,9 @@ const FIELDS: Array<{ id: ViewerField; label: string }> = [
   { id: 'error', label: 'Error' },
   { id: 'speed', label: 'Speed' },
 ];
+
+/* The one sentence a failed plate prints (owner-approved wording, 2026-10-21); the reason goes to the console. */
+const FAILED = 'The vessel did not load. Reload the page to try again.';
 
 /* Matches the container query in viewer.module.css (rows layout below 640 px). */
 const COMPACT_PX = 640;
@@ -170,16 +178,12 @@ export function VesselViewer({
   onStateRef.current = onState;
 
   const [status, setStatus] = useState<Status>('loading');
-  const [errorText, setErrorText] = useState<string>('');
   const [manifest, setManifest] = useState<PinoManifest | null>(null);
   const [wipe, setWipeState] = useState(clamp01(initialWipe));
   const [field, setFieldState] = useState<ViewerField>('pressure');
   const [compact, setCompact] = useState(false);
   const [dragging, setDragging] = useState<'none' | 'wipe' | 'orbit'>('none');
   const [reduced, setReduced] = useState(false);
-  /* The loading line is printed only after hydration, never in the static markup (no JS: no false promise). */
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   // Mutable mirror of the state for emit() and the scene callbacks.
   const live = useRef<ViewerState>({
@@ -341,7 +345,7 @@ export function VesselViewer({
       } catch (err) {
         if (cancelled || ac.signal.aborted) return;
         const message = err instanceof Error ? err.message : String(err);
-        setErrorText(message);
+        console.error('VesselViewer: the vessel did not load.', err);
         setStatus('error');
         emit({ ready: false, error: message });
       }
@@ -612,27 +616,15 @@ export function VesselViewer({
               alt={`${subject} coloured by surface pressure ${pRange}, CFD on the left half and PINO on the right.`}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
-                setErrorText('WebGL is unavailable in this browser');
+                console.error(`VesselViewer: WebGL is unavailable and the still did not load (${fallback}).`);
                 setStatus('error');
               }}
             />
           )}
 
-          {status === 'loading' && mounted && (
-            <p className={s.status} aria-live="polite">
-              {quiet ? (
-                /* Quiet: the host caption under the plate already prints the case and node count. */
-                'loading'
-              ) : (
-                <>{nodes ? `loading the vessel, ${nodes} nodes` : 'loading the vessel'}</>
-              )}
-            </p>
-          )}
           {status === 'error' && (
             <p className={s.status} role="status">
-              {errorText ? `the vessel did not load: ${errorText}` : 'the vessel did not load'}
-              <br />
-              {pRange ? `surface pressure ${pRange}` : 'reload the page to try again'}
+              {FAILED}
             </p>
           )}
 
@@ -647,7 +639,7 @@ export function VesselViewer({
               aria-valuemax={100}
               aria-valuenow={pct}
               aria-valuetext={`CFD left ${pct} %, PINO right ${100 - pct} %`}
-              style={{ left: `${wipe * 100}%` } as CSSProperties}
+              style={{ left: `${wipe * 100}%`, '--w': wipe } as CSSProperties}
               onPointerDown={onHandlePointerDown}
               onKeyDown={onHandleKeyDown}
             >

@@ -105,4 +105,10 @@ const isCurrent = (href: string) => current === strip(href) || current.startsWit
       font-size: 0.875rem;
     }
   }
+  /* Under 22rem (a phone at 200 % zoom): the row wraps instead of running off the screen. */
+  @media (max-width: 21.98rem) {
+    .nav__row {
+      flex-wrap: wrap;
+    }
+  }
 </style>

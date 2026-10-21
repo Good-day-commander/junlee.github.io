@@ -136,7 +136,13 @@
   position: absolute;
   top: 50%;
   left: 0;
-  transform: translate(-50%, -50%);
+  /*
+    The grip slides along the hairline with the wipe (--w, 0..1, set on the
+    handle): centred at the middle, inside the frame at both ends, with room
+    for the 4px focus ring (2px ring at a 2px offset). The hairline itself
+    stays at the exact wipe position.
+  */
+  transform: translate(calc((-100% - 8px) * var(--w, 0.5) + 4px), -50%);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -390,27 +396,20 @@
   text-overflow: ellipsis;
 }
 
-/* Loading / error readout */
+/* A failed load: one STIX sentence centred in the stage (nothing is printed while loading). */
 .status {
   position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  max-width: 34ch;
-  font-family: var(--font-mono);
-  font-size: var(--size-mono);
-  line-height: 1.45;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-3);
-}
-.root[data-mode='chapter'] .status {
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-.status strong {
-  font-weight: 400;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  margin: 0;
+  padding: var(--space-2);
+  font-family: var(--font-text);
+  font-size: var(--size-caption);
+  line-height: 1.5;
   color: var(--ink-2);
+  text-align: center;
+  text-wrap: pretty;
 }
 
 .srOnly {
@@ -549,6 +548,21 @@
   .handle,
   .segment {
     transition: none;
+  }
+}
+
+/*
+  Forced colors (Windows high contrast): the colorbar strips keep their
+  ramp, since the vessel keeps its colours, and the pressed segment is
+  outlined in the system highlight (its signal underline is forced off).
+*/
+@media (forced-colors: active) {
+  .strip {
+    forced-color-adjust: none;
+  }
+  .segBtn[aria-pressed='true'] {
+    outline: 2px solid Highlight;
+    outline-offset: -4px;
   }
 }
 

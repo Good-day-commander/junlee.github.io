@@ -65,14 +65,14 @@ Facts live only in `site/src/data/content.ts`; pages, twins (`*.md.ts`, `llms*.t
 - Change how many are kept with `UPDATES_MAX` in `src/lib/schema.ts`. The home row shows the newest one closed and the rest when opened; only the closed row counts toward the 250 words.
 - The Korean name beside the English one in the lead (and in the agent files' headings) is `profile.nameKo` in `content.ts`. Its glyphs ship as a Pretendard Medium subset: after changing the name, run `python -X utf8 scripts/subset-name-ko.py <path to Pretendard-Medium.woff2>` (from the npm package `pretendard`; `npm pack pretendard` in a temp folder gives it) and paste the `unicode-range` the script prints into the `Pretendard Name` face in `src/styles/fonts.css`. Validate.
 
-## Regenerate the OG images and the no-WebGL still
+## Regenerate the OG images and the plate stills
 
 Both are screenshots of the built site, so build first.
 
 1. `pnpm build`, then `pnpm preview` in a second shell (port 4321).
 2. `pnpm og`: writes `public/og.png` (home, dark), `public/og/research.png` (dark), `public/og/cv.png` (light). `ROUTES=/,/cv pnpm og` limits the run.
-3. Still for browsers without WebGL: `pnpm exec astro preview --port 4371`, then `BASE_URL=http://localhost:4371 node scripts/vessel-still.mjs`. It writes `public/data/pino/vessel-static.png` (palette PNG, budget 120 KB).
-4. `pnpm build` again so `dist` carries the new files. Look at each PNG: no case id, no corner readouts.
+3. Plate stills: `node scripts/vessel-still.mjs` (it starts its own preview on port 4371; `BASE_URL=http://localhost:4371` uses one already running). From the quiet home plate it writes the poster the plate shows under the canvas until the vessel draws, and with JavaScript off: `src/assets/plate/vessel-poster.webp` (2:1, 1200 x 600) and `vessel-poster-portrait.webp` (3:4, 600 x 800, for the phone plate), WebP quality 35 and at most 4.5 KB each, since one of them is on the home first load; and, from the same 2:1 frame, the no-WebGL fallback `public/data/pino/vessel-static.png` (1600 x 800 palette PNG, budget 120 KB). Run it after any change to the mesh, the camera framing or the plate's size.
+4. `pnpm build` again so `dist` carries the new files. Look at each image: no case id, no corner readouts, no colorbar. Check the home first load stays under 450 KB (Validate, step 6).
 5. First time on a machine: `pnpm exec playwright install chromium`.
 
 ## Requantize the vessel mesh
@@ -82,7 +82,7 @@ Only when the PINO export changes (`website_assets/web/pino`, float32 `vessel.bi
 1. `node scripts/quantize-vessel.mjs` (defaults: `--in ../website_assets/web/pino --out public/data/pino`). It refuses an already packed v2 input, never modifies the input, and writes `vessel.bin`, `vessel.bin.gz`, `vessel-speed.bin`, `vessel-speed.bin.gz` and `manifest.json`.
 2. Read its output: raw and gzip sizes and the largest dequantization error per array. Pressure error should stay far below 0.05 kPa (the display precision is 0.1 kPa).
 3. Check that `manifest.json` `timing.cfd.reference_pipeline` still matches `cfdReference`; the build fails if not.
-4. Regenerate the no-WebGL still (above). Validate, including the wire size.
+4. Regenerate the plate stills (above). Validate, including the wire size.
 
 ## Run the full validation
 
@@ -91,7 +91,7 @@ From `site/`:
 1. `pnpm install --frozen-lockfile` (first run, or after a lockfile change).
 2. `pnpm check`: 0 errors.
 3. `pnpm build`: ends with `budget: all checks passed.`
-3a. `pnpm smoke`: 49 checks, exit 0 (the same test CI runs before deploying).
+3a. `pnpm smoke`: 53 checks, exit 0 (the same test CI runs before deploying).
 4. `pnpm preview`, then in another shell `pnpm shots` (`SCHEMES=light` or `ROUTES=/,/research` to narrow). Inspect `.impeccable/review/` at desktop and mobile, light and dark: one left and one right edge, plates 2:1, drift running, no mono prose, no identifiers.
 5. From the repo root: `~/.claude/skills/impeccable/scripts/impeccable detect --json site/src/styles site/src/components site/src/layouts site/src/islands site/src/pages site/src/lib`. Fix every finding or record why it stays.
 6. Wire size of the home first load, against preview, each URL the home requests (DevTools Network lists them):

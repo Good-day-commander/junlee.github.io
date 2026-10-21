@@ -17,8 +17,20 @@
   the agent files. No link here: the Simulation row links to the Flow
   chapter. Each value pair in the caption is one nowrap span, so phones
   break only between pairs. No speed-up factor is printed.
+
+  The poster: the plate's own still (scripts/vessel-still.mjs; the 2:1 one
+  is the same render as the no-WebGL fallback), a server-rendered
+  <picture> under the canvas, so the plate is never a blank film before
+  the vessel draws, on a slow network or without JS. The 3:4 phone plate
+  takes the portrait still, where the live vessel is framed upright; each
+  width downloads one of the two. The canvas is transparent around the
+  vessel, so the poster leaves once the viewer is past loading: after the
+  canvas has faded in, or under a failed load's sentence. The drift is
+  untouched.
 */
 import Frame from '@/components/Frame.astro';
+import poster from '@/assets/plate/vessel-poster.webp';
+import posterPortrait from '@/assets/plate/vessel-poster-portrait.webp';
 import HeroViewer from './HeroViewer';
 import { DEFAULT_SUMMARY, DEFAULT_MANIFEST_URL } from '@/islands/vessel/summary';
 import { plateSentence } from '@/lib/schema';
@@ -26,6 +38,10 @@ import { plateSentence } from '@/lib/schema';
 
 <section class="home-plate wrap" aria-label="Live plate: CFD against the neural operator on one patient vessel">
   <Frame plate class="home-plate__frame">
+    <picture>
+      <source media="(max-width: 899px)" srcset={posterPortrait.src} width={posterPortrait.width} height={posterPortrait.height} />
+      <img class="home-plate__poster" src={poster.src} width={poster.width} height={poster.height} alt="" decoding="async" />
+    </picture>
     <HeroViewer client:visible quiet manifestUrl={DEFAULT_MANIFEST_URL} summary={DEFAULT_SUMMARY} />
   </Frame>
   <div class="home-plate__under">
@@ -63,6 +79,24 @@ import { plateSentence } from '@/lib/schema';
   .home-plate :global(.hero__viewer > *) {
     width: 100%;
     height: 100%;
+  }
+  /* Under the viewer (it comes first in the body); it leaves after the canvas has faded in. */
+  .home-plate__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    transition: opacity var(--duration-base) var(--ease-out) var(--duration-base);
+  }
+  :global(.home-plate:has([data-island='VesselViewer']:not([data-status='loading'])) .home-plate__poster) {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-plate__poster {
+      transition: none;
+    }
   }
   .home-plate__under {
     display: grid;

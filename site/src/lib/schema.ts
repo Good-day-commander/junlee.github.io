@@ -584,6 +584,36 @@ function talkVenueYear(t: Talk): string {
   return t.venue.includes(t.year) ? t.venue : `${t.venue} ${t.year}`;
 }
 
+/** The CV talk row's short venue: the acronym the record carries ("DMD2026", "ACFM"), else the venue without its year. */
+export const talkShortVenue = (venue: string): string =>
+  venue.match(/\(([A-Z][A-Za-z0-9-]+)\)/)?.[1] ?? venue.replace(/\s+\d{4}$/, '');
+
+/*
+  Short venues print in nowrap cells: the CV talk column (talkShortVenue)
+  and the research outputs line (talkVenueYear, shortVenueYear). A venue
+  with no acronym would print in full and run the row past the column, so a
+  printed short venue over VENUE_MAX characters fails the build: give the
+  venue a parenthesised acronym, or the paper a venueShort.
+*/
+const VENUE_MAX = 14;
+{
+  const withoutYear = (v: string, year: string) => (year ? v.replace(new RegExp(`\\s*${year}$`), '') : v);
+  const printed: Array<[string, string]> = [
+    ...talks.map((t): [string, string] => [t.id, talkShortVenue(t.venue)]),
+    ...talks.map((t): [string, string] => [t.id, withoutYear(talkVenueYear(t), t.year)]),
+    ...publications.map((p): [string, string] => [
+      p.id,
+      p.year ? withoutYear(shortVenueYear(p), p.year) : p.venueShort && !/\s/.test(p.venueShort) ? p.venueShort : venueInitials(p.venue),
+    ]),
+  ];
+  const long = [...new Set(printed.filter(([, v]) => v.length > VENUE_MAX).map(([id, v]) => `${id} "${v}"`))];
+  if (long.length) {
+    throw new Error(
+      `lib/schema.ts: a short venue runs over ${VENUE_MAX} characters (${long.join(', ')}); give the venue a parenthesised acronym or the paper a venueShort`,
+    );
+  }
+}
+
 /*
   The outputs line: papers (short venue and year, role), registered patents
   one by one, pending patents as one item, funded projects (short funder,

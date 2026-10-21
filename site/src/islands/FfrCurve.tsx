@@ -25,11 +25,14 @@
                             render; defaults to a build-time copy of
                             centerline.json's ffr when centerlineUrl is the
                             shipped /data/pino/centerline.json
-    SSR      renders a sized, labelled frame and the FFR legend row with its
-             values (so the two numbers are in the server HTML); measures
-             and draws the chart on mount.
+    SSR      renders the plot box at the chart's own height and the FFR
+             legend row with its values (so the two numbers are in the
+             server HTML); measures and draws the chart on mount. Nothing
+             is printed while the data loads. A failed load keeps the plot
+             box at full height and prints one sentence in it, FAILED below;
+             the reason goes to the console only.
 */
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { formatDecimal, formatMm } from '@/lib/format';
 import { loadCenterline, VIEWER_STATE_EVENT, type Centerline } from './vessel/data';
 import { ffr as shippedFfr } from '../../public/data/pino/centerline.json';
@@ -48,6 +51,8 @@ export interface FfrCurveProps {
 }
 
 const SHIPPED_CENTERLINE = '/data/pino/centerline.json';
+/* The one sentence a failed plate prints (owner-approved wording, 2026-10-21). */
+const FAILED = 'The pressure curve did not load. Reload the page to try again.';
 
 /*
   top: the label band above the plot, two rows: the probe labels on the
@@ -88,7 +93,7 @@ export function FfrCurve({
 }: FfrCurveProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<Centerline | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(false);
   const [width, setWidth] = useState(0);
   const [followed, setFollowed] = useState<number | undefined>(undefined);
   const uid = useId();
@@ -99,7 +104,8 @@ export function FfrCurve({
       .then(setData)
       .catch((err) => {
         if (ac.signal.aborted) return;
-        setError(err instanceof Error ? err.message : String(err));
+        console.error('FfrCurve: the pressure curve did not load.', err);
+        setError(true);
       });
     return () => ac.abort();
   }, [centerlineUrl]);
@@ -213,7 +219,16 @@ export function FfrCurve({
     ? `Pd/Pa from the inlet to the outlet at ${formatMm(data.s_mm[data.s_mm.length - 1])}. On the distal probe plane at ${formatMm(data.ffr.probe_s.distal)}, CFD reads FFR ${formatDecimal(data.ffr.cfd, FFR_DIGITS)} and PINO ${formatDecimal(data.ffr.pino, FFR_DIGITS)}; the proximal plane sits at ${formatMm(data.ffr.probe_s.proximal)}.`
     : 'Loading the centerline pressure curve.';
 
-  const aspectStyle = { aspectRatio: mode === 'hero' ? '1 / 0.38' : '2 / 1' };
+  /*
+    The plot box before the chart draws, and when it cannot: the chart's own
+    height, so the plate keeps its size in every state. Before the island
+    measures, the same clamp as `height` in CSS, against the root's width
+    (container units; an aspect-ratio with a 200 px floor would carry the
+    floor into a 400 px minimum width and widen a phone's page).
+  */
+  const plotStyle: CSSProperties = height
+    ? { height }
+    : { height: `clamp(${mode === 'hero' ? 150 : 200}px, ${ratio * 100}cqw, 360px)` };
   const shipped = centerlineUrl.replace(/^https?:\/\/[^/]+/, '').split(/[?#]/)[0] === SHIPPED_CENTERLINE;
   const ffrShown = data?.ffr ?? ffrProp ?? (shipped ? { cfd: shippedFfr.cfd, pino: shippedFfr.pino } : null);
 
@@ -223,7 +238,7 @@ export function FfrCurve({
       className={[s.root, className].filter(Boolean).join(' ')}
       data-island="FfrCurve"
       data-mode={mode}
-      style={height ? undefined : aspectStyle}
+      data-status={chart ? 'ready' : error ? 'error' : 'loading'}
     >
       {chart && data ? (
         <svg
@@ -294,9 +309,13 @@ export function FfrCurve({
           )}
         </svg>
       ) : (
-        <p className={s.status} role="status" aria-live="polite">
-          {error ? `the pressure curve did not load: ${error}` : 'loading the pressure curve'}
-        </p>
+        <div className={s.plot} style={plotStyle}>
+          {error && (
+            <p className={s.status} role="status">
+              {FAILED}
+            </p>
+          )}
+        </div>
       )}
       {/* Always rendered, so the frame does not grow when the data arrives. */}
       <div className={s.legendRow}>

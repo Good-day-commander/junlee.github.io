@@ -38,8 +38,9 @@
                1440. On /: the Work section is hidden at 390 and each
                Selected DOI shows as the word "DOI"; at 1440 the rows and the
                full DOIs show. On /research/: at 390 every outputs line with
-               more than one item shows a caret control (aria-label "Show N
-               more") and hides the rest; a tap shows it and a second tap
+               more than one item shows a caret control (aria-label "More
+               outputs, N", unchanged by a tap; aria-expanded carries the
+               state) and hides the rest; a tap shows it and a second tap
                hides it; at 1440 there is no control and every line is whole. On /cv/: at 390 the folding sections
                (details.cv-fold) are closed on load, a click on the Talks
                heading opens it (its content inside the section's box once
@@ -53,6 +54,12 @@
     anchor     at 390, /cv/#P3 loaded cold lands on P3 inside an opened
                Patents section, and a hashchange to #I1 opens Talks and
                lands on it
+    poster     on / with JavaScript off, the home plate shows its poster
+               (the vessel still, empty alt) across the frame: the 2:1 still
+               at 1440, the 3:4 portrait still at 390
+    failure    at 1440, with the plate's data refused (404), the home plate
+               and the #pino Pd/Pa plate print their one approved sentence
+               and no file name or URL, and the curve plate keeps its height
     mailto     no page carries more than three mailto: anchors
     redirect   /publications/ and /record/ land on /cv/#publications and
                /cv/#talks, and the anchors exist on the CV
@@ -350,7 +357,7 @@ async function checkLayer(page, where, spec, vp) {
           buttons: lines.filter((p) => p.querySelector('.project__more')?.checkVisibility()).length,
           rests: lines.filter((p) => p.querySelector('.project__outputs-rest').checkVisibility()).length,
           counts: lines.every(
-            (p) => p.querySelector('.project__more')?.getAttribute('aria-label') === `Show ${p.querySelectorAll('.project__outputs-rest a').length} more`,
+            (p) => p.querySelector('.project__more')?.getAttribute('aria-label') === `More outputs, ${p.querySelectorAll('.project__outputs-rest a').length}`,
           ),
         };
       });
@@ -362,9 +369,10 @@ async function checkLayer(page, where, spec, vp) {
       const button = page.locator('.project__more:visible').first();
       const id = await button.getAttribute('aria-controls');
       await button.click();
+      const label = await button.getAttribute('aria-label');
       const after = await page.evaluate((restId) => {
         const b = document.querySelector(`[aria-controls="${restId}"]`);
-        return { rest: document.getElementById(restId).checkVisibility(), button: b.checkVisibility(), expanded: b.getAttribute('aria-expanded') };
+        return { rest: document.getElementById(restId).checkVisibility(), button: b.checkVisibility(), expanded: b.getAttribute('aria-expanded'), label: b.getAttribute('aria-label') };
       }, id);
       await button.click();
       const again = await page.evaluate((restId) => {
@@ -372,7 +380,16 @@ async function checkLayer(page, where, spec, vp) {
         return { rest: document.getElementById(restId).checkVisibility(), expanded: b.getAttribute('aria-expanded') };
       }, id);
       const ok =
-        s.multi > 0 && s.buttons === s.multi && s.rests === 0 && s.counts && after.rest && after.button && after.expanded === 'true' && !again.rest && again.expanded === 'false';
+        s.multi > 0 &&
+        s.buttons === s.multi &&
+        s.rests === 0 &&
+        s.counts &&
+        after.rest &&
+        after.button &&
+        after.expanded === 'true' &&
+        after.label === label &&
+        !again.rest &&
+        again.expanded === 'false';
       record(
         'layer',
         where,
@@ -693,6 +710,77 @@ async function checkPage(context, base, spec, vp) {
   }
 }
 
+/* The home plate's poster is in the server HTML: with JavaScript off the plate shows the vessel still (2:1 wide, 3:4 on a phone), not a blank film. */
+async function checkPoster(browser, base, vp) {
+  const where = `/ @${vp.label} no JS`;
+  const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, javaScriptEnabled: false });
+  const page = await context.newPage();
+  try {
+    await page.goto(`${base}/`, { waitUntil: 'load' });
+    const s = await page.evaluate(() => {
+      const img = document.querySelector('.home-plate__frame img.home-plate__poster');
+      if (!img) return null;
+      const frame = img.closest('.home-plate__frame').getBoundingClientRect();
+      return { natural: [img.naturalWidth, img.naturalHeight], opacity: getComputedStyle(img).opacity, width: img.getBoundingClientRect().width, frame: frame.width, alt: img.getAttribute('alt') };
+    });
+    const portrait = vp.width <= PHONE_MAX;
+    const ratioOk = Boolean(s) && (portrait ? s.natural[1] > s.natural[0] : s.natural[0] > s.natural[1]);
+    const ok = Boolean(s) && s.natural[0] > 0 && ratioOk && s.opacity === '1' && s.width >= s.frame - 2 && s.alt === '';
+    record('poster', where, ok, s ? `${s.natural.join(' x ')} still, opacity ${s.opacity}, ${Math.round(s.width)} of ${Math.round(s.frame)} px wide, alt "${s.alt}"` : 'no poster in the plate');
+  } catch (e) {
+    record('poster', where, false, clip(String(e)));
+  } finally {
+    await context.close();
+  }
+}
+
+/*
+  Failure states (CLAUDE.md, copy rules): with a plate's data refused, the
+  plate prints its one approved sentence, never a file name or URL, and
+  keeps its size. The islands send the reason to the console, so console
+  errors are expected here and not read.
+*/
+const FAILURES = [
+  {
+    route: '/',
+    block: '**/data/pino/vessel.bin*',
+    plate: '.home-plate__frame',
+    island: 'VesselViewer',
+    sentence: 'The vessel did not load. Reload the page to try again.',
+  },
+  {
+    route: '/research/',
+    block: '**/data/pino/centerline.json',
+    plate: '#pino .art__frame--curve',
+    island: 'FfrCurve',
+    sentence: 'The pressure curve did not load. Reload the page to try again.',
+  },
+];
+async function checkFailure(browser, base, spec) {
+  const where = `${spec.route} @1440 ${spec.island}`;
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  await page.route(spec.block, (r) => r.fulfill({ status: 404, body: 'not found' }));
+  try {
+    await page.goto(base + spec.route, { waitUntil: 'load' });
+    const plate = page.locator(spec.plate).first();
+    await plate.scrollIntoViewIfNeeded();
+    await page.waitForFunction(
+      ([sel, island]) => document.querySelector(`${sel} [data-island="${island}"]`)?.getAttribute('data-status') === 'error',
+      [spec.plate, spec.island],
+      { timeout: VIEWER_READY_MS },
+    );
+    const s = await plate.evaluate((el) => ({ text: el.innerText.replace(/\s+/g, ' ').trim(), height: el.getBoundingClientRect().height }));
+    const leaks = /https?:|\/data\/|\.bin\b|\.json\b|\b404\b/.test(s.text);
+    const ok = s.text.includes(spec.sentence) && !leaks && s.height >= 150;
+    record('failure', where, ok, ok ? `"${spec.sentence}", plate ${Math.round(s.height)} px tall` : `text "${clip(s.text, 90)}", leaks ${leaks}, ${Math.round(s.height)} px tall`);
+  } catch (e) {
+    record('failure', where, false, clip(String(e)));
+  } finally {
+    await context.close();
+  }
+}
+
 async function checkRedirect(context, base, spec) {
   const page = await context.newPage();
   const errors = [];
@@ -744,6 +832,8 @@ async function main() {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     for (const spec of REDIRECTS) await checkRedirect(context, base, spec);
     await context.close();
+    for (const vp of VIEWPORTS) await checkPoster(browser, base, vp);
+    for (const spec of FAILURES) await checkFailure(browser, base, spec);
   } finally {
     await browser.close();
   }

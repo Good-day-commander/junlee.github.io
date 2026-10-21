@@ -4,6 +4,8 @@
 .root {
   position: relative;
   width: 100%;
+  /* The plot box's server height reads this width (cqw), before the island measures it. */
+  container-type: inline-size;
   color: var(--ink);
 }
 .svg {
@@ -139,14 +141,30 @@
   white-space: nowrap;
   color: var(--ink-3);
 }
+/* The plot box before the chart draws or when it cannot: the chart's height, nothing printed while loading. */
+.plot {
+  position: relative;
+}
+/* A failed load: one STIX sentence centred in the plot box, clear of the legend row. */
 .status {
   position: absolute;
   inset: 0;
   display: grid;
-  place-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--size-mono);
-  color: var(--ink-3);
+  place-content: center;
+  margin: 0;
+  padding: var(--space-2);
+  font-family: var(--font-text);
+  font-size: var(--size-caption);
+  line-height: 1.5;
+  color: var(--ink-2);
   text-align: center;
-  padding: 1rem;
+  text-wrap: pretty;
+}
+
+/* Forced colors: the two swatches keep the curves' own colours, so the key still tells them apart. */
+@media (forced-colors: active) {
+  .swatchCfd,
+  .swatchPino {
+    forced-color-adjust: none;
+  }
 }

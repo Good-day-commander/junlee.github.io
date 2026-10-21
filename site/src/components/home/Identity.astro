@@ -207,4 +207,17 @@ const links = [
       flex-basis: 100%;
     }
   }
+  /* Under 22rem (a phone at 200 % zoom): the portrait moves under the lead, and a field name may break inside itself. */
+  @media (max-width: 21.98rem) {
+    .identity {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .identity :global(.identity__portrait) {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .identity__item {
+      white-space: normal;
+    }
+  }
 </style>

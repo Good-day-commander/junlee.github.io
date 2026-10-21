@@ -161,6 +161,29 @@ html[data-width='record'] {
   }
 }
 
+/*
+  Print is ink on white paper in either scheme: the page takes the light
+  aliases back (a dark-scheme print would otherwise put bone ink on paper).
+  :root only, so a plate keeps its own film set.
+*/
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: var(--box);
+    --bg-1: var(--box-2);
+    --bg-2: var(--box-3);
+    --line: var(--box-line);
+    --line-soft: oklch(0.86 0.012 250 / 0.6);
+    --ink: var(--box-ink);
+    --ink-2: var(--box-ink-2);
+    --ink-3: var(--box-ink-3);
+    --scroll-track: var(--box);
+    --scroll-thumb: var(--box-line);
+    --size-mono: 0.8rem;
+    --size-label: 0.75rem;
+  }
+}
+
 /* A data plate is film in both schemes: dark film on the light box. */
 .plate {
   color-scheme: dark;

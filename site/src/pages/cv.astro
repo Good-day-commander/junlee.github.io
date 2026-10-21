@@ -14,7 +14,8 @@
   LinkedIn on screen; Email is the nav's. Because the bar carries LinkedIn
   in every viewport, this page's footer row omits it (Google Scholar and
   ORCID only). Prints as a document (no nav,
-  bar, footer or photos; a page break before the long sections).
+  bar, footer or photos; the sections run on, a heading never ends a page
+  and no row or publication splits across two).
 
   Short for people, complete for agents (round 3): the appointment bullets
   (each restates a [J#]/[C#] row below) and the patent inventor lists are
@@ -54,7 +55,7 @@ import {
   period,
   publicPatents,
 } from '@/components/record/records';
-import { CV_PDF, counts, interestsLine, projectsHeading } from '@/lib/schema';
+import { CV_PDF, counts, interestsLine, projectsHeading, talkShortVenue } from '@/lib/schema';
 import filePdf from '@phosphor-icons/core/assets/regular/file-pdf.svg?raw';
 import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
 import portrait from '@/assets/photos/profile-main.jpg';
@@ -71,10 +72,11 @@ const pubGroups: { heading: string; items: Publication[] }[] = [
 ];
 const leadCount = publications.filter(leads).length;
 
+/* An empty category prints nothing (no heading over an empty list), as pubGroups does. */
 const talkGroups: { heading: string; items: Talk[] }[] = [
   { heading: 'International', items: talks.filter((t) => t.category === 'International') },
   { heading: 'Domestic', items: talks.filter((t) => t.category === 'Domestic') },
-];
+].filter((g) => g.items.length > 0);
 const presented = talks.filter((t) => t.role === 'presenter').length;
 
 const skillGroups: { label: string; items: string[] }[] = [
@@ -82,7 +84,26 @@ const skillGroups: { label: string; items: string[] }[] = [
   { label: 'Machine learning', items: skills.ml },
   { label: 'Data', items: skills.data },
   { label: 'Languages', items: skills.languages },
-];
+].filter((g) => g.items.length > 0);
+
+/* The count lines under the section headings leave out a zero term (never "0 under revision"). */
+const nonZero = <T extends { n: number }>(terms: T[]) => terms.filter((t) => t.n > 0);
+const pubNote = nonZero([
+  { n: counts.journal, word: 'journal articles' },
+  { n: counts.proceedings, word: 'proceedings' },
+  { n: counts.underReview, word: 'under revision' },
+]).map((t) => `${t.n} ${t.word}`);
+const talkNote = nonZero([
+  { n: counts.talks, word: 'talks', tail: '' },
+  { n: counts.talksInternational, word: 'international', tail: '' },
+  { n: counts.talksDomestic, word: 'domestic', tail: '' },
+  { n: presented, word: 'presented', tail: ' by me' },
+]);
+const patentNote = nonZero([
+  { n: counts.patents, word: 'filings' },
+  { n: counts.patentsRegistered, word: 'registered' },
+  { n: counts.patents - counts.patentsRegistered, word: 'pending' },
+]).map((t) => `${t.n} ${t.word}`);
 
 /*
   Talk photographs, 120 px tall in one row. Two document talks in the record
@@ -93,12 +114,11 @@ const talkById = (id: string) => talks.find((t) => t.id === id);
 /*
   Talk rows are one table row each (packet §6): year · title · short venue ·
   format and role. The short venue is the acronym the record already carries
-  ("(DMD2026)", "(ACFM)"), or the venue without its year; the full venue and
-  the location sit in the abbr's title. The author line is printed only where
-  it is not the default "H.J. Lee et al."
+  ("(DMD2026)", "(ACFM)"), or the venue without its year (lib/schema.ts
+  talkShortVenue, which fails the build past 14 characters); the full venue
+  and the location sit in the abbr's title. The author line is printed only
+  where it is not the default "H.J. Lee et al."
 */
-const shortVenue = (venue: string) =>
-  venue.match(/\(([A-Z][A-Za-z0-9-]+)\)/)?.[1] ?? venue.replace(/\s+\d{4}$/, '');
 const DEFAULT_AUTHORS = 'H.J. Lee et al.';
 const acronym = (venue: string) => venue.match(/\(([A-Z][A-Za-z0-9]+)\)/)?.[1];
 function talkCaption(t: Talk | undefined, fallback: string): { text: string; href?: string } {
@@ -149,6 +169,19 @@ const links = [
   { label: 'ORCID', href: profile.links.orcid },
 ];
 
+/* A section whose list is empty drops itself and its jump-row link (no change with today's record). */
+const filled: Record<string, boolean> = {
+  education: education.length > 0,
+  appointments: experience.length > 0,
+  publications: publications.length > 0,
+  talks: talks.length > 0,
+  patents: publicPatents.length > 0,
+  projects: projects.length > 0,
+  awards: awards.length + fellowships.length > 0,
+  teaching: teaching.length > 0,
+  skills: skillGroups.length > 0,
+};
+
 /* The phone jump row: one link per section, in the page's order, with the section headings' own words. */
 const jump = [
   { id: 'education', label: 'Education' },
@@ -160,7 +193,7 @@ const jump = [
   { id: 'awards', label: 'Awards' },
   { id: 'teaching', label: 'Teaching' },
   { id: 'skills', label: 'Skills' },
-];
+].filter((j) => filled[j.id]);
 
 const description = `Curriculum vitae of ${profile.name}: education, appointments, publications, talks, patents, funded projects, awards, teaching and skills.`;
 ---
@@ -229,7 +262,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       {jump.map((j, i) => <>{i > 0 && <span class="cv-jump__sep">{'\u00a0· '}</span>}<a href={`#${j.id}`}>{j.label}</a></>)}
     </nav>
 
-    <CvSection heading="Education" id="education" flow>
+    <CvSection heading="Education" id="education" empty={!filled.education}>
       <ol class="rows">
         {
           education.map((e) => (
@@ -250,7 +283,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Appointments" id="appointments">
+    <CvSection heading="Appointments" id="appointments" empty={!filled.appointments}>
       <ol class="rows">
         {
           experience.map((x) => (
@@ -271,11 +304,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Publications" id="publications">
-      <p class="cv-note t-mono">
-        {counts.journal} journal articles · {counts.proceedings} proceedings · {counts.underReview} under revision · † first author
-        · * corresponding author
-      </p>
+    <CvSection heading="Publications" id="publications" empty={!filled.publications}>
+      <p class="cv-note t-mono">{[...pubNote, '† first author', '* corresponding author'].join(' · ')}</p>
       {
         pubGroups.map(
           (g) =>
@@ -293,7 +323,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       }
     </CvSection>
 
-    <CvSection heading="Talks" id="talks" fold>
+    <CvSection heading="Talks" id="talks" fold empty={!filled.talks}>
       <ul class="photos">
         {
           photos.map((ph, i) => (
@@ -337,9 +367,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
         </div>
       </dialog>
       <p class="cv-note t-mono">
-        <span class="cv-note__unit">{counts.talks} talks</span> · <span class="cv-note__unit">{counts.talksInternational} international</span> ·{' '}
-        <span class="cv-note__unit">{counts.talksDomestic} domestic</span> · <span class="cv-note__unit">{presented} presented</span>
-        by me
+        {talkNote.map((t, i) => <>{i > 0 && ' · '}<span class="cv-note__unit">{t.n} {t.word}</span>{t.tail}</>)}
       </p>
       {
         talkGroups.map((g) => (
@@ -354,7 +382,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
                     {t.note !== DEFAULT_AUTHORS && <span class="talk__note">{t.note}</span>}
                   </p>
                   <abbr class="talk__venue t-mono" title={`${t.venue}, ${t.location}`}>
-                    {shortVenue(t.venue)}
+                    {talkShortVenue(t.venue)}
                   </abbr>
                   <span class="talk__format t-mono">
                     {capitalize(t.format)
@@ -374,10 +402,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       }
     </CvSection>
 
-    <CvSection heading="Patents" id="patents" fold>
-      <p class="cv-note t-mono">
-        {counts.patents} filings · {counts.patentsRegistered} registered · {counts.patents - counts.patentsRegistered} pending
-      </p>
+    <CvSection heading="Patents" id="patents" fold empty={!filled.patents}>
+      <p class="cv-note t-mono">{patentNote.join(' · ')}</p>
       <ol class="list">
         {
           publicPatents.map((p) => (
@@ -401,7 +427,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading={projectsHeading} id="projects" fold>
+    <CvSection heading={projectsHeading} id="projects" fold empty={!filled.projects}>
       <ol class="rows">
         {
           projects.map((r) => (
@@ -420,7 +446,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Awards and fellowships" id="awards" flow fold>
+    <CvSection heading="Awards and fellowships" id="awards" fold empty={!filled.awards}>
       <ol class="rows">
         {
           awards.map((a) => {
@@ -458,7 +484,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Teaching" id="teaching" flow fold>
+    <CvSection heading="Teaching" id="teaching" fold empty={!filled.teaching}>
       <ol class="rows">
         {
           teaching.map((t) => (
@@ -474,7 +500,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       </ol>
     </CvSection>
 
-    <CvSection heading="Skills" id="skills" flow fold>
+    <CvSection heading="Skills" id="skills" fold empty={!filled.skills}>
       <dl class="skills">
         {
           skillGroups.map((g) => (
@@ -1118,8 +1144,35 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     }
     .row,
     .talk,
-    .patent {
+    .patent,
+    .list :global(.pub) {
       break-inside: avoid;
+    }
+    .group__heading {
+      break-after: avoid;
+    }
+    /*
+      A talk prints in three columns: the title takes the width the venue and
+      format columns gave up, and the venue sits over the format on the right.
+    */
+    .talk {
+      grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    }
+    .talk__title {
+      grid-column: 2;
+      grid-row: span 2;
+    }
+    .talk__venue,
+    .talk__format {
+      grid-column: 3;
+      text-align: right;
+    }
+    /* A registered patent's number line wraps under its status, so its title is not squeezed into a narrow column. */
+    .patent__meta {
+      max-width: 21rem;
+    }
+    .patent__no {
+      min-width: 0;
     }
   }
 </style>

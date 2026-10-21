@@ -27,7 +27,13 @@
              or on document.hidden
     loading  Phase 0 is a plain <img> in the server render; the other
              frames of the shown field are fetched and decoded on mount, the
-             other field after that (full mode) or on toggle
+             other field after that (full mode) or on toggle. Nothing is
+             printed while they load.
+    failure  a frame of the shown field that does not load (or a manifest
+             that does not) prints one sentence, FAILED below, with Retry;
+             the light box gives way to the film, and Play and the rail are
+             disabled until the frames are in. The reason goes to the
+             console only.
 */
 import {
   useCallback,
@@ -63,6 +69,8 @@ export interface PhaseScrubberProps {
 }
 
 const FPS = 6;
+/* The one sentence a failed plate prints (owner-approved wording, 2026-10-21). */
+const FAILED = 'The CT frames did not load. Reload the page to try again.';
 const FIELDS: ImageField[] = ['pressure', 'wss'];
 /* The paper renders both fields on ParaView's cool-to-warm map; the site's diverging map is the same Moreland ramp. */
 const RAMP = cssGradient('diverging', 16, 'to right');
@@ -84,8 +92,11 @@ export default function PhaseScrubber({
   class: className,
 }: PhaseScrubberProps) {
   const [manifest, setManifest] = useState<ImageManifest | null>(initialManifest ?? null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  /* A field whose frames did not all load; `retry` refetches them. */
+  const [failed, setFailed] = useState<Record<ImageField, boolean>>({ pressure: false, wss: false });
+  const [retry, setRetry] = useState(0);
   const [field, setField] = useState<ImageField>(initialField);
   const [phase, setPhase] = useState(0);
   const [play, setPlay] = useState<'off' | 'loop' | 'once'>('off');
@@ -114,7 +125,7 @@ export default function PhaseScrubber({
   useEffect(() => {
     if (initialManifest) return;
     const controller = new AbortController();
-    setError(null);
+    setError(false);
     fetch(manifestUrl, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
@@ -126,7 +137,8 @@ export default function PhaseScrubber({
       })
       .catch((e: unknown) => {
         if (controller.signal.aborted) return;
-        setError(e instanceof Error ? e.message : String(e));
+        console.error('PhaseScrubber: the manifest did not load.', e);
+        setError(true);
       });
     return () => controller.abort();
   }, [initialManifest, manifestUrl, attempt]);
@@ -149,20 +161,36 @@ export default function PhaseScrubber({
             return next;
           });
         };
+        const fail = () => {
+          if (!alive) return;
+          console.error(`PhaseScrubber: a ${f} frame did not load (${img.src}).`);
+          setFailed((prev) => (prev[f] ? prev : { ...prev, [f]: true }));
+        };
         img.decode().then(done, () => {
           // decode() rejects on some engines for cached images; onload still means it is drawable.
           if (img.complete && img.naturalWidth > 0) done();
-          else img.addEventListener('load', done, { once: true });
+          else if (img.complete) fail();
+          else {
+            img.addEventListener('load', done, { once: true });
+            img.addEventListener('error', fail, { once: true });
+          }
         });
       });
     }
     return () => {
       alive = false;
     };
-  }, [manifest, mounted, wanted, base]);
+  }, [manifest, mounted, wanted, base, retry]);
 
   const readyField = (f: ImageField) => loaded[f].every(Boolean);
   const ready = readyField(field);
+  /* The shown field is missing frames: the sentence and Retry replace the light box; Play and the rail wait. */
+  const missing = failed[field];
+  const retryFrames = () => {
+    setFailed((prev) => ({ ...prev, [field]: false }));
+    setLoaded((prev) => ({ ...prev, [field]: prev[field].map(() => false) }));
+    setRetry((n) => n + 1);
+  };
 
   /* Full mode: once the shown field is in, fetch the other one while the page is idle. */
   useEffect(() => {
@@ -245,7 +273,7 @@ export default function PhaseScrubber({
   );
 
   const onRailDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || missing) return;
     e.preventDefault();
     interact();
     setPlay('off');
@@ -265,6 +293,7 @@ export default function PhaseScrubber({
   };
 
   const onKey = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (missing) return;
     const step: Record<string, number> = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 3, PageDown: -3 };
     let next: number | null = null;
     if (e.key in step) next = phase + step[e.key];
@@ -327,22 +356,20 @@ export default function PhaseScrubber({
   if (!manifest) {
     return (
       <div ref={rootRef} className={[s.root, s.status, className].filter(Boolean).join(' ')} data-compact={compact}>
-        {error ? (
-          <p role="alert">
-            The phase frames did not load: {error}.{' '}
+        {error && (
+          <div className={s.failure} role="alert">
+            <p>{FAILED}</p>
             <button type="button" className={s.ghost} onClick={() => setAttempt((n) => n + 1)}>
               Retry
             </button>
-          </p>
-        ) : (
-          <p role="status">loading manifest.json</p>
+          </div>
         )}
       </div>
     );
   }
 
   const plate = (
-    <div className={s.plate} data-waiting={waiting}>
+    <div className={s.plate} data-waiting={waiting} data-failed={missing || undefined}>
       <span className={`${s.corner} ${s.cornerTl} ${s.caps}`}>{spec?.label}</span>
       <span className={`${s.corner} ${s.cornerBr}`} data-acquired={Boolean(acq)}>
         {stateLong}
@@ -352,7 +379,7 @@ export default function PhaseScrubber({
           manifest.fields[f].frames.map((file, k) =>
             drawable(f, k) ? (
               <img
-                key={`${f}-${k}`}
+                key={`${f}-${k}-${retry}`}
                 className={s.frame}
                 src={base + file}
                 width={manifest.width}
@@ -366,6 +393,14 @@ export default function PhaseScrubber({
           ),
         )}
       </div>
+      {missing && (
+        <div className={s.failure} role="alert">
+          <p>{FAILED}</p>
+          <button type="button" className={s.ghost} onClick={retryFrames}>
+            Retry
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -374,6 +409,7 @@ export default function PhaseScrubber({
       ref={railRef}
       className={s.rail}
       data-dragging={dragging}
+      data-disabled={missing || undefined}
       onPointerDown={onRailDown}
       onPointerMove={onRailMove}
       onPointerUp={onRailUp}
@@ -405,6 +441,7 @@ export default function PhaseScrubber({
         aria-valuemax={last}
         aria-valuenow={phase}
         aria-valuetext={`Phase ${phase} of ${last}, ${stateLong}`}
+        aria-disabled={missing || undefined}
         onKeyDown={onKey}
       >
         P{phase}
@@ -421,7 +458,6 @@ export default function PhaseScrubber({
       <span className={s.state} data-acquired={Boolean(acq)}>
         {stateWord}
       </span>
-      {waiting && <span className={s.wait}> loading frame</span>}
     </p>
   );
 
@@ -487,7 +523,7 @@ export default function PhaseScrubber({
             type="button"
             className={s.ghost}
             onClick={togglePlay}
-            disabled={!ready}
+            disabled={!ready || missing}
           >
             <span aria-hidden="true" className={s.icon} dangerouslySetInnerHTML={{ __html: play === 'loop' ? pauseIcon : playIcon }} />
             {play === 'loop' ? 'Pause' : 'Play'}

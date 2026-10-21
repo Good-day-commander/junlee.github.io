@@ -1,8 +1,11 @@
 ---
 /*
-  One CV section: a ruled heading in the PDF's order, dense body, and a page
-  break before it in print. Tighter than Section.astro on purpose: the CV is
-  a document, not a landing surface.
+  One CV section: a ruled heading in the PDF's order and a dense body. In
+  print the sections run on and a heading never ends a page. Tighter than
+  Section.astro on purpose: the CV is a document, not a landing surface.
+
+  empty: the section's list is empty; it renders nothing (cv.astro drops
+  its jump-row link too).
 
   fold: the heading row and the body sit in a <details> that ships open. On
   phones the heading row is the summary, with a caret, and the inline script
@@ -14,15 +17,16 @@ import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
 export interface Props {
   heading: string;
   id: string;
-  /** Keep this section on the same printed page as the one before it. */
-  flow?: boolean;
   /** Fold the section to its heading row on phones. */
   fold?: boolean;
+  /** Nothing to list: render nothing. */
+  empty?: boolean;
 }
-const { heading, id, flow = false, fold = false } = Astro.props;
+const { heading, id, fold = false, empty = false } = Astro.props;
 ---
 
-<section class:list={['cv-section', { 'cv-section--flow': flow }]} id={id} aria-labelledby={`${id}-heading`}>
+{!empty && (
+<section class="cv-section" id={id} aria-labelledby={`${id}-heading`}>
   {
     fold ? (
       <details class="cv-fold" open>
@@ -44,6 +48,7 @@ const { heading, id, flow = false, fold = false } = Astro.props;
     )
   }
 </section>
+)}
 
 <style>
   /* Dense report surface: a 24px gap between sections (contract revision 2: at most 40px). */
@@ -123,10 +128,6 @@ const { heading, id, flow = false, fold = false } = Astro.props;
     }
     .cv-section {
       padding-top: 1.25rem;
-      break-before: page;
-    }
-    .cv-section--flow {
-      break-before: auto;
     }
     .cv-section__heading {
       break-after: avoid;

@@ -33,7 +33,11 @@
   axis (static Archivo only ships the normal width); its latin subset is the
   instanced file (wght 400-600, wdth 92-100) declared in styles/fonts.css. Only the two faces of
   the first viewport's identity block are preloaded (Archivo for the name,
-  STIX for the tagline); every face is font-display: swap (fontsource).
+  STIX for the tagline), with the Korean-name subset; every face is
+  font-display: swap (fontsource). The CV also preloads the JetBrains Mono
+  latin face: its first screen is mostly mono (the contact and jump rows),
+  and the swap from the fallback rewrapped the jump row on phones and moved
+  everything under it (CLS 0.136 at 390 px).
 */
 import '@/styles/fonts.css';
 import '@fontsource/stix-two-text/400.css';
@@ -44,6 +48,7 @@ import '@/styles/global.css';
 import archivoLatin from '@/assets/fonts/archivo-latin-wght400-600-wdth92-100.woff2?url';
 import nameKoFont from '@/assets/fonts/pretendard-500-name-ko.woff2?url';
 import stixLatin from '@fontsource/stix-two-text/files/stix-two-text-latin-400-normal.woff2?url';
+import monoLatin from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
 
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
@@ -70,6 +75,7 @@ const { title, description, ogImage, ogAlt: ogAltProp, graph, noindex = false, f
 const site = Astro.site ?? new URL(profile.links.site);
 const canonical = new URL(Astro.url.pathname, site);
 const isHome = Astro.url.pathname === '/';
+const isCv = /^\/cv\/?$/.test(Astro.url.pathname);
 /* The page's markdown twin (/index.md, /research.md, /cv.md); null where none exists. */
 const mdTwin = markdownTwin(Astro.url.pathname);
 const pageTitle = isHome ? `${profile.name} · ${title}` : `${title} · ${profile.name}`;
@@ -96,6 +102,7 @@ const ogAlt =
     <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={stixLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={nameKoFont} as="font" type="font/woff2" crossorigin />
+    {isCv && <link rel="preload" href={monoLatin} as="font" type="font/woff2" crossorigin />}
     <meta name="author" content={profile.name} />
     <meta property="og:type" content={isHome ? 'profile' : 'website'} />
     <meta property="og:site_name" content={profile.name} />
