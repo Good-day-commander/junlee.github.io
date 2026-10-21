@@ -386,8 +386,9 @@
   right: 0.75rem;
   bottom: 2.25rem;
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--size-mono);
+  font-family: var(--font-text);
+  font-style: italic;
+  font-size: 0.9rem;
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
   color: var(--ink-2);

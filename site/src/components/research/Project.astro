@@ -21,6 +21,8 @@ import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
 const { entry, anchor } = Astro.props;
 const headingId = `${entry.id}-title`;
 const [first, ...rest] = entry.outputs;
+/* An item's text breaks only after a comma, never inside a unit (see .project__unit). */
+const units = (text: string) => text.split(', ');
 const restId = `${entry.id}-outputs`;
 ---
 
@@ -39,7 +41,7 @@ const restId = `${entry.id}-outputs`;
           Items 2 to n sit in one span with their dots. On phones the inline script in research.astro
           shows the +N control and folds that span behind it; without it every item shows.
         */}
-        <a href={first.href}>{first.text}</a>{rest.length > 0 && <><button type="button" class="project__more" aria-expanded="false" aria-controls={restId} aria-label={`More outputs, ${rest.length}`} hidden set:html={caretDown} /><span class="project__outputs-rest" id={restId}>{rest.map((o) => <><span class="project__sep">{'\u00a0· '}</span><a href={o.href}>{o.text}</a></>)}</span></>}
+        <a href={first.href}>{units(first.text).map((u, i, all) => <><span class="project__unit">{u}{i < all.length - 1 && ','}</span>{i < all.length - 1 && ' '}</>)}</a>{rest.length > 0 && <><button type="button" class="project__more" aria-expanded="false" aria-controls={restId} aria-label={`More outputs, ${rest.length}`} hidden set:html={caretDown} /><span class="project__outputs-rest" id={restId}>{rest.map((o) => <><span class="project__sep">{'\u00a0· '}</span><a href={o.href}>{units(o.text).map((u, i, all) => <><span class="project__unit">{u}{i < all.length - 1 && ','}</span>{i < all.length - 1 && ' '}</>)}</a></>)}</span></>}
       </p>
     )
   }
@@ -91,6 +93,8 @@ const restId = `${entry.id}-outputs`;
   .project__outputs a {
     color: inherit;
     text-decoration-color: var(--line);
+  }
+  .project__unit {
     white-space: nowrap;
   }
   .project__outputs a:hover {

@@ -78,6 +78,13 @@ async function capture(browser, viewport, w, h) {
     { timeout: 30000 },
   );
   await page.waitForTimeout(600);
+  /* The wipe at its end: one field over the whole vessel, so the still carries no seam tick. */
+  const slider = page.locator('.home-plate [role="slider"]').first();
+  if (await slider.count()) {
+    await slider.focus();
+    await page.keyboard.press('End');
+    await page.waitForTimeout(700);
+  }
   await page.evaluate(() => {
     const r = document.querySelector('.home-plate [data-island="VesselViewer"]');
     const canvas = r?.querySelector('canvas');

@@ -297,6 +297,7 @@ const description = `${profile.name}'s research, project by project, newest firs
     over 640px whose frame is under it. Phones hide the clause from the
     first paint, before the island hydrates; their frame always takes the toggle.
   */
+  :global(.art:has([data-control][data-field='error']) .art__caption-wide),
   :global(.art:has([data-control='toggle']) .art__caption-wide) {
     display: none;
   }
@@ -379,7 +380,7 @@ const description = `${profile.name}'s research, project by project, newest firs
   }
   .more__summary:focus-visible {
     outline: 2px solid var(--signal);
-    outline-offset: -2px; /* inside the row, so the ring never leaves the column */
+    outline-offset: 2px; /* just outside the row: inside, it ran through the first glyph */
   }
   @media (prefers-reduced-motion: reduce) {
     .more__chevron {

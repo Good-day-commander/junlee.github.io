@@ -75,7 +75,7 @@ export interface SpectrogramDevelopProps {
 
 const VIRIDIS_BAR = cssGradient('viridis', 16, 'to right');
 /* The one sentence a failed plate prints (owner-approved wording, 2026-10-21). */
-const FAILED = 'The recording did not load. Reload the page to try again.';
+const FAILED = 'The recording did not load.'; /* Retry sits under it */
 
 type Status = 'loading' | 'ready' | 'error';
 type Phase = 'latent' | 'developing' | 'done';

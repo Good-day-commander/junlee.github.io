@@ -115,7 +115,7 @@ const [first, ...rest] = updates;
   }
   .updates__summary:focus-visible {
     outline: 2px solid var(--signal);
-    outline-offset: -2px; /* inside the row, so the ring never leaves the column */
+    outline-offset: 2px; /* just outside the row: inside, it ran through the first glyph */
   }
   @media (prefers-reduced-motion: reduce) {
     .updates__chevron {

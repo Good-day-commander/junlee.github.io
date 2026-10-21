@@ -437,6 +437,9 @@
   .ramp {
     forced-color-adjust: none;
   }
+  .frame {
+    mix-blend-mode: normal; /* multiplied onto a forced black sheet, the frame disappeared */
+  }
   .segBtn[aria-pressed='true'] {
     outline: 2px solid Highlight;
     outline-offset: -4px;

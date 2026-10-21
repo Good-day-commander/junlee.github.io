@@ -70,7 +70,7 @@ export interface PhaseScrubberProps {
 
 const FPS = 6;
 /* The one sentence a failed plate prints (owner-approved wording, 2026-10-21). */
-const FAILED = 'The CT frames did not load. Reload the page to try again.';
+const FAILED = 'The CT frames did not load.'; /* Retry sits under it */
 const FIELDS: ImageField[] = ['pressure', 'wss'];
 /* The paper renders both fields on ParaView's cool-to-warm map; the site's diverging map is the same Moreland ramp. */
 const RAMP = cssGradient('diverging', 16, 'to right');

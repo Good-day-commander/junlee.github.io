@@ -167,4 +167,7 @@
   .swatchPino {
     forced-color-adjust: none;
   }
+  .cfd {
+    stroke: CanvasText; /* the bone stroke vanished on a white forced canvas */
+  }
 }
