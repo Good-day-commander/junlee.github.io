@@ -58,11 +58,18 @@ const [first, ...rest] = updates;
   .updates__row {
     grid-template-columns: 5rem minmax(0, 1fr);
   }
-  /* The closing rule: under the summary while closed, under the list once open; it spans the column, not the gutters. */
-  .updates:not([open]) > .updates__summary,
-  .updates__summary:last-child,
+  /*
+    The rules: the summary always carries the one under itself and the list
+    the closing one, so the first row draws no top rule of its own; they span
+    the column, not the gutters. While the list collapses (styles/global.css)
+    the summary's rule stays put and no doubled line shows.
+  */
+  .updates__summary,
   .updates__list {
     border-bottom: 1px solid var(--line);
+  }
+  .updates__row:first-child {
+    border-top: 0;
   }
   .updates__summary {
     list-style: none;
@@ -103,15 +110,17 @@ const [first, ...rest] = updates;
   .updates[open] .updates__chevron {
     transform: rotate(180deg);
   }
-  .updates__summary:hover .updates__text {
-    color: var(--ink);
-  }
   .updates__summary:hover .updates__chevron {
     color: var(--ink);
   }
   .updates__summary:focus-visible {
     outline: 2px solid var(--signal);
     outline-offset: -2px; /* inside the row, so the ring never leaves the column */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .updates__chevron {
+      transition-property: color;
+    }
   }
 
   /*

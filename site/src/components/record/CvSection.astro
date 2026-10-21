@@ -112,6 +112,11 @@ const { heading, id, flow = false, fold = false } = Astro.props;
       transform: rotate(180deg);
     }
   }
+  @media (prefers-reduced-motion: reduce) {
+    .cv-fold__caret {
+      transition: none;
+    }
+  }
   @media print {
     .cv-fold__caret {
       display: none;

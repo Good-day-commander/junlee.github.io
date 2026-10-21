@@ -314,7 +314,8 @@
   cursor: pointer;
   transition:
     color var(--duration-quick) var(--ease-out),
-    border-color var(--duration-quick) var(--ease-out);
+    border-color var(--duration-quick) var(--ease-out),
+    box-shadow var(--duration-quick) var(--ease-out);
 }
 .segBtn:first-of-type {
   margin-left: 0;

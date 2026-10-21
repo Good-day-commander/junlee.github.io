@@ -15,10 +15,13 @@
     h1         the home <h1> reads "Hyeong Jun Lee"
     updates    on / the Updates row (details.updates) ships closed, its
                summary has a sentence and a mono (t-mono) date, the list
-               holds at least one row, and a click on the summary opens it
+               holds at least one row, and a click on the summary opens it;
+               once the 250 ms height move has ended (read at 300 ms,
+               polled for 2 s more) the list sits inside the row's box
     more       on /research/ every Method and metrics row (details.more)
                ships closed, its summary carries the words, and a click on
-               the summary opens it
+               the summary opens it; once the height move has ended its
+               content sits inside the row's box
     folded     on /research/, once those rows are open, every plate inside
                one draws within 10 s of being scrolled into view: the Pd/Pa
                curve its chart (svg), a spectrogram leaves data-phase="latent"
@@ -39,8 +42,14 @@
                more") and hides the rest; a tap shows it and a second tap
                hides it; at 1440 there is no control and every line is whole. On /cv/: at 390 the folding sections
                (details.cv-fold) are closed on load, a click on the Talks
-               heading opens it, and the jump row shows one link per section;
+               heading opens it (its content inside the section's box once
+               the height move has ended), and the jump row shows one link per section;
                at 1440 every fold is open and the jump row is hidden.
+    lightbox   on /cv/ at 1440, with the full-size photo held back 3 s, a
+               click on the first talk photo opens the dialog, fully opaque
+               once its 250 ms fade has ended, at the photo's own ratio
+               (data-w / data-h) before the file arrives; Escape closes it
+               and the image source is gone once the 150 ms fade has ended
     anchor     at 390, /cv/#P3 loaded cold lands on P3 inside an opened
                Patents section, and a hashchange to #I1 opens Talks and
                lands on it
@@ -80,7 +89,7 @@ const VIEWPORTS = [
 const PAGES = [
   { route: '/', viewer: true, h1: OWNER, updates: true, layer: 'home' },
   { route: '/research/', viewer: true, more: true, plates: true, layer: 'research' },
-  { route: '/cv/', layer: 'cv' },
+  { route: '/cv/', layer: 'cv', lightbox: true },
 ];
 /* The phone layer's breakpoint (the identity block's): at or under it the pages fold, above it nothing does. */
 const PHONE_MAX = 640;
@@ -112,6 +121,24 @@ function printTable() {
 }
 
 const clip = (s, n = 140) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+/* The height move of an opened details (styles/global.css) is 250 ms; read the box after it. */
+const MOVE_MS = 300;
+/*
+  An open details shows all of its content: every child but the summary ends
+  inside the details' own box. Read after MOVE_MS and polled for up to 2 s
+  more, so a slow runner's late frame is not read as a stuck move.
+*/
+async function revealed(details) {
+  const deadline = Date.now() + 2000;
+  for (;;) {
+    const ok = await details.evaluate((d) => {
+      const bottom = d.getBoundingClientRect().bottom;
+      return d.open && [...d.children].filter((c) => c.tagName !== 'SUMMARY').every((c) => c.getBoundingClientRect().bottom <= bottom + 0.5);
+    });
+    if (ok || Date.now() > deadline) return ok;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
 
 /* ---------- server ---------- */
 
@@ -263,14 +290,16 @@ async function checkUpdates(page, where) {
     const rows = await details.locator(':scope > ol > li').count();
     await summary.click();
     const opened = (await details.getAttribute('open')) !== null;
-    const ok = closed && text.length > date.length && date.length > 0 && rows > 0 && opened;
+    await page.waitForTimeout(MOVE_MS);
+    const shown = await revealed(details);
+    const ok = closed && text.length > date.length && date.length > 0 && rows > 0 && opened && shown;
     record(
       'updates',
       where,
       ok,
       ok
-        ? `closed on load, "${date}" + sentence, ${rows} more row${rows === 1 ? '' : 's'}, opens on click`
-        : `closed ${closed}, summary "${clip(text, 40)}", date "${date}", rows ${rows}, opened ${opened}`,
+        ? `closed on load, "${date}" + sentence, ${rows} more row${rows === 1 ? '' : 's'}, opens on click and shows them`
+        : `closed ${closed}, summary "${clip(text, 40)}", date "${date}", rows ${rows}, opened ${opened}, rows inside the box ${shown}`,
     );
   } catch (e) {
     record('updates', where, false, clip(String(e)));
@@ -374,17 +403,72 @@ async function checkLayer(page, where, spec, vp) {
         return;
       }
       await page.locator('#talks details.cv-fold > summary').click();
-      const talks = await page.evaluate(() => document.querySelector('#talks details.cv-fold')?.open === true);
+      await page.waitForTimeout(MOVE_MS);
+      const talks = await revealed(page.locator('#talks details.cv-fold'));
       const ok = s.folds > 0 && s.open === 0 && talks && s.jump && s.links === s.sections && s.targets === s.links;
       record(
         'layer',
         where,
         ok,
-        `${s.folds - s.open} of ${s.folds} folds closed on load, Talks ${talks ? 'opens' : 'does not open'} on click; jump row ${s.jump ? 'shown' : 'hidden'}, ${s.targets} of ${s.sections} sections linked`,
+        `${s.folds - s.open} of ${s.folds} folds closed on load, Talks ${talks ? 'opens and shows its content' : 'does not open in full'} on click; jump row ${s.jump ? 'shown' : 'hidden'}, ${s.targets} of ${s.sections} sections linked`,
       );
     }
   } catch (e) {
     record('layer', where, false, clip(String(e)));
+  }
+}
+
+/* /cv/ at 1440: the photo dialog opens at its photo's ratio before the full-size file arrives, and lets the image go after its fade. */
+async function checkLightbox(page, where) {
+  const link = page.locator('a[data-lightbox]').first();
+  try {
+    const href = new URL(await link.getAttribute('href'), page.url()).href;
+    await page.route(href, async (route) => {
+      await new Promise((r) => setTimeout(r, 3000));
+      await route.continue().catch(() => {});
+    });
+    await link.scrollIntoViewIfNeeded();
+    await link.click();
+    await page.waitForTimeout(MOVE_MS);
+    await page
+      .waitForFunction(() => Number(getComputedStyle(document.getElementById('photo-lightbox')).opacity) === 1, null, { timeout: 1500 })
+      .catch(() => {});
+    const open = await page.evaluate(() => {
+      const d = document.getElementById('photo-lightbox');
+      const img = d.querySelector('img');
+      const a = document.querySelector('a[data-lightbox]');
+      const r = img.getBoundingClientRect();
+      return {
+        open: d.open,
+        opacity: Number(getComputedStyle(d).opacity),
+        loaded: img.complete && img.naturalWidth > 0,
+        ratio: r.height ? r.width / r.height : 0,
+        want: Number(a.dataset.w) / Number(a.dataset.h),
+        width: Math.round(r.width),
+        fits: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
+      };
+    });
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(MOVE_MS);
+    await page.waitForFunction(() => !document.querySelector('#photo-lightbox img').hasAttribute('src'), null, { timeout: 1500 }).catch(() => {});
+    const closed = await page.evaluate(() => {
+      const d = document.getElementById('photo-lightbox');
+      return { open: d.open, src: d.querySelector('img').hasAttribute('src') };
+    });
+    const ratioOk = open.want > 0 && Math.abs(open.ratio / open.want - 1) < 0.01;
+    const ok = open.open && open.opacity === 1 && !open.loaded && ratioOk && open.width > 200 && open.fits && !closed.open && !closed.src;
+    record(
+      'lightbox',
+      where,
+      ok,
+      ok
+        ? `opens ${open.width} px wide at the photo's ratio before the file arrives, opaque after the fade; Escape closes it and drops the image`
+        : `open ${open.open}, opacity ${open.opacity}, loaded ${open.loaded}, ratio ${open.ratio.toFixed(3)} for ${open.want.toFixed(3)}, width ${open.width}, fits ${open.fits}; after Escape open ${closed.open}, src ${closed.src}`,
+    );
+  } catch (e) {
+    record('lightbox', where, false, clip(String(e)));
+  } finally {
+    await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => {});
   }
 }
 
@@ -445,12 +529,17 @@ async function checkMore(page, where) {
       await summary.click();
       if ((await d.getAttribute('open')) !== null) opened += 1;
     }
-    const ok = n === closed && n === labelled && n === opened;
+    await page.waitForTimeout(MOVE_MS);
+    let shown = 0;
+    for (let i = 0; i < n; i += 1) if (await revealed(details.nth(i))) shown += 1;
+    const ok = n === closed && n === labelled && n === opened && n === shown;
     record(
       'more',
       where,
       ok,
-      ok ? `${n} closed on load, each opens on a click` : `${closed} of ${n} closed on load, ${labelled} labelled, ${opened} opened on click`,
+      ok
+        ? `${n} closed on load, each opens on a click and shows its content`
+        : `${closed} of ${n} closed on load, ${labelled} labelled, ${opened} opened on click, ${shown} with the content inside the box`,
     );
   } catch (e) {
     record('more', where, false, clip(String(e)));
@@ -568,6 +657,8 @@ async function checkPage(context, base, spec, vp) {
     if (spec.updates) await checkUpdates(page, where);
 
     if (spec.layer) await checkLayer(page, where, spec, vp);
+
+    if (spec.lightbox && vp.width > PHONE_MAX) await checkLightbox(page, where);
 
     if (spec.more) {
       await checkMore(page, where);

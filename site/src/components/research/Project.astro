@@ -144,6 +144,11 @@ const restId = `${entry.id}-outputs`;
   .project__more[hidden] {
     display: none;
   }
+  @media (prefers-reduced-motion: reduce) {
+    .project__more {
+      transition-property: color;
+    }
+  }
   @media not (max-width: 640px) {
     .project__more {
       display: none;

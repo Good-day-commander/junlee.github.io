@@ -23,6 +23,12 @@
   (home) or the action bar (/cv/); pages add no contact block of their
   own.
 
+  Motion: the inline script at the end of <body> marks a disclosure
+  (.updates, .more, .cv-fold) with data-motion when a reader clicks its
+  summary, for the length of the move; that gates the height transition in
+  styles/global.css, so a fold a script or the browser opens or closes
+  (on load, by an anchor, by find in page) snaps.
+
   Fonts: Archivo stays variable because the display type uses the wdth 92
   axis (static Archivo only ships the normal width); its latin subset is the
   instanced file (wght 400-600, wdth 92-100) declared in styles/fonts.css. Only the two faces of
@@ -121,6 +127,19 @@ const ogAlt =
       <slot />
     </main>
     <Footer {...footer} />
+    <script is:inline>
+      addEventListener(
+        'click',
+        (e) => {
+          const d = e.target instanceof Element ? e.target.closest('summary')?.parentElement : null;
+          if (!d || !d.matches('.updates, .more, .cv-fold')) return;
+          d.dataset.motion = '';
+          clearTimeout(d.motionEnd);
+          d.motionEnd = setTimeout(() => delete d.dataset.motion, 600);
+        },
+        true,
+      );
+    </script>
   </body>
 </html>
 

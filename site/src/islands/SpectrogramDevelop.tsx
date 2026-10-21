@@ -3,7 +3,8 @@
   develops like a strip coming off the printer. Columns paint left to right
   over ~4 s the first time the frame is in view, a thin bone playhead rides
   the developing edge with a mono time readout, and a Replay ghost button
-  runs it again. Reduced motion paints the whole strip at once.
+  runs it again. Reduced motion paints the whole strip at once, Replay
+  included.
 
   replayGroup: plates that develop side by side share one Replay control
   placed once by the page. With a group the island prints no button of its
@@ -275,6 +276,9 @@ function SpectrogramCore({
     rafRef.current = requestAnimationFrame(step);
   }, [duration, paint, stop]);
 
+  /* Replay, own button or page-level: under reduced motion it paints the finished strip, as the first develop does. */
+  const replay = useCallback(() => (prefersReducedMotion() ? finish() : run()), [finish, run]);
+
   /* Start once: data ready and the frame in view. */
   useEffect(() => {
     if (status !== 'ready' || !visible || startedRef.current) return;
@@ -292,11 +296,11 @@ function SpectrogramCore({
       const group = (e as CustomEvent<{ group?: string }>).detail?.group;
       if (group !== replayGroup || status !== 'ready') return;
       startedRef.current = true;
-      run();
+      replay();
     };
     document.addEventListener('spectrogram:replay', onReplay);
     return () => document.removeEventListener('spectrogram:replay', onReplay);
-  }, [develop, replayGroup, status, run]);
+  }, [develop, replayGroup, status, replay]);
 
   /* The loaded raster wins; before it (and on the server) the build-time axes print the same ticks. */
   const ax: RasterAxes | null = raster ?? axesProp ?? null;
@@ -395,7 +399,7 @@ function SpectrogramCore({
           <button
             type="button"
             className="pulse__btn"
-            onClick={run}
+            onClick={replay}
             disabled={status !== 'ready'}
             aria-label="Replay the development of the spectrogram"
           >

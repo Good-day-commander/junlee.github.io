@@ -58,6 +58,26 @@
 .root[data-status='error'] .canvas {
   display: none;
 }
+/*
+  The handoff at ready: the canvas, the wipe handle and the segmented
+  controls fade in over --duration-base, inside the develop's own delay
+  (developDelayMs), instead of replacing the loading line in one frame. The
+  colorbar is server-rendered and stays put.
+*/
+.canvas,
+.handle,
+.segment {
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+.root[data-status='loading'] .canvas {
+  opacity: 0;
+}
+@starting-style {
+  .handle,
+  .segment {
+    opacity: 0;
+  }
+}
 
 .fallback {
   position: absolute;
@@ -305,7 +325,8 @@
   transition:
     color var(--duration-quick) var(--ease-out),
     border-color var(--duration-quick) var(--ease-out),
-    background-color var(--duration-quick) var(--ease-out);
+    background-color var(--duration-quick) var(--ease-out),
+    box-shadow var(--duration-quick) var(--ease-out);
 }
 .segBtn:first-of-type {
   margin-left: 0;
@@ -523,7 +544,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .grip,
-  .segBtn {
+  .segBtn,
+  .canvas,
+  .handle,
+  .segment {
     transition: none;
   }
 }

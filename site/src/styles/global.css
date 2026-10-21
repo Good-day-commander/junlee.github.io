@@ -393,6 +393,38 @@
 }
 
 /*
+  Disclosures (the home Updates row, research Method and metrics, the CV's
+  phone folds): when a reader opens or closes one, its content eases its
+  height over --duration-base instead of snapping, with no fade, slide or
+  stagger. The gate is data-motion on that details, set by a click on its
+  summary (layouts/Base.astro) for the length of the move. Every other
+  toggle snaps: a phone script closing folds on load, an anchor that opens
+  one (cv.astro reveal), the browser's own expansion on a fragment link or
+  find in page, so the scroll lands on its target at the target's final
+  place. The clip keeps a ring's width of margin, so a focus ring on the
+  last line stays whole. Reduced motion and print keep the native snap, and
+  so do browsers without ::details-content or interpolate-size.
+*/
+@media screen and (prefers-reduced-motion: no-preference) {
+  :is(.updates, .more, .cv-fold) {
+    interpolate-size: allow-keywords;
+  }
+  :is(.updates, .more, .cv-fold)::details-content {
+    block-size: 0;
+    overflow: clip;
+    overflow-clip-margin: 0.25rem;
+  }
+  :is(.updates, .more, .cv-fold)[open]::details-content {
+    block-size: auto;
+  }
+  :is(.updates, .more, .cv-fold)[data-motion]::details-content {
+    transition:
+      block-size var(--duration-base) var(--ease-out),
+      content-visibility var(--duration-base) allow-discrete;
+  }
+}
+
+/*
   Inline link icon (Phosphor regular, inlined as SVG, never a glyph): 1em,
   ink-3 at rest, signal while its link is hovered. Used by the quiet
   "How it works" and "the CV" links.

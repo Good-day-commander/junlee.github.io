@@ -303,6 +303,8 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
                   class="photo__link"
                   href={photoFull[i].src}
                   data-lightbox
+                  data-w={photoFull[i].attributes.width}
+                  data-h={photoFull[i].attributes.height}
                   data-alt={ph.alt}
                   data-caption={ph.caption.text}
                   aria-label={`Enlarge: ${ph.caption.text}`}
@@ -615,6 +617,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     width: 1em;
     height: 1em;
     color: var(--ink-3);
+    transition: color var(--duration-quick) var(--ease-out);
   }
   .cv-bar__icon :global(svg) {
     width: 100%;
@@ -906,6 +909,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--bg-1);
+    transition: border-color var(--duration-quick) var(--ease-out);
   }
   .photo__link {
     display: inline-block;
@@ -922,7 +926,37 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   .photo__caption {
     color: var(--ink-2);
   }
-  /* Click-to-enlarge: one film plate in a native dialog; Escape, the button or the backdrop closes it. */
+  /*
+    Click-to-enlarge: one film plate in a native dialog; Escape, the button or
+    the backdrop closes it. The image box is sized before the file arrives
+    (the script sets --ar and --lw from the link's data-w and data-h), so the
+    dialog opens at its final size. The dialog and its flat dim fade in over
+    --duration-base and out over --duration-quick, opacity only; where
+    overlay and display cannot transition (Firefox, Safari) the close is
+    instant.
+  */
+  .lightbox,
+  .lightbox::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      overlay var(--duration-base) allow-discrete,
+      display var(--duration-base) allow-discrete;
+  }
+  .lightbox[open],
+  .lightbox[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    .lightbox[open],
+    .lightbox[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  .lightbox:not([open]),
+  .lightbox:not([open])::backdrop {
+    transition-duration: var(--duration-quick);
+  }
   .lightbox {
     /* The global reset zeroes margins; a dialog centres itself only with margin: auto. */
     position: fixed;
@@ -942,10 +976,10 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
   }
   .lightbox__img {
     display: block;
+    aspect-ratio: var(--ar);
+    width: min(92vw, 1800px, calc((92vh - 3rem) * var(--ar)), var(--lw));
     max-width: min(92vw, 1800px);
     max-height: calc(92vh - 3rem);
-    width: auto;
-    height: auto;
   }
   .lightbox__bar {
     display: flex;
@@ -965,6 +999,7 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     background: transparent;
     color: var(--ink);
     cursor: pointer;
+    transition: border-color var(--duration-quick) var(--ease-out);
   }
   .lightbox__close:hover {
     border-color: var(--signal);
@@ -1098,6 +1133,12 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
     document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]').forEach((a) => {
       a.addEventListener('click', (e) => {
         e.preventDefault();
+        const w = Number(a.dataset.w);
+        const h = Number(a.dataset.h);
+        if (w > 0 && h > 0) {
+          img.style.setProperty('--ar', String(w / h));
+          img.style.setProperty('--lw', `${w}px`);
+        }
         img.src = a.href;
         img.alt = a.dataset.alt ?? '';
         cap.textContent = a.dataset.caption ?? '';
@@ -1110,8 +1151,10 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
       if (e.target === dialog || !inside) dialog.close();
     });
+    /* The image stays until the dialog has faded out (its closed transition-duration, always in seconds when computed). */
     dialog.addEventListener('close', () => {
-      img.removeAttribute('src');
+      const fade = parseFloat(getComputedStyle(dialog).transitionDuration) * 1000 || 0;
+      window.setTimeout(() => dialog.open || img.removeAttribute('src'), fade);
     });
   }
 </script>

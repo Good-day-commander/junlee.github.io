@@ -347,6 +347,7 @@ const description = `${profile.name}'s research, project by project, newest firs
     color: var(--ink-2);
     list-style: none;
     cursor: pointer;
+    transition: color var(--duration-quick) var(--ease-out);
   }
   .more__summary::-webkit-details-marker {
     display: none;
@@ -379,5 +380,10 @@ const description = `${profile.name}'s research, project by project, newest firs
   .more__summary:focus-visible {
     outline: 2px solid var(--signal);
     outline-offset: -2px; /* inside the row, so the ring never leaves the column */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .more__chevron {
+      transition-property: color;
+    }
   }
 </style>
