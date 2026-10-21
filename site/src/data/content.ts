@@ -859,7 +859,7 @@ export const researchProjects: ResearchProject[] = [
     title: "Neural operator for patient-specific coronary flow",
     start: "2024",
     summary:
-      "A physics-informed neural operator trained on CFD returns a vessel's pressure and velocity field in {pino.inference} instead of a {cfd.minutes}-minute run, tested on {pino.patients} cases with {pino.folds}-fold cross-validation.",
+      "A physics-informed neural operator trained on CFD returns a vessel's pressure and velocity field in {pino.inference} instead of a {cfd.minutes}-minute run.",
     pubs: ["C1"],
     patents: ["P3"],
     talks: ["I1", "I3", "D8"],

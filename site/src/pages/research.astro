@@ -5,10 +5,14 @@
   newest first (lib/schema.ts researchEntries orders it): each project is a
   header row (title, years), one sentence and its outputs line, every output
   a link to its CV row. The three live demos sit inside the projects they
-  belong to (PINO, 4D CT, fluid bolus), each with its plates, the method
-  and metrics and one citation line, and each keeps its old anchor
-  (#flow, #image, #pulse). The page head is the h1 only. Budget (checked
-  by the build): 1000 visible words in <main>, 260 per project.
+  belong to (PINO, 4D CT, fluid bolus), each with its method and metrics
+  folded into one row that ships closed at every width (the outputs line
+  already links the paper into the CV, so there is no citation line).
+  PINO keeps two plates in view, the viewer and its Pd/Pa curve under it
+  (the curve is the FFR evidence a reader scans for); 4D CT and fluid bolus
+  show one, and the CWT scalogram folds into the bolus row. Each keeps its
+  old anchor (#flow, #image, #pulse). The page head is the h1 only. Budget
+  (checked by the build): 1000 visible words in <main>, 260 per project.
 
   Every number is computed from content.ts or the PINO / pulse / image
   manifests through lib/schema.ts and components/research/data.ts, the
@@ -18,7 +22,6 @@ import Base from '@/layouts/Base.astro';
 import Frame from '@/components/Frame.astro';
 import Project from '@/components/research/Project.astro';
 import MetricsTable from '@/components/research/MetricsTable.astro';
-import Cite from '@/components/research/Cite.astro';
 import CwtStrip from '@/components/research/CwtStrip.astro';
 import VesselViewer from '@/islands/VesselViewer';
 import FfrCurve from '@/islands/FfrCurve';
@@ -26,30 +29,15 @@ import SpectrogramDevelop from '@/islands/SpectrogramDevelop';
 import { rasterAxes } from '@/islands/pulse/raster';
 import PhaseScrubber from '@/islands/PhaseScrubber';
 import { imageManifest, imageManifestUrl } from '@/islands/image/data';
-import { figureLabel } from '@/islands/image/manifest';
-import { publications, profile } from '@/data/content';
-import { formatDecimal, formatMm, formatSeconds } from '@/lib/format';
+import { profile } from '@/data/content';
+import { formatDecimal, formatSeconds } from '@/lib/format';
 import { pino, pulse, urls } from '@/components/research/data';
 import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockwise.svg?raw';
+import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
 import Button from '@/components/Button.astro';
 import { flow, image, pulseFacts, researchEntries, LEGACY_ANCHORS } from '@/lib/schema';
-import centerline from '../../public/data/pino/centerline.json';
-
-/* Extent of the Pd/Pa curve's s axis, so the static HTML carries the plate's range. */
-const sMax = Math.max(...(centerline.s_mm as number[]));
-
-/* Publications by id, so a missing id fails the build instead of rendering a hole. */
-function pub(id: string) {
-  const p = publications.find((x) => x.id === id);
-  if (!p) throw new Error(`research.astro: publication ${id} missing from content.ts`);
-  return p;
-}
-const C1 = pub('C1');
-const J1 = pub('J1');
-const M1 = pub('M1');
 
 const c = pino.metrics.case;
-const probes = pino.geometry.ffr_probes;
 const im = imageManifest;
 /* Spectrogram axes at build time (the STFT shows its recommended crop), so the ticks and dB range are in the server HTML. */
 const stftAxes = rasterAxes(pulse.stft, pulse.stft.recommended_crop_hz);
@@ -85,14 +73,16 @@ const description = `${profile.name}'s research, project by project, newest firs
                 <FfrCurve client:visible centerlineUrl={urls.centerline} mode="chapter" />
               </Frame>
               <figcaption class="art__caption">
-                Pd/Pa along the vessel, <span class="num">0 to {formatMm(sMax)}</span>. CFD and PINO differ by
-                <span class="num">{flow.ffrDelta}</span> at the distal probe.
+                CFD and PINO differ by <span class="num">{flow.ffrDelta}</span> at the distal probe.
               </figcaption>
             </figure>
           </div>
 
-          <details class="more" open>
-            <summary class="more__summary">Method and metrics</summary>
+          <details class="more">
+            <summary class="more__summary">
+              <span class="more__label">Method and metrics</span>
+              <span class="more__chevron" aria-hidden="true" set:html={caretDown} />
+            </summary>
             <p class="t-prose">
               A geometry-informed neural operator returns pressure and velocity at all {flow.volumeNodes} volume nodes from the
               vessel surface alone, with a Navier–Stokes residual in its loss. Every case is predicted by a model that never saw it.
@@ -107,7 +97,6 @@ const description = `${profile.name}'s research, project by project, newest firs
             />
 
           </details>
-          <Cite pub={C1} />
         </Project>
       ) : entry.demo === 'image' ? (
         <Project entry={entry} anchor={LEGACY_ANCHORS.image}>
@@ -120,8 +109,11 @@ const description = `${profile.name}'s research, project by project, newest firs
             </figcaption>
           </figure>
 
-          <details class="more" open>
-            <summary class="more__summary">Method and metrics</summary>
+          <details class="more">
+            <summary class="more__summary">
+              <span class="more__label">Method and metrics</span>
+              <span class="more__chevron" aria-hidden="true" set:html={caretDown} />
+            </summary>
             <p class="t-prose">
               A diffusion deformable model synthesizes the full cardiac cycle from two acquired CT phases. Each phase is meshed
               and solved, so FFR is followed across the cycle instead of read from one still.
@@ -141,31 +133,26 @@ const description = `${profile.name}'s research, project by project, newest firs
             />
 
           </details>
-          <Cite pub={J1} />
         </Project>
       ) : entry.demo === 'pulse' ? (
         <Project entry={entry} anchor={LEGACY_ANCHORS.pulse}>
-          <div class="art-grid">
-            <figure class="art">
-              <Frame plate class="art__frame art__frame--stft">
-                <SpectrogramDevelop
-                  recordingS={pulseFacts.durationS}
-                  client:visible
-                  manifestUrl={urls.pulseManifest}
-                  variant="stft"
-                  axes={stftAxes}
-                  method={pulse.stft.method}
-                  replayGroup="pulse"
-                  bare
-                />
-              </Frame>
-              <figcaption class="art__caption">
-                One <span class="num">{formatSeconds(pulseFacts.durationS, 0)}</span> recording before the first bolus; the bright band is the heartbeat.
-              </figcaption>
-            </figure>
-            <CwtStrip />
-          </div>
-          <!-- One Replay for both plates; shown once the islands can hear it (hidden without JS). -->
+          <figure class="art">
+            <Frame plate class="art__frame art__frame--stft">
+              <SpectrogramDevelop
+                recordingS={pulseFacts.durationS}
+                client:visible
+                manifestUrl={urls.pulseManifest}
+                variant="stft"
+                axes={stftAxes}
+                replayGroup="pulse"
+                bare
+              />
+            </Frame>
+            <figcaption class="art__caption">
+              One <span class="num">{formatSeconds(pulseFacts.durationS, 0)}</span> recording before the first bolus; the bright band is the heartbeat.
+            </figcaption>
+          </figure>
+          <!-- One Replay for both plates (the CWT strip sits inside Method and metrics); shown once the islands can hear it (hidden without JS). -->
           <div class="pulse-replay" data-replay-group="pulse" hidden>
             <Button variant="ghost" size="compact" aria-label="Replay both spectrograms">
               Replay
@@ -173,12 +160,17 @@ const description = `${profile.name}'s research, project by project, newest firs
             </Button>
           </div>
 
-          <details class="more" open>
-            <summary class="more__summary">Method and metrics</summary>
+          <details class="more">
+            <summary class="more__summary">
+              <span class="more__label">Method and metrics</span>
+              <span class="more__chevron" aria-hidden="true" set:html={caretDown} />
+            </summary>
             <p class="t-prose">
               Smartwatch PPG is filtered, cut into overlapping segments and turned into STFT and CWT images; the
               {pulseFacts.networks} CNNs score each segment and the scores are pooled per patient.
             </p>
+
+            <CwtStrip />
 
             <MetricsTable
               id="pulse-metrics"
@@ -192,7 +184,6 @@ const description = `${profile.name}'s research, project by project, newest firs
             />
 
           </details>
-          <Cite pub={M1} />
         </Project>
       ) : (
         <Project entry={entry} />
@@ -217,7 +208,7 @@ const description = `${profile.name}'s research, project by project, newest firs
 </Base>
 
 <script>
-  /* The fluid-bolus project's one Replay restarts both spectrogram plates (SpectrogramDevelop replayGroup). */
+  /* The fluid-bolus project's one Replay restarts both spectrogram plates (SpectrogramDevelop replayGroup); the CWT strip hears it once Method and metrics has been opened. */
   for (const box of document.querySelectorAll<HTMLElement>('[data-replay-group]')) {
     const group = box.dataset.replayGroup;
     box.hidden = false;
@@ -243,8 +234,9 @@ const description = `${profile.name}'s research, project by project, newest firs
   }
 
   /*
-    Two artifacts side by side (stacked under 960px). Each frame is a flex
-    column whose body takes the slack, so the pair ends on one line.
+    One plate per demo in view, except PINO, whose viewer and Pd/Pa curve
+    stack in one grid at the column's width; the CWT scalogram sits inside
+    Method and metrics. Each frame is a flex column whose body takes the slack.
   */
   .art-grid {
     display: grid;
@@ -272,15 +264,15 @@ const description = `${profile.name}'s research, project by project, newest firs
     padding-top: var(--space-2);
   }
   /* Spectrograms: the plot holds the top of the body and the toolbar its bottom. */
-  .art-grid :global(.art__frame--stft > .frame__body),
-  .art-grid :global(.art__frame--cwt > .frame__body) {
+  :global(.art) :global(.art__frame--stft > .frame__body),
+  :global(.art) :global(.art__frame--cwt > .frame__body) {
     justify-content: flex-start;
   }
-  .art-grid :global(.pulse--bare) {
+  :global(.art) :global(.pulse--bare) {
     flex: 1 0 auto;
     align-content: space-between;
   }
-  .art-grid :global(.pulse__bar > .pulse__btn) {
+  :global(.art) :global(.pulse__bar > .pulse__btn) {
     margin-left: auto;
   }
   .pulse-replay {
@@ -298,74 +290,94 @@ const description = `${profile.name}'s research, project by project, newest firs
     color: var(--ink-2);
     text-wrap: pretty;
   }
-  /* Numbers inside a caption read in the caption's own face; mono is for tables and chrome. */
-  /* Phones show the viewer with a CFD | PINO toggle, not the wipe, so "left" and "right" would be wrong there. */
+  /*
+    "CFD left, PINO right" is true only beside the wipe handle. The viewer
+    marks its control on its root (data-control, chosen by the frame's own
+    width), so the caption follows the control, also on a viewport a little
+    over 640px whose frame is under it. Phones hide the clause from the
+    first paint, before the island hydrates; their frame always takes the toggle.
+  */
+  :global(.art:has([data-control='toggle']) .art__caption-wide) {
+    display: none;
+  }
   @media (max-width: 640px) {
     :global(.art__caption-wide) {
       display: none;
     }
   }
+  /* Numbers inside a caption read in the caption's own face; mono is for tables and chrome. */
   :global(.art__caption .num) {
     font-family: inherit;
     font-style: inherit;
     font-weight: inherit;
   }
 
-  /* Method and metrics: open on wide screens; on phones they start closed (the inline script below) and open with one tap. */
+  /*
+    Method and metrics: a native <details> that ships closed at every width,
+    styled as the home Updates row: one ruled row across the column, the
+    words in the UI face, the chevron at the right edge pointing down (up once
+    open). Inside, the method paragraph, the demo's second plate where it has
+    one (its island hydrates once the row is opened), the table caption and
+    the table, whose own bottom rule closes the block. The budget gate counts only the
+    summary of a closed <details>; /research.md prints everything.
+  */
   .more {
     display: grid;
     gap: var(--space-3);
     width: 100%;
   }
+  /*
+    A plate folded into the row keeps the plate rhythm above and below it, so
+    its caption never runs into the table caption. The row's content renders
+    as one block (::details-content), which the grid gap does not reach.
+  */
+  .more > :global(.art) {
+    margin-block: var(--space-3);
+  }
   .more__summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: center;
+    padding-block: 0.6rem;
+    border-block: 1px solid var(--line);
     font-family: var(--font-ui);
     font-size: var(--size-ui);
+    line-height: 1.5;
     color: var(--ink-2);
-    cursor: pointer;
     list-style: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+    cursor: pointer;
   }
   .more__summary::-webkit-details-marker {
     display: none;
   }
-  .more__summary::before {
-    content: '';
-    width: 0.5rem;
-    height: 0.5rem;
-    border-right: 1px solid var(--ink-3);
-    border-bottom: 1px solid var(--ink-3);
-    transform: rotate(-45deg);
-    transition: transform var(--duration-quick) var(--ease-out);
+  /* Phosphor caret-down, inline; it turns over when the row opens. */
+  .more__chevron {
+    justify-self: end;
+    width: 1rem;
+    height: 1rem;
+    color: var(--ink-3);
+    transition:
+      transform var(--duration-quick) var(--ease-out),
+      color var(--duration-quick) var(--ease-out);
   }
-  /* The citation line that follows carries the closing rule; the table's own bottom rule would double it. */
-  .more :global(table) {
-    border-bottom: 0;
+  .more__chevron :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
   }
-  .more[open] > .more__summary::before {
-    transform: rotate(45deg);
+  .more[open] > .more__summary .more__chevron {
+    transform: rotate(180deg);
   }
   .more__summary:hover {
     color: var(--ink);
   }
+  .more__summary:hover .more__chevron {
+    color: var(--ink);
+  }
   .more__summary:focus-visible {
     outline: 2px solid var(--signal);
-    outline-offset: var(--ring-offset);
-  }
-  @media (min-width: 600px) {
-    .more__summary {
-      pointer-events: none;
-    }
-    .more__summary::before {
-      display: none;
-    }
+    outline-offset: -2px; /* inside the row, so the ring never leaves the column */
   }
 </style>
-
-<script is:inline>
-  /* Phones start with the method and metrics folded; the markup ships open so agents and no-JS readers see everything. */
-  if (window.matchMedia('(max-width: 599.98px)').matches) {
-    document.querySelectorAll('details.more[open]').forEach((d) => d.removeAttribute('open'));
-  }
-</script>

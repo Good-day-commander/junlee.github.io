@@ -21,13 +21,13 @@
   top-right corner either way.
 
   Server render: the page passes axes (rasterAxes of the manifest grid,
-  computed at build) and method, so the frequency and time ticks, the dB
-  range and the transform line are in the server HTML; the loaded raster
-  replaces them with the same values. The loading line is printed only
-  after hydration, never in the static markup.
+  computed at build), so the frequency and time ticks and the dB range are
+  in the server HTML; the loaded raster replaces them with the same values.
+  The loading line is printed only after hydration, never in the static
+  markup.
 
   Exports
-    SpectrogramDevelop  props { manifestUrl, variant = 'stft', crop, axes, method, ... }
+    SpectrogramDevelop  props { manifestUrl, variant = 'stft', crop, axes, ... }
     CwtStrip            static CWT scalogram for a side-by-side (no develop)
 */
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
@@ -36,7 +36,7 @@ import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockw
 import { cssGradient } from '@/lib/colormaps';
 import { formatDecimal, formatSeconds } from '@/lib/format';
 import { loadVariant } from './pulse/manifest';
-import type { GridMethod, GridSpec, PulseManifest, Variant } from './pulse/manifest';
+import type { PulseManifest, Variant } from './pulse/manifest';
 import { buildRaster, frequencyTicks, paintRaster, timeTicks } from './pulse/raster';
 import type { Raster, RasterAxes } from './pulse/raster';
 import './pulse/spectrogram.css';
@@ -64,8 +64,6 @@ export interface SpectrogramDevelopProps {
   bare?: boolean;
   /** Axis geometry from the manifest at build time (rasterAxes), for the server render. */
   axes?: RasterAxes;
-  /** The grid's transform parameters (manifest method), for the server render. */
-  method?: GridMethod;
   /** Shared Replay: no own button; restart on a `spectrogram:replay` event for this group. */
   replayGroup?: string;
   class?: string;
@@ -80,20 +78,6 @@ type Phase = 'latent' | 'developing' | 'done';
 
 const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-/* Transform parameters as separate legend cells (hairline-divided in CSS, no chained separators). */
-function methodParts(spec: Pick<GridSpec, 'method'>, variant: Variant): string[] | null {
-  const m = spec.method;
-  if (!m) return null;
-  const fs = m.fs_hz ? [`${m.fs_hz} Hz`] : [];
-  if (variant === 'stft' && m.window && m.nperseg) {
-    return [`${m.window} ${m.nperseg}`, ...(m.noverlap !== undefined ? [`overlap ${m.noverlap}`] : []), ...fs];
-  }
-  if (variant === 'cwt' && m.wavelet) {
-    return [m.wavelet === 'morl' ? 'morlet' : m.wavelet, ...(m.n_scales ? [`${m.n_scales} scales`] : []), ...fs];
-  }
-  return null;
-}
 
 interface CoreProps extends SpectrogramDevelopProps {
   /** false paints the finished strip at once and hides the develop controls. */
@@ -114,7 +98,6 @@ function SpectrogramCore({
   label,
   bare = false,
   axes: axesProp,
-  method: methodProp,
   replayGroup,
   class: classA,
   className,
@@ -320,7 +303,6 @@ function SpectrogramCore({
   const fTicks = useMemo(() => (ax ? frequencyTicks(ax, 5) : []), [ax]);
   const tTicks = useMemo(() => (ax ? timeTicks(ax, 6) : []), [ax]);
 
-  const method = spec ? methodParts(spec, variant) : methodProp ? methodParts({ method: methodProp }, variant) : null;
   const frameLabel = label ?? `PPG · ${variant.toUpperCase()}`;
   const hasStack = Boolean(what || result || consequence);
   const stageAspect = aspect ?? (develop ? '16 / 9' : '16 / 6');
@@ -403,23 +385,12 @@ function SpectrogramCore({
       </div>
 
       <div className="pulse__bar">
-        <div className="pulse__meta">
-          <span className="pulse__scale" aria-label={ax ? `Colour scale, ${formatDecimal(ax.dbLo, 0)} to ${formatDecimal(ax.dbHi, 0)} dB` : undefined}>
-            <span>{ax ? formatDecimal(ax.dbLo, 0) : '—'}</span>
-            <span className="pulse__scale-bar" style={{ backgroundImage: VIRIDIS_BAR }} aria-hidden="true" />
-            <span>{ax ? formatDecimal(ax.dbHi, 0) : '—'}</span>
-            <span className="pulse__scale-unit">dB</span>
-          </span>
-          {method && (
-            <span className="pulse__method">
-              {method.map((part) => (
-                <span key={part} className="pulse__method-part">
-                  {part}
-                </span>
-              ))}
-            </span>
-          )}
-        </div>
+        <span className="pulse__scale" aria-label={ax ? `Colour scale, ${formatDecimal(ax.dbLo, 0)} to ${formatDecimal(ax.dbHi, 0)} dB` : undefined}>
+          <span>{ax ? formatDecimal(ax.dbLo, 0) : '—'}</span>
+          <span className="pulse__scale-bar" style={{ backgroundImage: VIRIDIS_BAR }} aria-hidden="true" />
+          <span>{ax ? formatDecimal(ax.dbHi, 0) : '—'}</span>
+          <span className="pulse__scale-unit">dB</span>
+        </span>
         {develop && !replayGroup && (
           <button
             type="button"

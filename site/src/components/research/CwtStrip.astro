@@ -3,18 +3,16 @@ import { pulseFacts } from '@/lib/schema';
 /*
   The CWT companion to the STFT artifact in the Pulse chapter: the same
   recording through a Morlet wavelet, on a film plate with one caption.
-  The island, mounted bare, draws the clock, colorbar and method line;
-  numbers come from the pulse manifest. It shares the chapter's one Replay
+  The island, mounted bare, draws the clock and the colorbar; numbers
+  come from the pulse manifest. It shares the chapter's one Replay
   control (replayGroup "pulse") with the STFT plate.
 */
 import Frame from '@/components/Frame.astro';
 import SpectrogramDevelop from '@/islands/SpectrogramDevelop';
 import { rasterAxes } from '@/islands/pulse/raster';
 import { pulse, urls } from './data';
-import { formatSeconds } from '@/lib/format';
 
-const durationS = Math.round(pulse.cwt.t_s[pulse.cwt.t_s.length - 1]);
-/* Axes and method at build time, so the Hz and s ticks and the dB range are in the server HTML. */
+/* Axes at build time, so the Hz and s ticks and the dB range are in the server HTML. */
 const axes = rasterAxes(pulse.cwt);
 ---
 
@@ -26,7 +24,6 @@ const axes = rasterAxes(pulse.cwt);
       manifestUrl={urls.pulseManifest}
       variant="cwt"
       axes={axes}
-      method={pulse.cwt.method}
       replayGroup="pulse"
       bare
     />

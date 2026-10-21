@@ -15,6 +15,7 @@
   summary of a closed <details>.
 */
 import { updates } from '@/lib/schema';
+import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
 
 const [first, ...rest] = updates;
 ---
@@ -25,7 +26,7 @@ const [first, ...rest] = updates;
       <summary class="updates__summary">
         <span class="updates__when t-mono">{first.label}</span>
         <span class="updates__text">{first.text}</span>
-        <span class="updates__chevron" aria-hidden="true" />
+        <span class="updates__chevron" aria-hidden="true" set:html={caretDown} />
       </summary>
       {rest.length > 0 && (
         <ol class="updates__list">
@@ -82,32 +83,35 @@ const [first, ...rest] = updates;
     color: var(--ink);
     text-wrap: pretty;
   }
-  /* The research page's chevron: a square with two hairline sides, turned to point down, up once open. */
+  /* Phosphor caret-down, inline; it turns over when the row opens. */
   .updates__chevron {
     justify-self: end;
     align-self: center;
-    width: 0.5rem;
-    height: 0.5rem;
-    margin-inline: 0.1rem; /* the turned square stays inside the column */
-    border-right: 1px solid var(--ink-3);
-    border-bottom: 1px solid var(--ink-3);
-    transform: rotate(45deg);
+    width: 1rem;
+    height: 1rem;
+    color: var(--ink-3);
     transition:
       transform var(--duration-quick) var(--ease-out),
-      border-color var(--duration-quick) var(--ease-out);
+      color var(--duration-quick) var(--ease-out);
+  }
+  .updates__chevron :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
   }
   .updates[open] .updates__chevron {
-    transform: rotate(-135deg);
+    transform: rotate(180deg);
   }
   .updates__summary:hover .updates__text {
     color: var(--ink);
   }
   .updates__summary:hover .updates__chevron {
-    border-color: var(--ink);
+    color: var(--ink);
   }
   .updates__summary:focus-visible {
     outline: 2px solid var(--signal);
-    outline-offset: var(--ring-offset);
+    outline-offset: -2px; /* inside the row, so the ring never leaves the column */
   }
 
   /*

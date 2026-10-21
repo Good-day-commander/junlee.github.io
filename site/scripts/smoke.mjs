@@ -16,6 +16,16 @@
     updates    on / the Updates row (details.updates) ships closed, its
                summary has a sentence and a mono (t-mono) date, the list
                holds at least one row, and a click on the summary opens it
+    more       on /research/ every Method and metrics row (details.more)
+               ships closed, its summary carries the words, and a click on
+               the summary opens it
+    folded     on /research/, once those rows are open, every plate inside
+               one draws within 10 s of being scrolled into view: the Pd/Pa
+               curve its chart (svg), a spectrogram leaves data-phase="latent"
+    plates     on /research/ #pino keeps its Pd/Pa curve in view, outside
+               Method and metrics, and it draws its chart within 10 s; the
+               viewer caption's "CFD left, PINO right" clause shows exactly
+               when the viewer has the wipe handle (data-control="handle")
     viewer     on / and /research/ the vessel viewer reaches
                data-status="ready" within 15 s of being scrolled into view
                (status "nowebgl" or "error" fails)
@@ -69,7 +79,7 @@ const VIEWPORTS = [
 ];
 const PAGES = [
   { route: '/', viewer: true, h1: OWNER, updates: true, layer: 'home' },
-  { route: '/research/', viewer: true, layer: 'research' },
+  { route: '/research/', viewer: true, more: true, plates: true, layer: 'research' },
   { route: '/cv/', layer: 'cv' },
 ];
 /* The phone layer's breakpoint (the identity block's): at or under it the pages fold, above it nothing does. */
@@ -416,6 +426,125 @@ async function checkAnchor(context, base) {
   }
 }
 
+/* /research: each demo's Method and metrics (details.more) ships closed at every width and opens on a click on its summary. */
+async function checkMore(page, where) {
+  try {
+    const details = page.locator('details.more');
+    const n = await details.count();
+    if (n === 0) {
+      record('more', where, false, 'no details.more on the page');
+      return;
+    }
+    const closed = await details.evaluateAll((els) => els.filter((d) => !d.open).length);
+    let labelled = 0;
+    let opened = 0;
+    for (let i = 0; i < n; i += 1) {
+      const d = details.nth(i);
+      const summary = d.locator(':scope > summary');
+      if (/Method and metrics/.test((await summary.textContent()) ?? '')) labelled += 1;
+      await summary.click();
+      if ((await d.getAttribute('open')) !== null) opened += 1;
+    }
+    const ok = n === closed && n === labelled && n === opened;
+    record(
+      'more',
+      where,
+      ok,
+      ok ? `${n} closed on load, each opens on a click` : `${closed} of ${n} closed on load, ${labelled} labelled, ${opened} opened on click`,
+    );
+  } catch (e) {
+    record('more', where, false, clip(String(e)));
+  }
+}
+
+/* /research: a plate folded into Method and metrics hydrates (client:visible) and draws once its row is open. */
+async function checkFolded(page, where) {
+  const DRAW_MS = 10_000;
+  try {
+    const islands = page.locator('details.more [data-island]');
+    const n = await islands.count();
+    if (n === 0) {
+      record('folded', where, true, 'no plate inside Method and metrics');
+      return;
+    }
+    const drawn = [];
+    const missing = [];
+    for (let i = 0; i < n; i += 1) {
+      const el = islands.nth(i);
+      const kind = (await el.getAttribute('data-island')) ?? '?';
+      const variant = await el.getAttribute('data-variant');
+      const label = variant ? `${kind} ${variant}` : kind;
+      const open = await el.evaluate((node) => Boolean(node.closest('details')?.open));
+      await el.scrollIntoViewIfNeeded();
+      const ok =
+        open &&
+        (await page
+          .waitForFunction(
+            (idx) => {
+              const node = document.querySelectorAll('details.more [data-island]')[idx];
+              if (!node) return false;
+              const k = node.getAttribute('data-island');
+              if (k === 'FfrCurve') return Boolean(node.querySelector('svg[role="img"]'));
+              if (k === 'SpectrogramDevelop' || k === 'CwtStrip') return node.getAttribute('data-phase') !== 'latent';
+              return true;
+            },
+            i,
+            { timeout: DRAW_MS },
+          )
+          .then(
+            () => true,
+            () => false,
+          ));
+      (ok ? drawn : missing).push(open ? label : `${label} (row closed)`);
+    }
+    record(
+      'folded',
+      where,
+      missing.length === 0,
+      missing.length === 0 ? `${drawn.join(', ')} drawn once opened` : `not drawn within ${DRAW_MS / 1000} s: ${missing.join(', ')}`,
+    );
+  } catch (e) {
+    record('folded', where, false, clip(String(e)));
+  }
+}
+
+/* /research #pino: the curve stays in view beside the viewer and draws; the caption names sides only beside the wipe handle. Runs after checkViewer, so data-control is final. */
+async function checkPlates(page, where) {
+  const DRAW_MS = 10_000;
+  try {
+    const curve = page.locator('#pino [data-island="FfrCurve"]');
+    const n = await curve.count();
+    const folded = n > 0 ? await curve.first().evaluate((node) => Boolean(node.closest('details'))) : false;
+    let drawn = false;
+    if (n === 1 && !folded) {
+      await curve.scrollIntoViewIfNeeded();
+      drawn = await page
+        .waitForFunction(() => Boolean(document.querySelector('#pino [data-island="FfrCurve"] svg[role="img"]')), null, { timeout: DRAW_MS })
+        .then(
+          () => true,
+          () => false,
+        );
+    }
+    const caption = await page.evaluate(() => {
+      const viewer = document.querySelector('#pino [data-island="VesselViewer"]');
+      const wide = viewer?.closest('.art')?.querySelector('.art__caption-wide');
+      return { control: viewer?.getAttribute('data-control') ?? null, shown: Boolean(wide?.checkVisibility()), present: Boolean(wide) };
+    });
+    const captionOk = caption.present && caption.shown === (caption.control === 'handle');
+    const ok = n === 1 && !folded && drawn && captionOk;
+    record(
+      'plates',
+      where,
+      ok,
+      ok
+        ? `Pd/Pa curve in view and drawn; side clause ${caption.shown ? 'shown' : 'hidden'} with the ${caption.control === 'handle' ? 'wipe handle' : 'two-state toggle'}`
+        : `curves ${n}, inside the fold ${folded}, drawn ${drawn}; control "${caption.control}", side clause ${caption.present ? (caption.shown ? 'shown' : 'hidden') : 'missing'}`,
+    );
+  } catch (e) {
+    record('plates', where, false, clip(String(e)));
+  }
+}
+
 async function checkPage(context, base, spec, vp) {
   const where = `${spec.route} @${vp.label}`;
   const page = await context.newPage();
@@ -440,7 +569,14 @@ async function checkPage(context, base, spec, vp) {
 
     if (spec.layer) await checkLayer(page, where, spec, vp);
 
+    if (spec.more) {
+      await checkMore(page, where);
+      await checkFolded(page, where);
+    }
+
     if (spec.viewer) await checkViewer(page, where, navStart);
+
+    if (spec.plates) await checkPlates(page, where);
 
     // Walk the page so every client:visible island hydrates before errors are read.
     await page.evaluate(async () => {

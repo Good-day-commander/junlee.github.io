@@ -52,7 +52,7 @@ const abs = (path: string) => new URL(path, `${SITE}/`).href;
 /** The three pages and their twins. */
 export const PAGES = [
   { path: '/', md: '/index.md', name: 'Home', line: 'Who I am, the live CFD | PINO vessel plate, four rows on what I work on, and three selected papers.' },
-  { path: '/research/', md: '/research.md', name: 'Research', line: 'Every research project, newest first, each with one sentence and its papers, patents, funded projects and talks; three carry a live demo with a metrics table and the citation.' },
+  { path: '/research/', md: '/research.md', name: 'Research', line: 'Every research project, newest first, each with one sentence and its papers, patents, funded projects and talks; three carry a live demo with its method and a metrics table.' },
   { path: '/cv/', md: '/cv.md', name: 'CV', line: 'The whole record: education, appointments, every publication, talks, patents, funded projects, awards, teaching and skills.' },
 ] as const;
 
@@ -211,7 +211,7 @@ export const flow = {
     ['Pressure R²', formatDecimal(pc.pressure_Pa.R2, 3), formatDecimal(pk.pressure_R2.median, 3)],
     ['Pressure MAE', `${formatDecimal(pc.pressure_Pa.MAE / 1000, 1)} kPa`, `${formatDecimal(pk.pressure_MAE_Pa.median / 1000, 1)} kPa`],
     ['Speed R²', formatDecimal(pc.velocity_mps.R2, 3), formatDecimal(pk.velocity_R2.median, 3)],
-    ['FFR, Pd/Pa', `CFD ${formatDecimal(pc.ffr.cfd, 3)} · PINO ${formatDecimal(pc.ffr.pino, 3)}`, `MAE vs CFD ${formatDecimal(pk.ffr_MAE_vs_cfd, 4)}`],
+    ['FFR, Pd/Pa', `CFD ${formatDecimal(pc.ffr.cfd, 3)} · PINO ${formatDecimal(pc.ffr.pino, 3)}`, `MAE vs CFD ${formatDecimal(pk.ffr_MAE_vs_cfd, 3)}`],
   ] as [string, string, string][],
 };
 
@@ -595,7 +595,7 @@ function outputItems(e: Pick<ResearchEntry, 'pubs' | 'patents' | 'projects' | 't
   for (const p of e.pubs) {
     const where = p.year
       ? shortVenueYear(p)
-      : `${p.venueShort && !/\s/.test(p.venueShort) ? p.venueShort : venueInitials(p.venue)} manuscript`;
+      : `manuscript under revision (${p.venueShort && !/\s/.test(p.venueShort) ? p.venueShort : venueInitials(p.venue)})`;
     items.push({ text: `${where}, ${ROLE_WORD[p.myRole]}`, href: `/cv/#${p.id}` });
   }
   for (const p of e.patents.filter((x) => x.status === 'registered')) {

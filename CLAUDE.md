@@ -32,7 +32,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - Organ-agnostic framing: computational hemodynamics, physics-informed AI, wearable biosignals, medical devices. Never frame him as a coronary or CT researcher; coronary appears only where a coronary result is named.
 - Author-role honesty: J2 first, J4 co-first, C1 first, J1/J3/C2 co-author, M1 first author under revision. Never present co-authored work as led. Registered vs pending and presenter vs co-author stay explicit.
 - Precision: kPa one decimal; FFR two decimals in captions and readouts, three in metrics tables and for CFD-PINO differences; seconds two decimals; mm one decimal.
-- Fixed labels: PINO metrics read "current model, 85 cases, 10-fold CV", always. Manuscript status reads "manuscript under revision (EAAI)", printed once per entry.
+- Fixed labels: PINO metrics read "current model, 85 cases, 10-fold CV", always. Manuscript status reads "manuscript under revision (EAAI)", printed once per entry (on /research it sits in the outputs line).
 - Never state a speed-up above "about 1,000x", never convert the CFD bound to hours, never extrapolate it to fewer cores.
 - Never fabricate testimonials, press, citation counts or download numbers.
 - Join value and unit with U+202F; use a true minus; write ranges with an en dash and one trailing unit.
@@ -43,6 +43,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - Every block (nav, identity, plates, rows, tables, footer) spans that column edge to edge.
 - Plates are 2:1 (3:4 portrait on narrow screens). The portrait sits on the right of the identity block.
 - Phones (640px and under) are a disclosure layer, never a different site: the home Work rows are hidden (the fields line and the nav's Research carry them), Selected prints its DOI as the word "DOI", a research outputs line shows its first item and a caret that reveals the rest, the CV folds Talks, Patents, Funded projects, Awards, Teaching and Skills behind their headings (open on desktop, inert there) under a jump row of section links, and prose steps down one size. The server HTML keeps every word; `scripts/smoke.mjs` checks the layer at 390 and its absence at 1440.
+- Research demos: each Method and metrics row ships closed at every width and is a real control everywhere. There is no citation line (the outputs line links the CV); PINO keeps its Pd/Pa curve in view under the viewer.
 - Theme follows the system: light box by default, film under `prefers-color-scheme: dark`. Plates are film in both. No toggle, no per-page surface switch. Components read semantic aliases only (`--bg`, `--ink`, `--line` and their tiers).
 - Keep dark and light consistent: same ink family, same red; on film secondary ink at least 0.80 L and mono at least 13px; AA contrast in both.
 - No shadows, glows, gradients (outside colormaps), blur, kickers, eyebrows or section numbers. Icons are inline Phosphor SVG.

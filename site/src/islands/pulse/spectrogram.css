@@ -200,32 +200,6 @@
 .pulse--bare .pulse__bar:last-child {
   padding-bottom: var(--space-2);
 }
-.pulse__meta {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: var(--space-3);
-  row-gap: 0.5rem;
-}
-.pulse__method {
-  display: inline-flex;
-  flex-wrap: wrap;
-  row-gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-3);
-}
-.pulse__method-part {
-  white-space: nowrap;
-}
-.pulse__method-part + .pulse__method-part {
-  margin-left: 0.5rem;
-  padding-left: 0.5rem;
-  border-left: 1px solid var(--line-soft);
-}
-
 .pulse__scale {
   display: inline-flex;
   align-items: center;

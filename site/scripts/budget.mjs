@@ -13,7 +13,8 @@
               template, noscript and role="img" elements (a colorbar's
               ticks are the image's, not reading text) and everything in a
               closed <details> (no open attribute) but its <summary> (what a
-              reader sees before opening it): home <= 250, research <= 1000, each
+              reader sees before opening it: the home Updates row, the research
+              Method and metrics rows): home <= 250, research <= 1000, each
               research article[id] (one project) <= 260 (cv is measured, not budgeted)
     mailto    no page carries more than 3 mailto: links (the nav's Email, the visible address, the footer);
               a redirect stub carries none
@@ -151,9 +152,9 @@ function removeImages(html) {
 /*
   A closed <details> (its open tag has no `open` attribute, like the home
   Updates row) shows only its <summary> until a reader opens it, so each
-  one is replaced by its summary's inner HTML. An open <details> (the
-  research page's Method and metrics) counts in full; a closed one inside
-  it is still reduced.
+  one is replaced by its summary's inner HTML (the research page's Method
+  and metrics rows count as their summary only). An open <details> counts
+  in full; a closed one inside it is still reduced.
 */
 function collapseClosedDetails(html) {
   const openRe = /<details(?=[\s>/])[^>]*>/gi;
