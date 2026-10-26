@@ -18,7 +18,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(here, '..', 'public');
 const cards = [
   { route: '/?og', file: 'og.png', scheme: 'dark' },
-  { route: '/research/', file: 'og/research.png', scheme: 'dark' },
+  { route: '/research/', file: 'og/research.png', scheme: 'dark', focus: '#pino' },
   { route: '/cv/', file: 'og/cv.png', scheme: 'light' },
 ];
 const wanted = process.env.ROUTES ? new Set(process.env.ROUTES.split(',').map((r) => r.trim().replace(/\/$/, '') || '/')) : null;
@@ -42,6 +42,8 @@ async function main() {
       const response = await page.goto(`${baseUrl}${card.route}`, { waitUntil: 'networkidle', timeout: 60_000 });
       if (!response || !response.ok()) throw new Error(`${card.route}: HTTP ${response ? response.status() : 'no response'}`);
       await page.evaluate(() => document.fonts.ready);
+      /* A card may frame one entry (the research card shows the PINO plate, not the newest project). */
+      if (card.focus) await page.evaluate((sel) => document.querySelector(sel)?.scrollIntoView({ block: 'start' }), card.focus);
       await page.waitForTimeout(settleMs);
       const target = path.join(publicDir, card.file);
       await page.screenshot({ path: target, fullPage: false, animations: 'allow' });

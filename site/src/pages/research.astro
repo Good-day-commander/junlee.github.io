@@ -52,7 +52,7 @@ const description = `${profile.name}'s research, project by project, newest firs
   title="Research"
   description={description}
   ogImage="/og/research.png"
-  ogAlt={`${profile.name}, Research: the page heading over the film ground`}
+  ogAlt={`${profile.name}, Research: the neural operator entry with its vessel plate and the CFD | PINO wipe`}
 >
   <header class="r-head wrap">
     <h1 class="r-head__title">Research</h1>
@@ -194,9 +194,9 @@ const description = `${profile.name}'s research, project by project, newest firs
         </Project>
       ) : entry.figure ? (
         <Project entry={entry}>
-          <a class="paper-figure" href={entry.figure.src} target="_blank" rel="noopener" aria-label={`View full figure: ${entry.figure.alt}`}>
+          <a class="paper-figure" href={entry.figure.full ?? entry.figure.src} target="_blank" rel="noopener" aria-label={`View full figure: ${entry.figure.alt}`}>
             <figure class="art">
-              <img class="paper-figure__image plate" src={entry.figure.src} width={entry.figure.width} height={entry.figure.height} alt={entry.figure.alt} loading="lazy" decoding="async" />
+              <img class="paper-figure__image" src={entry.figure.src} width={entry.figure.width} height={entry.figure.height} alt={entry.figure.alt} loading="lazy" decoding="async" />
               <figcaption class="art__caption">{entry.figure.caption} <span class="paper-figure__open">View full figure</span></figcaption>
             </figure>
           </a>

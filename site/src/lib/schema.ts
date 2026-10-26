@@ -267,7 +267,7 @@ export const flowLegends = {
 }
 
 /** The plate caption on the home page (two mono lines), in the same order and formatting. */
-export const plateCaptionItems = [flow.caseId, `${flow.nodes} nodes`, `FFR CFD ${flow.ffrCfd2} · PINO ${flow.ffrPino2}`];
+export const plateCaptionItems = [`${flow.nodes} nodes`, `FFR CFD ${flow.ffrCfd2} · PINO ${flow.ffrPino2}`];
 export const plateCaption = plateCaptionItems.join(' · ');
 /** CFD against PINO time: a measured bound beside a measured median; no speed-up factor is printed. */
 export const timingItems = [`CFD up to ${flow.cfdMaxMin} min on ${flow.cfdCores} CPU cores`, `PINO ${flow.inference} on one ${flow.gpuShort}`];
@@ -952,7 +952,7 @@ function flowDemoMd(): string[] {
   return [
     `\`${timingLine}\``,
     '',
-    `Artifact: a real patient vessel (${flow.caseId}, ${flow.nodes} surface nodes, ${flow.triangles} triangles, ${flow.streamlines} streamlines) painted with its CFD pressure field and the field the PINO returned for the same geometry, with a CFD | PINO wipe, a Pressure | Error | Speed toggle and the Pd/Pa curve along the vessel. FFR is read on the probe planes at s = ${flow.probes}; the CFD and PINO readings are ${flow.ffrDelta} apart.`,
+    `Artifact: a real patient vessel (${flow.nodes} surface nodes, ${flow.triangles} triangles, ${flow.streamlines} streamlines) painted with its CFD pressure field and the field the PINO returned for the same geometry, with a CFD | PINO wipe, a Pressure | Error | Speed toggle and the Pd/Pa curve along the vessel. FFR is read on the probe planes at s = ${flow.probes}; the CFD and PINO readings are ${flow.ffrDelta} apart.`,
     '',
     `Colorbars: pressure ${flowLegends.pressureRange}, one range for CFD and PINO (ticks ${flowLegends.pressureTicks}); error PINO − CFD on a fixed symmetric scale of ${flowLegends.errorScale} (ticks ${flowLegends.errorTicks}${flowLegends.errorOver ? `, above-range band ${flowLegends.errorOver}${THIN}kPa` : ''}); near-wall speed ${flowLegends.speedRange} (ticks ${flowLegends.speedTicks}). Plate notes: error, “${flowLegends.errorNote}”; speed, “${flowLegends.speedNote}”`,
     '',

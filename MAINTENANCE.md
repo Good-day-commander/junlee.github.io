@@ -126,3 +126,8 @@ Confirm a deploy:
 3. The footer colophon reads `Updated <build date>` with the deploy date: `curl -s https://hyeongjunlee.me/ | grep -o 'Updated [0-9-]*'`.
 4. `curl -s https://hyeongjunlee.me/cv.json | head -c 300` and `curl -s https://hyeongjunlee.me/llms.txt | head` show the new facts.
 5. Cloudflare may cache briefly; purge there if the old page persists.
+
+## A⁺4DCT media and paper figures
+
+- The A⁺4DCT posters and videos in `site/public/media/a4dct/` are produced by `python -X utf8 scripts/a4dct-mask.py` (from `site/`) from the private originals in `website_assets/a4dct-original/`; the script removes the deck's baked "FFR x.xx" captions and writes a contact sheet beside the originals. `website_assets/a4dct/provenance.json` (private) maps each render to its deck slide. Regenerate when a render changes; the numbers on the page come from `a4dctResults` in `content.ts`, never from the renders.
+- A paper figure entry in `researchProjects` carries `src` (a display WebP at most 1600 px wide, made with Pillow at quality 82) and `full` (the original PNG the "View full figure" link opens). Keep both in `site/public/media/papers/extracted/`.

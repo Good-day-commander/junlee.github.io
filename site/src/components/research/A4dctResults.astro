@@ -21,7 +21,7 @@
 import Frame from '@/components/Frame.astro';
 import MetricsTable from '@/components/research/MetricsTable.astro';
 import type { CoronaryResults } from '@/data/content';
-import { formatDecimal, formatInt, numberWordCap } from '@/lib/format';
+import { formatDecimal, formatInt, numberWord } from '@/lib/format';
 import { calciumScore } from '@/lib/schema';
 import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
 
@@ -110,7 +110,7 @@ const phases = `${formatInt(results.phaseCount)}-phase mean Pd/Pa`;
       </div>
     </div>
   </Frame>
-  <figcaption class="study__caption">{numberWordCap(results.cases.length)} cases, ordered by calcium score. {results.status}</figcaption>
+  <figcaption class="study__caption">The {numberWord(results.cases.length)} cases are ordered by calcium score. {results.status}</figcaption>
   <noscript>
     <MetricsTable
       id="a4dct-values"
@@ -210,7 +210,7 @@ const phases = `${formatInt(results.phaseCount)}-phase mean Pd/Pa`;
   .study__values th { font-family: var(--font-ui); font-weight: 400; font-size: var(--size-mono); color: var(--ink-2); }
   .study__values td { font-family: var(--font-mono); font-size: var(--size-ui); color: var(--ink); }
   .study__values th, .study__values td { padding: 0.4rem 0.1rem; text-align: center; }
-  .study__values .study__enhanced { text-decoration: underline; text-decoration-color: var(--signal); text-underline-offset: 0.4rem; }
+  .study__values .study__enhanced { color: var(--signal); }
   .study__caption { font-family: var(--font-text); font-style: italic; font-size: var(--size-caption); line-height: 1.5; color: var(--ink-2); }
   /* A failed video: one STIX sentence centred where the video was (as on the other plates); the note under it goes with the video. */
   .study__error {

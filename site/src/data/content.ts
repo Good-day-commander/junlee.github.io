@@ -199,7 +199,10 @@ export type CoronaryResults = {
 
 /** A figure from a published paper, shown under its project and linked full size (one link per figure). */
 export type ResearchVisual = {
+  /** The image the page shows (a display-sized WebP). */
   readonly src: string;
+  /** The full-size original the "View full figure" link opens; src when absent. */
+  readonly full?: string;
   readonly width: number;
   readonly height: number;
   readonly alt: string;
@@ -877,7 +880,7 @@ export const projects: Project[] = [
 
 /*
   A⁺4DCT results, from the native charts on slide 19 of the source deck
-  (public/media/a4dct/provenance.json names the deck and maps each render to
+  (website_assets/a4dct/provenance.json, private, names the deck and maps each render to
   its slide); nothing is digitized from screenshots. chart7 is the enhanced
   mean minus the clinical (invasive) FFR, chart6 the enhanced mean minus the
   unenhanced mean, so a case is angioCase(calcium score, invasive FFR,
@@ -1020,7 +1023,8 @@ export const researchProjects: ResearchProject[] = [
     summary:
       "Hemodynamic features and biometrics support FFR prediction near the diagnostic threshold.",
     figure: {
-      src: "/media/papers/extracted/ffr-000.png",
+      src: "/media/papers/extracted/ffr-000.webp",
+      full: "/media/papers/extracted/ffr-000.png",
       width: 1505,
       height: 1602,
       alt: "Published workflow combining CT-derived flow features and patient biometrics to train FFR prediction models.",
@@ -1055,9 +1059,10 @@ export const researchProjects: ResearchProject[] = [
     summary:
       "CFD guides membrane-device design for a patient-specific tricuspid implant.",
     figure: {
-      src: "/media/papers/extracted/tricuspid-000.png",
-      width: 2006,
-      height: 843,
+      src: "/media/papers/extracted/tricuspid-000.webp",
+      full: "/media/papers/extracted/tricuspid-000.png",
+      width: 1600,
+      height: 672,
       alt: "Published diagram of hemodynamic analysis balancing treatment effect and leaflet thickening risk to optimize a tricuspid membrane.",
       caption: "The paper weighs treatment effect against leaflet thickening risk to optimize the membrane.",
     },
