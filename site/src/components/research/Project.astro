@@ -178,4 +178,18 @@ const restId = `${entry.id}-outputs`;
       display: none;
     }
   }
+  /*
+    Under 22rem (a phone at 200 % zoom): the column is the project's one
+    track, so a long unit cannot widen it past the screen, and an output
+    may break inside itself.
+  */
+  @media (max-width: 21.98rem) {
+    .project,
+    .project__demo {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .project__unit {
+      white-space: normal;
+    }
+  }
 </style>
