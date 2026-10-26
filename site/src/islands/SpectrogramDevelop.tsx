@@ -4,7 +4,9 @@
   over ~4 s the first time the frame is in view, a thin bone playhead rides
   the developing edge with a mono time readout, and a Replay ghost button
   runs it again. Reduced motion paints the whole strip at once, Replay
-  included.
+  included. Mounted inside a closed <details> (the bolus fold), the strip is
+  finished as soon as its data is here, so opening the fold shows it whole
+  instead of starting a develop; Replay still runs the full develop.
 
   replayGroup: plates that develop side by side share one Replay control
   placed once by the page. With a group the island prints no button of its
@@ -121,6 +123,8 @@ function SpectrogramCore({
   const lastTsRef = useRef(0);
   const elapsedRef = useRef(0);
   const startedRef = useRef(false);
+  /* Set at mount: a closed <details> holds the island, so it finishes instead of developing on first view. */
+  const foldedRef = useRef(false);
 
   const [status, setStatus] = useState<Status>('loading');
   const [attempt, setAttempt] = useState(0);
@@ -212,10 +216,12 @@ function SpectrogramCore({
     };
   }, [paint, raster]);
 
-  /* First visibility. */
+  /* First visibility; and, at mount, whether a closed <details> holds the island. */
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const fold = el.closest('details');
+    foldedRef.current = Boolean(fold && !fold.open);
     if (!('IntersectionObserver' in window)) {
       setVisible(true);
       return;
@@ -274,11 +280,11 @@ function SpectrogramCore({
   /* Replay, own button or page-level: under reduced motion it paints the finished strip, as the first develop does. */
   const replay = useCallback(() => (prefersReducedMotion() ? finish() : run()), [finish, run]);
 
-  /* Start once: data ready and the frame in view. */
+  /* Start once: data ready and the frame in view, or at once (finished) when it mounted in a closed fold. */
   useEffect(() => {
-    if (status !== 'ready' || !visible || startedRef.current) return;
+    if (status !== 'ready' || startedRef.current || !(visible || foldedRef.current)) return;
     startedRef.current = true;
-    if (!develop || prefersReducedMotion()) finish();
+    if (!develop || foldedRef.current || prefersReducedMotion()) finish();
     else run();
   }, [status, visible, develop, finish, run]);
 

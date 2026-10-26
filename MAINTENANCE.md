@@ -91,7 +91,7 @@ From `site/`:
 1. `pnpm install --frozen-lockfile` (first run, or after a lockfile change).
 2. `pnpm check`: 0 errors.
 3. `pnpm build`: ends with `budget: all checks passed.`
-3a. `pnpm smoke`: 56 checks, exit 0 (the same test CI runs before deploying).
+3a. `pnpm smoke`: 57 checks, exit 0 (the same test CI runs before deploying).
 4. `pnpm preview`, then in another shell `pnpm shots` (`SCHEMES=light` or `ROUTES=/,/research` to narrow). Inspect `.impeccable/review/` at desktop and mobile, light and dark: one left and one right edge, plates 2:1, drift running, no mono prose, no identifiers.
 5. From the repo root: `~/.claude/skills/impeccable/scripts/impeccable detect --json site/src/styles site/src/components site/src/layouts site/src/islands site/src/pages site/src/lib`. Fix every finding or record why it stays.
 6. Wire size of the home first load, against preview, each URL the home requests (DevTools Network lists them):

@@ -39,7 +39,7 @@ export const ERROR_STEP_PA = 500;
 /*
   The fixed symmetric error scale in Pa: the 99th percentile of |p_err|
   (manifest p_err_abs_max) rounded up to the next ERROR_STEP_PA. For
-  PINO-DEMO-01 that is 512.6 Pa → 1 000 Pa (±1.0 kPa).
+  the demo case that is 512.6 Pa → 1 000 Pa (±1.0 kPa).
 */
 export function errorScalePa(r: Pick<LegendRanges, 'p_err_abs_max'>): number {
   const p99 = Math.abs(r.p_err_abs_max);

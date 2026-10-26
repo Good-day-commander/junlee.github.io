@@ -25,6 +25,12 @@
     folded     on /research/, once those rows are open, every plate inside
                one draws within 10 s of being scrolled into view: the Pd/Pa
                curve its chart (svg), a spectrogram leaves data-phase="latent"
+    replay     at 1440, on a fresh /research/, the CWT strip in the bolus
+               Method and metrics row is finished (data-phase="done") while
+               the row is still closed, and within 500 ms of the row opening
+               its canvas is drawn out to the right edge (no 4 s develop on
+               open); the one Replay then sets both spectrograms developing,
+               and both finish within 8 s
     plates     on /research/ #pino keeps its Pd/Pa curve in view, outside
                Method and metrics, and it draws its chart within 10 s; the
                viewer caption's "CFD left, PINO right" clause shows exactly
@@ -572,7 +578,7 @@ async function checkMore(page, where) {
   }
 }
 
-/* /research: a plate folded into Method and metrics hydrates (client:visible) and draws once its row is open. */
+/* /research: a plate folded into Method and metrics hydrates (client:visible, the CWT strip client:idle) and draws once its row is open. */
 async function checkFolded(page, where) {
   const DRAW_MS = 10_000;
   try {
@@ -798,6 +804,91 @@ async function checkPage(context, base, spec, vp) {
   }
 }
 
+/*
+  /research bolus: the CWT strip mounts inside its closed Method and metrics
+  row and finishes there, so opening the row shows it whole instead of a 4 s
+  develop; the page's one Replay restarts both spectrograms.
+*/
+async function checkReplay(browser, base) {
+  const where = '/research/ @1440 bolus';
+  const CWT = 'details.more [data-island="SpectrogramDevelop"][data-variant="cwt"]';
+  const STFT = '[data-island="SpectrogramDevelop"][data-variant="stft"]';
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' });
+  const page = await context.newPage();
+  try {
+    await page.goto(`${base}/research/`, { waitUntil: 'load' });
+    const finishedClosed = await page
+      .waitForFunction((sel) => {
+        const node = document.querySelector(sel);
+        return Boolean(node && !node.closest('details')?.open && node.getAttribute('data-phase') === 'done');
+      }, CWT, { timeout: 10_000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    const stft = page.locator(STFT);
+    await stft.scrollIntoViewIfNeeded();
+    const stftDone = await page
+      .waitForFunction((sel) => document.querySelector(sel)?.getAttribute('data-phase') === 'done', STFT, { timeout: 10_000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    /* The right-edge column of a canvas is developed: opaque pixels, not the 0.14 latent ghost. */
+    const edgeDrawn = (sel) =>
+      page.evaluate((s) => {
+        const canvas = document.querySelector(`${s} canvas`);
+        if (!canvas || canvas.width < 50) return false;
+        const data = canvas.getContext('2d').getImageData(Math.floor(canvas.width * 0.98), 0, 1, canvas.height).data;
+        let painted = 0;
+        for (let i = 3; i < data.length; i += 4) if (data[i] >= 250) painted += 1;
+        return painted > canvas.height / 2;
+      }, sel);
+    const summary = page.locator(CWT).locator('xpath=ancestor::details[1]/summary');
+    await summary.scrollIntoViewIfNeeded();
+    await summary.click();
+    const openedAt = Date.now();
+    let drawnOnOpen = false;
+    while (!drawnOnOpen && Date.now() - openedAt < 500) {
+      drawnOnOpen = await edgeDrawn(CWT);
+      if (!drawnOnOpen) await page.waitForTimeout(25);
+    }
+    const drawnMs = Date.now() - openedAt;
+    await page.locator('.pulse-replay button').click();
+    const developing = await page
+      .waitForFunction(
+        ([a, b]) => [a, b].every((s) => document.querySelector(s)?.getAttribute('data-phase') === 'developing'),
+        [STFT, CWT],
+        { timeout: 1_000 },
+      )
+      .then(
+        () => true,
+        () => false,
+      );
+    const finished = await page
+      .waitForFunction(([a, b]) => [a, b].every((s) => document.querySelector(s)?.getAttribute('data-phase') === 'done'), [STFT, CWT], {
+        timeout: 8_000,
+      })
+      .then(
+        () => true,
+        () => false,
+      );
+    const ok = finishedClosed && stftDone && drawnOnOpen && developing && finished;
+    record(
+      'replay',
+      where,
+      ok,
+      ok
+        ? `CWT finished while closed, drawn whole ${drawnMs} ms after the open; Replay ran and finished both`
+        : `CWT finished while closed ${finishedClosed}, STFT done ${stftDone}, drawn on open ${drawnOnOpen}, Replay developing ${developing}, finished ${finished}`,
+    );
+  } catch (e) {
+    record('replay', where, false, clip(String(e)));
+  } finally {
+    await context.close();
+  }
+}
+
 /* The home plate's poster is in the server HTML: with JavaScript off the plate shows the vessel still (2:1 wide, 3:4 on a phone), not a blank film. */
 async function checkPoster(browser, base, vp) {
   const where = `/ @${vp.label} no JS`;
@@ -920,6 +1011,7 @@ async function main() {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     for (const spec of REDIRECTS) await checkRedirect(context, base, spec);
     await context.close();
+    await checkReplay(browser, base);
     for (const vp of VIEWPORTS) await checkPoster(browser, base, vp);
     for (const spec of FAILURES) await checkFailure(browser, base, spec);
   } finally {

@@ -181,7 +181,8 @@ const restId = `${entry.id}-outputs`;
   /*
     Under 22rem (a phone at 200 % zoom): the column is the project's one
     track, so a long unit cannot widen it past the screen, and an output
-    may break inside itself.
+    may break inside itself. A title word wider than the column
+    ("Hemodynamic" at heading size) hyphenates instead of running past it.
   */
   @media (max-width: 21.98rem) {
     .project,
@@ -190,6 +191,10 @@ const restId = `${entry.id}-outputs`;
     }
     .project__unit {
       white-space: normal;
+    }
+    .project__title {
+      hyphens: auto;
+      overflow-wrap: anywhere;
     }
   }
 </style>

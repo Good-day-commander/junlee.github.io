@@ -335,7 +335,7 @@ Every figure is computed from `content.ts` or a data manifest through `site/src/
 
 **The Even Weight Rule.** Headings carry one weight (600), UI 500, body 400. Rank is carried by size, measure and border ink, never by bolding.
 
-**The Unit Keeps Its Case Rule.** Uppercase is chrome for short identifiers (C1, PINO-DEMO-01) and tags; units and ratios are never uppercased or tracked.
+**The Unit Keeps Its Case Rule.** Uppercase is chrome for short identifiers (C1, J2) and tags; units and ratios are never uppercased or tracked.
 
 ## Layout
 
@@ -390,7 +390,7 @@ The first thing on home. A two-column grid on the left edge (a 6rem portrait col
 The one live proof on home, directly under the identity block.
 - A `Frame plate` holding the VesselViewer in quiet mode, hydrated `client:visible` and preloading nothing; height `min(44vh, 30rem)`, at least 18rem. Under 900px it goes portrait (3/4, at most 64svh). Under the canvas sits the poster, a server-rendered still of the same plate (`scripts/vessel-still.mjs`; 2:1, and 3:4 upright on phones), so the plate is never a blank film before the vessel draws or without JS; it leaves once the viewer is past loading.
 - **Quiet viewer:** the pressure field only, the CFD | PINO wipe handle centred (a two-state toggle on frames under 640px), the vertical colorbar with five ticks, the develop once (snapped under reduced motion); no field toggle, no orbit, no corner readouts, no FFR curve (the idle drift stays on); the vessel is cropped at the distal FFR probe plane and fitted to its bounding box.
-- **Caption (Astro, so the numbers are in the server HTML):** one mono line in ink-2 from `plateCaptionItems`, `PINO-DEMO-01 · 8 649 nodes · FFR CFD 0.83 · PINO 0.82`, each value pair a nowrap item (Revision 2b: case id, node count and FFR only; the 1.78 s and the 35-minute CFD bound are in proof line 2 and the sentence below, so the plate carries no timing line; `timingItems` / `timingLine` feed the Flow chapter's mono header line and the agent files); then, 0.35rem below, one STIX line (1rem, ink-2, 62ch), `plateSentence`: "The same vessel solved twice. CFD took up to 35 minutes on 64 cores. The neural operator took 1.78 seconds. Slide or toggle to compare." (numbers interpolated). No link: the Simulation row links to the Flow chapter.
+- **Caption (Astro, so the numbers are in the server HTML):** one mono line in ink-2 from `plateCaptionItems` (the demo case, then `8 649 nodes · FFR CFD 0.83 · PINO 0.82`), each value pair a nowrap item (Revision 2b: case id, node count and FFR only; the 1.78 s and the 35-minute CFD bound are in proof line 2 and the sentence below, so the plate carries no timing line; `timingItems` / `timingLine` feed the Flow chapter's mono header line and the agent files); then, 0.35rem below, one STIX line (1rem, ink-2, 62ch), `plateSentence`: "The same vessel solved twice. CFD took up to 35 minutes on 64 cores. The neural operator took 1.78 seconds. Slide or toggle to compare." (numbers interpolated). No link: the Simulation row links to the Flow chapter.
 - **Data:** the quiet plate downloads the manifest and `vessel.bin.gz` only (geometry, indices, both pressure fields, region; the error field is derived); the speed arrays are a second file the home never requests.
 
 ### Home rows (`pages/index.astro`)

@@ -30,7 +30,7 @@ An engineer working inside medicine who turns clinical questions into engineerin
 - Hosting: GitHub Pages from `Good-day-commander/junlee.github.io` (branch `main`), custom domain hyeongjunlee.me via Cloudflare DNS. Deploy runs on every push to main.
 - The owner edits the site through AI agents (previously Manus) and writes in Korean; the site stays English.
 - Assets on hand: paper figures under `site/client/public/media/papers/extracted/`; DMD 2026 PINO figures (CFD vs prediction fields, R² 0.9646 scatter); conference photos (ACFM 2025 podium, DMD 2026, Yonsei symposium, CARDIOS discussion); posters and slides under `C:\Users\user\Desktop\junlee.github.io\학회\`; patent spreadsheets under `...\patent\`.
-- Received 2026-10-13/15: PINO case PINO-DEMO-01 (`website_assets/pino`, converted to `site/public/data/pino`), fluid-bolus spectrograms (`website_assets/fluid_bolus` → `site/public/data/pulse`), 4D CT phase renders from the J1 figure deck (`site/public/data/image`). Still requested: an environmental portrait, CARDIOS/EASYCHECK screenshots with an approved description, permission to link conference posters, any reviewing/membership items missing from the CV.
+- Received 2026-10-13/15: the PINO demo case (`website_assets/pino`, converted to `site/public/data/pino`), fluid-bolus spectrograms (`website_assets/fluid_bolus` → `site/public/data/pulse`), 4D CT phase renders from the J1 figure deck (`site/public/data/image`). Still requested: an environmental portrait, CARDIOS/EASYCHECK screenshots with an approved description, permission to link conference posters, any reviewing/membership items missing from the CV.
 
 ## Capabilities and Constraints
 

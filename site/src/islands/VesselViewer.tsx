@@ -1,5 +1,5 @@
 /*
-  VesselViewer: the PINO-DEMO-01 coronary vessel, pressure-painted, read
+  VesselViewer: the demo case's coronary vessel, pressure-painted, read
   through a vertical CFD | PINO wipe.
 
   Public API

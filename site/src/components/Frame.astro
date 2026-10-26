@@ -3,7 +3,7 @@
   Frame primitive: hairline border, 2px radius, mono corner chrome inside
   the border, and an optional fixed three-tier label stack.
 
-    <Frame tl="PINO-DEMO-01" tr="8 649 nodes" br="FFR 0.83 CFD" aspect="16 / 9">
+    <Frame tl="Demo case" tr="8 649 nodes" br="FFR 0.83 CFD" aspect="16 / 9">
       <VesselViewer client:visible ... />
       <Fragment slot="what">Pressure field, CFD against PINO</Fragment>
       <Fragment slot="result">R² 0.963 · inference 1.78 s</Fragment>
@@ -57,7 +57,7 @@ const {
 const hasStack = Astro.slots.has('what') || Astro.slots.has('result') || Astro.slots.has('consequence');
 
 /*
-  Uppercase is chrome for short identifiers (C1, 2026, FLOW, PINO-DEMO-01).
+  Uppercase is chrome for short identifiers (C1, 2026, FLOW).
   Longer labels, anything carrying a unit after a number (kPa, mm, s) and
   mixed-case terminology (SaMD) stay as written so the term survives.
 */
