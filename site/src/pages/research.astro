@@ -4,7 +4,9 @@
   them (2026-10-19), not grouped into the home's four fields. A flat list,
   newest first (lib/schema.ts researchEntries orders it): each project is a
   header row (title, years), one sentence and its outputs line, every output
-  a link to its CV row. The three live demos sit inside the projects they
+  a link to its CV row. A⁺4DCT carries its results plate
+  (components/research/A4dctResults.astro) and two older projects a paper
+  figure linked full size. The three live demos sit inside the projects they
   belong to (PINO, 4D CT, fluid bolus), each with its method and metrics
   folded into one row that ships closed at every width (the outputs line
   already links the paper into the CV, so there is no citation line).
@@ -21,6 +23,7 @@
 import Base from '@/layouts/Base.astro';
 import Frame from '@/components/Frame.astro';
 import Project from '@/components/research/Project.astro';
+import A4dctResults from '@/components/research/A4dctResults.astro';
 import MetricsTable from '@/components/research/MetricsTable.astro';
 import CwtStrip from '@/components/research/CwtStrip.astro';
 import VesselViewer from '@/islands/VesselViewer';
@@ -185,6 +188,19 @@ const description = `${profile.name}'s research, project by project, newest firs
 
           </details>
         </Project>
+      ) : entry.results ? (
+        <Project entry={entry}>
+          <A4dctResults results={entry.results} />
+        </Project>
+      ) : entry.figure ? (
+        <Project entry={entry}>
+          <a class="paper-figure" href={entry.figure.src} target="_blank" rel="noopener" aria-label={`View full figure: ${entry.figure.alt}`}>
+            <figure class="art">
+              <img class="paper-figure__image plate" src={entry.figure.src} width={entry.figure.width} height={entry.figure.height} alt={entry.figure.alt} loading="lazy" decoding="async" />
+              <figcaption class="art__caption">{entry.figure.caption} <span class="paper-figure__open">View full figure</span></figcaption>
+            </figure>
+          </a>
+        </Project>
       ) : (
         <Project entry={entry} />
       ),
@@ -242,6 +258,24 @@ const description = `${profile.name}'s research, project by project, newest firs
     display: grid;
     gap: var(--space-3);
     align-items: stretch;
+  }
+  .paper-figure {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .paper-figure__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 32rem;
+    object-fit: contain;
+    background: var(--bg);
+    border: 1px solid var(--line);
+  }
+  .paper-figure__open {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
   }
   :global(.art) {
     display: grid;

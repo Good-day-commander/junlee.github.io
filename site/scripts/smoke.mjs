@@ -29,6 +29,15 @@
                Method and metrics, and it draws its chart within 10 s; the
                viewer caption's "CFD left, PINO right" clause shows exactly
                when the viewer has the wipe handle (data-control="handle")
+    study      on /research/ the A⁺4DCT results plate sits on film (.plate);
+               its case control shows, holds one option per case panel and
+               exactly the chosen panel shows with its chart row marked;
+               choosing another case moves both; every video is muted,
+               playsinline, preload="none", carries a poster and does not
+               autoplay, and no .mp4 has been fetched
+    order      at 1440, /research/ lists its projects newest first by start
+               year, and no project title ends in a parenthetical label
+               such as "(ongoing)" or "(published)"
     viewer     on / and /research/ the vessel viewer reaches
                data-status="ready" within 15 s of being scrolled into view
                (status "nowebgl" or "error" fails)
@@ -95,7 +104,7 @@ const VIEWPORTS = [
 ];
 const PAGES = [
   { route: '/', viewer: true, h1: OWNER, updates: true, layer: 'home' },
-  { route: '/research/', viewer: true, more: true, plates: true, layer: 'research' },
+  { route: '/research/', viewer: true, more: true, plates: true, study: true, layer: 'research' },
   { route: '/cv/', layer: 'cv', lightbox: true },
 ];
 /* The phone layer's breakpoint (the identity block's): at or under it the pages fold, above it nothing does. */
@@ -651,6 +660,80 @@ async function checkPlates(page, where) {
   }
 }
 
+/* The A⁺4DCT results plate: film, a working case control, videos that cost nothing until played. */
+async function checkStudy(page, where) {
+  try {
+    const study = page.locator('[data-coronary-study]');
+    if ((await study.count()) !== 1) {
+      record('study', where, false, `${await study.count()} results plates on the page`);
+      return;
+    }
+    await study.scrollIntoViewIfNeeded();
+    const read = () =>
+      study.evaluate((root) => {
+        const select = root.querySelector('select');
+        const label = root.querySelector('.study__select');
+        const panels = [...root.querySelectorAll('[data-study-case]')];
+        return {
+          film: Boolean(root.querySelector('.plate')),
+          control: Boolean(label && !label.hidden && label.checkVisibility()),
+          options: select ? select.options.length : 0,
+          value: select?.value ?? null,
+          panels: panels.length,
+          shown: panels.filter((p) => !p.hidden).map((p) => p.dataset.studyCase),
+          marked: [...root.querySelectorAll('[data-study-row]')].filter((r) => r.dataset.selected === 'true').map((r) => r.dataset.studyRow),
+          videos: [...root.querySelectorAll('video')].map((v) => v.muted && v.hasAttribute('playsinline') && v.getAttribute('preload') === 'none' && Boolean(v.getAttribute('poster')) && !v.autoplay && v.paused),
+          fetched: performance.getEntriesByType('resource').filter((e) => /\.mp4(\?|$)/.test(e.name)).length,
+        };
+      });
+    const before = await read();
+    const other = before.value === '0' ? '1' : '0';
+    await study.locator('select').selectOption(other);
+    const after = await read();
+    const follows = (s, v) => s.shown.length === 1 && s.shown[0] === v && s.marked.length === 1 && s.marked[0] === v;
+    const videosOk = before.videos.length === before.panels && before.videos.every(Boolean);
+    const ok =
+      before.film && before.control && before.options === before.panels && before.panels > 0 &&
+      follows(before, before.value) && follows(after, other) && videosOk && after.fetched === 0;
+    record(
+      'study',
+      where,
+      ok,
+      ok
+        ? `film plate, ${before.panels} cases; case ${before.value} shown, then ${other} after a change; ${before.videos.length} videos muted, inline, preload none, posters, no .mp4 fetched`
+        : `film ${before.film}, control ${before.control}, options ${before.options}/${before.panels}, shown ${before.shown}->${after.shown}, marked ${before.marked}->${after.marked}, videos ok ${videosOk}, mp4 fetched ${after.fetched}`,
+    );
+  } catch (e) {
+    record('study', where, false, clip(String(e)));
+  }
+}
+
+/* /research/ is newest first by start year, and titles carry no status label in parentheses. */
+async function checkOrder(page, where) {
+  try {
+    const rows = await page.$$eval('article.project', (els) =>
+      els.map((a) => ({
+        id: a.id,
+        start: Number((a.querySelector('.project__years')?.textContent ?? '').match(/\d{4}/)?.[0] ?? NaN),
+        title: (a.querySelector('.project__title')?.textContent ?? '').trim(),
+      })),
+    );
+    const outOfOrder = rows.filter((r, i) => i > 0 && !(r.start <= rows[i - 1].start)).map((r) => r.id);
+    const labelled = rows.filter((r) => /\([^)]*\)\s*$/.test(r.title)).map((r) => r.id);
+    const ok = rows.length > 0 && outOfOrder.length === 0 && labelled.length === 0;
+    record(
+      'order',
+      where,
+      ok,
+      ok
+        ? `${rows.length} projects, ${rows[0].start} down to ${rows[rows.length - 1].start}; no title ends in a parenthesis`
+        : `${rows.length} projects; out of order: ${outOfOrder.join(', ') || 'none'}; titles with a label: ${labelled.join(', ') || 'none'}`,
+    );
+  } catch (e) {
+    record('order', where, false, clip(String(e)));
+  }
+}
+
 async function checkPage(context, base, spec, vp) {
   const where = `${spec.route} @${vp.label}`;
   const page = await context.newPage();
@@ -685,6 +768,11 @@ async function checkPage(context, base, spec, vp) {
     if (spec.viewer) await checkViewer(page, where, navStart);
 
     if (spec.plates) await checkPlates(page, where);
+
+    if (spec.study) {
+      await checkStudy(page, where);
+      if (vp.width > PHONE_MAX) await checkOrder(page, where);
+    }
 
     // Walk the page so every client:visible island hydrates before errors are read.
     await page.evaluate(async () => {

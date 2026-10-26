@@ -97,6 +97,20 @@ function venueInitials(venue: string): string {
     .join('');
 }
 
+/**
+  The one status label of a manuscript under revision, "manuscript under
+  revision (EAAI)", built from venueShort. Every list prints it once per
+  entry in place of the venue and the raw `status` string (the CV row, the
+  research outputs line, research.md, cv.md, llms-full.txt); only cv.json
+  keeps `status` as data.
+*/
+export function revisionLabel(p: Publication): string {
+  return `manuscript under revision (${p.venueShort && !/\s/.test(p.venueShort) ? p.venueShort : venueInitials(p.venue)})`;
+}
+
+/** A calcium score as the A⁺4DCT plate prints it: whole scores without decimals, the others to one ("99.5", "1 278"). */
+export const calciumScore = (score: number): string => formatDecimal(score, Number.isInteger(score) ? 0 : 1);
+
 /** "Computer Methods and Programs in Biomedicine · 265, 108740 · 2025" (same rule as the CV page). */
 function citationLine(p: Publication): string {
   const parts: string[] = [p.venue];
@@ -357,7 +371,7 @@ const ci = (r: [number, number]) => `${formatDecimal(r[0], 3)}–${formatDecimal
 const M1 = pub('M1');
 
 export const pulseFacts = {
-  status: `manuscript under revision (${M1.venueShort ?? venueInitials(M1.venue)})`,
+  status: revisionLabel(M1),
   networks: parseNetworkCount(pipe.ensemble),
   folds: parseFolds(pipe.cross_validation),
   fs: pulse.stft.method.fs_hz,
@@ -565,6 +579,8 @@ export interface ResearchEntry {
   start: string;
   end?: string;
   summary: string;
+  readonly results?: ResearchProject['results'];
+  readonly figure?: ResearchProject['figure'];
   pubs: Publication[];
   patents: Patent[];
   projects: Project[];
@@ -623,9 +639,7 @@ const VENUE_MAX = 14;
 function outputItems(e: Pick<ResearchEntry, 'pubs' | 'patents' | 'projects' | 'talks'>): OutputItem[] {
   const items: OutputItem[] = [];
   for (const p of e.pubs) {
-    const where = p.year
-      ? shortVenueYear(p)
-      : `manuscript under revision (${p.venueShort && !/\s/.test(p.venueShort) ? p.venueShort : venueInitials(p.venue)})`;
+    const where = p.year ? shortVenueYear(p) : revisionLabel(p);
     items.push({ text: `${where}, ${ROLE_WORD[p.myRole]}`, href: `/cv/#${p.id}` });
   }
   for (const p of e.patents.filter((x) => x.status === 'registered')) {
@@ -668,6 +682,8 @@ export const researchEntries: ResearchEntry[] = (() => {
       start: rp.start,
       end: rp.end,
       summary: fillTokens(rp.summary, rp.id),
+      results: rp.results,
+      figure: rp.figure,
       pubs: (rp.pubs ?? []).map(lookup(publications, 'publication', rp.id)),
       patents: (rp.patents ?? []).map(lookup(patents, 'patent', rp.id)).filter((p) => p.status !== 'withdrawn'),
       projects: (rp.projects ?? []).map(lookup(projects, 'project', rp.id)),
@@ -804,6 +820,7 @@ export function researchGraph(imageUrl?: string): JsonLdNode[] {
     url: `${abs('/research/')}#${e.id}`,
     name: e.title,
     description: e.summary,
+    ...(e.figure ? { image: abs(e.figure.src) } : e.results ? { image: e.results.cases.map((c) => abs(c.poster)) } : {}),
     temporalCoverage: e.temporal,
     author: { '@id': PERSON_ID },
     isPartOf: { '@id': pageId },
@@ -860,9 +877,9 @@ const footerMd = [
   '',
 ].join('\n');
 
+/** A paper's citation line in markdown; a manuscript prints its one status label in place of the venue and the raw status. */
 function pubCitationMd(p: Publication): string {
-  const bits = [citationLine(p), ROLE_LABEL[p.myRole]];
-  if (p.type === 'under-review') bits.push(p.status);
+  const bits = [p.type === 'under-review' ? revisionLabel(p) : citationLine(p), ROLE_LABEL[p.myRole]];
   if (p.doi) bits.push(`doi:[${p.doi}](${doiUrl(p)})`);
   return bits.join(' · ');
 }
@@ -975,7 +992,8 @@ function pulseDemoMd(): string[] {
     '',
     `Green-channel PPG at ${p.fs} Hz is band-passed, normalized in short windows and cut into overlapping segments; each segment becomes an STFT or CWT image. Six CNN configurations across four backbones, each kept as five fold checkpoints, make ${p.networks} networks. Segment scores are averaged per patient, rank-normalized within each fold and combined by a non-negative weighted average. Validation is ${p.folds}-fold stratified cross-validation with out-of-fold, patient-level scores.`,
     '',
-    `Fluid-bolus prediction at patient level, from ${M1.id}, ${p.status}.`,
+    /* The status label is printed once per entry, in the outputs list above this block. */
+    `Fluid-bolus prediction at patient level, from ${M1.id}.`,
     '',
     '| Set | AUC [95 % CI] | n |',
     '| --- | --- | --- |',
@@ -1011,7 +1029,26 @@ function outputsMd(e: ResearchEntry): string[] {
   return lines.length ? ['Outputs:', '', ...lines] : [];
 }
 
-/** One section per research project, in page order: heading with years, the sentence, the outputs, and the demo blocks where there is one. */
+/**
+  The A⁺4DCT results plate in markdown: the caption sentences, what the
+  numbers are, the comparison table (FFR to three decimals, as in every
+  metrics table) and each case's poster and video.
+*/
+function coronaryResultsMd(results: NonNullable<ResearchProject['results']>): string[] {
+  return [
+    `${numberWordCap(results.cases.length)} cases, ordered by calcium score. ${results.status}`,
+    '',
+    `${formatInt(results.phaseCount)}-phase mean Pd/Pa with and without angio enhancement; invasive FFR is the clinical reference. The vessel videos show instantaneous Pd(t)/Pa(t).`,
+    '',
+    '| Calcium score | 4DCT | A⁺4DCT | Invasive FFR |',
+    '| --- | --- | --- | --- |',
+    ...results.cases.map((c) => `| ${calciumScore(c.calcium)} | ${formatDecimal(c.beforeFfr, 3)} | ${formatDecimal(c.afterFfr, 3)} | ${formatDecimal(c.clinicalFfr, 3)} |`),
+    '',
+    ...results.cases.flatMap((c) => [`![Coronary pressure-ratio field, calcium score ${calciumScore(c.calcium)}](${abs(c.poster)})`, '', `[Play the cardiac cycle, calcium score ${calciumScore(c.calcium)}](${abs(c.video)})`, '']),
+  ];
+}
+
+/** One section per research project, in page order: heading with years, the sentence, the results plate or paper figure where there is one, the outputs, and the demo blocks where there is one. */
 function researchProjectsMd(): string[] {
   return researchEntries.flatMap((e) => {
     const outputs = outputsMd(e);
@@ -1023,6 +1060,8 @@ function researchProjectsMd(): string[] {
       '',
       e.summary,
       '',
+      ...(e.results ? coronaryResultsMd(e.results) : []),
+      ...(e.figure ? [`![${e.figure.alt}](${abs(e.figure.src)})`, '', e.figure.caption, ''] : []),
       ...(outputs.length ? [...outputs, ''] : []),
       ...(demo.length ? [...demo, ''] : []),
     ];
@@ -1376,6 +1415,20 @@ export function cvJson(imageUrl?: string): Record<string, unknown> {
         endDate: e.end,
         ongoing: e.end === undefined ? true : undefined,
         summary: e.summary,
+        /* FFR to three decimals, as in the markdown table: the means are differences of chart values and carry float noise past that. */
+        results: e.results
+          ? {
+              ...e.results,
+              cases: e.results.cases.map((c) => ({
+                ...c,
+                beforeFfr: Number(c.beforeFfr.toFixed(3)),
+                afterFfr: Number(c.afterFfr.toFixed(3)),
+                poster: abs(c.poster),
+                video: abs(c.video),
+              })),
+            }
+          : undefined,
+        figure: e.figure ? { ...e.figure, src: abs(e.figure.src) } : undefined,
         url: abs(`/research/#${e.id}`),
         publications: e.pubs.map((x) => x.id),
         patents: e.patents.map((x) => x.id),

@@ -176,6 +176,37 @@ export type Project = {
 };
 
 /**
+  One case on a research results plate (the A⁺4DCT project): its calcium
+  score, the multi-phase mean Pd/Pa without (`beforeFfr`) and with
+  (`afterFfr`) angio enhancement, the invasive FFR it is checked against,
+  and the vessel render as a WebP poster and an MP4 under public/media.
+*/
+export type CoronaryCase = {
+  readonly calcium: number;
+  readonly clinicalFfr: number;
+  readonly beforeFfr: number;
+  readonly afterFfr: number;
+  readonly poster: string;
+  readonly video: string;
+};
+
+/** A results plate: the phase count behind each mean, the status sentence (printed as written) and the cases in calcium-score order. */
+export type CoronaryResults = {
+  readonly phaseCount: number;
+  readonly status: string;
+  readonly cases: readonly CoronaryCase[];
+};
+
+/** A figure from a published paper, shown under its project and linked full size (one link per figure). */
+export type ResearchVisual = {
+  readonly src: string;
+  readonly width: number;
+  readonly height: number;
+  readonly alt: string;
+  readonly caption: string;
+};
+
+/**
   One research project as /research lists it: what he actually did, newest
   first, each with its outputs. Years are 'YYYY'; no `end` means ongoing
   (printed "YYYY –"). Output arrays hold ids from publications, patents,
@@ -184,6 +215,10 @@ export type Project = {
   manifests (the PINO, image and pulse manifests, cfdReference, awards);
   lib/schema.ts fills them and throws on an unknown token, so no number is
   typed here twice.
+  A title is a noun phrase with no status label ("(ongoing)", "(published)"):
+  the years and the outputs line carry the status. A project shows one
+  visual at most, chosen in this order: its live demo, its results plate
+  (`results`) or a paper figure (`figure`).
 */
 export type ResearchProject = {
   id: string;
@@ -191,6 +226,8 @@ export type ResearchProject = {
   start: string;
   end?: string;
   summary: string;
+  readonly figure?: ResearchVisual;
+  readonly results?: CoronaryResults;
   pubs?: string[];
   patents?: string[];
   projects?: string[];
@@ -839,6 +876,32 @@ export const projects: Project[] = [
 ];
 
 /*
+  A⁺4DCT results, from the native charts on slide 19 of the source deck
+  (public/media/a4dct/provenance.json names the deck and maps each render to
+  its slide); nothing is digitized from screenshots. chart7 is the enhanced
+  mean minus the clinical (invasive) FFR, chart6 the enhanced mean minus the
+  unenhanced mean, so a case is angioCase(calcium score, invasive FFR,
+  chart7, chart6). The clinical references are on slides 14–18.
+*/
+function angioCase(calcium: number, clinicalFfr: number, error: number, change: number): CoronaryCase {
+  const afterFfr = clinicalFfr + error;
+  const stem = '/media/a4dct/calcium-' + String(calcium).replace('.', '-');
+  return { calcium, clinicalFfr, beforeFfr: afterFfr - change, afterFfr, poster: stem + '.webp', video: stem + '.mp4' };
+}
+
+export const a4dctResults: CoronaryResults = {
+  phaseCount: 10,
+  status: "Unpublished exploratory results; independent validation pending.",
+  cases: [
+    angioCase(99.5, 0.87, -0.02401110821980268, 0.023321301322387633),
+    angioCase(253, 0.7, -0.011, 0.008),
+    angioCase(324, 0.95, -0.005847332323320353, 0.020436370186910247),
+    angioCase(831.3, 0.8, 0.057, 0.038),
+    angioCase(1278, 0.91, -0.086, 0.339),
+  ],
+};
+
+/*
   The research projects, in the order /research prints them (start year,
   newest first; within a year the demo projects first). Copy agreed with the
   owner on 2026-10-19: "project by project, by what I actually did", not the
@@ -846,12 +909,20 @@ export const projects: Project[] = [
 */
 export const researchProjects: ResearchProject[] = [
   {
+    id: "a4dct",
+    title: "A⁺4DCT: angio-enhanced dynamic CT",
+    start: "2026",
+    summary:
+      "The project combines angiography-informed lumen correction with single-phase CT reconstruction for dynamic coronary flow assessment.",
+    results: a4dctResults,
+  },
+  {
     id: "anomalous-origin",
-    title: "4D flow risk assessment for anomalous coronary origin in children",
+    title: "4D flow in anomalous coronary origin",
     start: "2025",
     end: "2028",
     summary:
-      "In this device project, 4D flow grades the risk of an anomalous aortic origin of a coronary artery in children and adolescents.",
+      "4D flow supports risk assessment in children and adolescents with anomalous coronary anatomy.",
     projects: ["R3"],
   },
   {
@@ -867,11 +938,11 @@ export const researchProjects: ResearchProject[] = [
   },
   {
     id: "ct4d",
-    title: "Dynamic FFR from diffusion-synthesized 4D CT",
+    title: "Diffusion-synthesized 4D CT for FFR",
     start: "2024",
     end: "2026",
     summary:
-      "{image.acquired} acquired CT phases become a full cardiac cycle; each synthesized phase is meshed and solved, so FFR is read across the cycle at {image.ffrAccuracy} accuracy against invasive FFR.",
+      "The study reconstructs a full cardiac cycle from CT; its dynamic FFR reaches {image.ffrAccuracy} accuracy against invasive FFR.",
     pubs: ["J1", "C2"],
     patents: ["P4", "P5", "P8"],
     projects: ["R2"],
@@ -883,16 +954,16 @@ export const researchProjects: ResearchProject[] = [
     title: "Fluid-bolus prediction from smartwatch PPG",
     start: "2024",
     summary:
-      "{pulse.networks} CNNs read PPG spectrograms and a weighted average predicts an intravenous fluid bolus within 24 hours of emergency-department arrival (AUC {pulse.auc}).",
+      "Smartwatch PPG predicts intravenous fluid-bolus need within 24 hours of emergency-department arrival (AUC {pulse.auc}).",
     pubs: ["M1"],
     demo: "pulse",
   },
   {
     id: "cad-software",
-    title: "Patient-specific coronary artery disease risk analysis software",
+    title: "CT-based coronary risk assessment",
     start: "2024",
     end: "2026",
-    summary: "In this SME-funded software project, a patient's CT becomes hemodynamic risk indices.",
+    summary: "Patient-specific CT informs software for hemodynamic risk assessment.",
     projects: ["R4"],
   },
   {
@@ -901,44 +972,44 @@ export const researchProjects: ResearchProject[] = [
     start: "2023",
     end: "2025",
     summary:
-      "A physics-constrained CNN–LSTM with a Carreau–Yasuda prior estimates a patient's non-Newtonian blood viscosity from PPG and basic biometrics; the paper received the {award.J2}.",
+      "A physics-informed model estimates non-Newtonian blood viscosity from PPG and biometrics.",
     pubs: ["J2"],
     patents: ["P6", "P7", "P11", "P12"],
     talks: ["D1", "I4", "D3", "D5"],
   },
   {
     id: "wearable-screening",
-    title: "Wearable screening for glucose, diabetes and glaucoma",
+    title: "Wearable and contactless screening",
     start: "2023",
     end: "2024",
     summary:
-      "PPG and contactless biosignal models estimate blood glucose and diabetes risk and flag glaucoma suspects; they are filed as patents.",
+      "Biosignal models estimate glucose and diabetes risk and flag glaucoma suspects.",
     patents: ["P9", "P13", "P10", "P14", "P15"],
     talks: ["D7"],
   },
   {
     id: "platform",
-    title: "Real-time precision medicine platform on smart hemodynamic indices",
+    title: "Hemodynamic indices for precision medicine",
     start: "2022",
     end: "2029",
     summary:
-      "This {project.R1.years}-year NRF Leading Research Center project studies hemodynamic indices for real-time precision medicine.",
+      "An NRF research center studies hemodynamic indices for real-time precision medicine.",
     projects: ["R1"],
   },
   {
     id: "tunnel",
-    title: "Variable negative-pressure tunnel for respiratory infection control",
+    title: "Negative-pressure infection control",
     start: "2022",
     end: "2024",
-    summary: "This KHIDI project develops a variable negative-pressure tunnel for respiratory infection control.",
+    summary: "A variable negative-pressure tunnel is developed for respiratory infection control.",
     projects: ["R6"],
   },
   {
     id: "urodynamics",
-    title: "AI-based non-invasive urodynamics test",
+    title: "Non-invasive urodynamics",
     start: "2022",
     end: "2022",
-    summary: "A registered patent covers a non-invasive urodynamics test method and apparatus.",
+    summary: "A registered patent covers an AI-based testing method and apparatus.",
     patents: ["P1"],
   },
   {
@@ -947,26 +1018,33 @@ export const researchProjects: ResearchProject[] = [
     start: "2020",
     end: "2022",
     summary:
-      "An AI algorithm combines hemodynamic features, synthetic vessel models and biometrics to call the FFR gray zone; it is published and patented, with a quantum-ML follow-up.",
+      "Hemodynamic features and biometrics support FFR prediction near the diagnostic threshold.",
+    figure: {
+      src: "/media/papers/extracted/ffr-000.png",
+      width: 1505,
+      height: 1602,
+      alt: "Published workflow combining CT-derived flow features and patient biometrics to train FFR prediction models.",
+      caption: "The paper's workflow predicts FFR from CT-derived flow features and patient biometrics.",
+    },
     pubs: ["J4"],
     patents: ["P2", "P16"],
     talks: ["I5", "D9", "D4"],
   },
   {
     id: "lbm-ctffr",
-    title: "CFD-based CT-FFR with the lattice Boltzmann method",
+    title: "CT-FFR with the lattice Boltzmann method",
     start: "2020",
     end: "2022",
     summary:
-      "Image-based, patient-specific coronary CFD runs on a lattice Boltzmann solver after automatic 3D segmentation.",
+      "A lattice Boltzmann solver models patient-specific coronary flow from CT.",
     talks: ["I6", "D10"],
   },
   {
     id: "ffr-simulator",
-    title: "High-speed point-of-care FFR simulator",
+    title: "Point-of-care FFR simulation",
     start: "2020",
     end: "2022",
-    summary: "This NRF project works toward a fast FFR simulator for diagnosis and treatment at the point of care.",
+    summary: "The project develops a fast FFR simulator for diagnosis and treatment.",
     projects: ["R7"],
   },
   {
@@ -975,7 +1053,14 @@ export const researchProjects: ResearchProject[] = [
     start: "2020",
     end: "2025",
     summary:
-      "CFD optimizes a carved membrane device for tricuspid regurgitation; the goal is a patient-specific implant made with 3D heart printing.",
+      "CFD guides membrane-device design for a patient-specific tricuspid implant.",
+    figure: {
+      src: "/media/papers/extracted/tricuspid-000.png",
+      width: 2006,
+      height: 843,
+      alt: "Published diagram of hemodynamic analysis balancing treatment effect and leaflet thickening risk to optimize a tricuspid membrane.",
+      caption: "The paper weighs treatment effect against leaflet thickening risk to optimize the membrane.",
+    },
     pubs: ["J3"],
     projects: ["R5"],
     talks: ["D6"],

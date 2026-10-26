@@ -17,16 +17,23 @@ import Button from '@/components/Button.astro';
 import Authors from './Authors.astro';
 import { bibtex } from './bibtex';
 import { citationLine, doiUrl, PLATES } from './records';
+import { revisionLabel } from '@/lib/schema';
 
 export interface Props {
   pub: Publication;
 }
 const { pub } = Astro.props;
 const doi = doiUrl(pub);
-const bib = bibtex(pub);
+/*
+  A manuscript under revision prints its one status label, "manuscript under
+  revision (EAAI)", in place of the venue and the raw status, here and in its
+  BibTeX note (capitalised there); cv.json keeps the raw status as data.
+*/
+const revision = pub.type === 'under-review' ? revisionLabel(pub) : undefined;
+const bib = bibtex(revision ? { ...pub, status: revision.replace(/^./, (s) => s.toUpperCase()) } : pub);
 const plate = PLATES[pub.id];
-/* The short venue (C1/C2 drop the conference location) keeps the mono line to one line; the full venue is in the BibTeX, cv.md and cv.json. */
-const cite = pub.type === 'under-review' ? `${pub.venue} · ${pub.status}` : citationLine(pub, { shortVenue: true });
+/* The short venue (C1/C2 drop the conference location) keeps the mono line to one line; the full venue is in the BibTeX and cv.json (and cv.md for a published paper). */
+const cite = revision ?? citationLine(pub, { shortVenue: true });
 /* Phones: the venue as its code ("CMPB") so the citation line stays short; the full line is shown from 600px up. */
 const venueCode = pub.venueShort ?? pub.venue.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('');
 const citeShort = cite.replace(pub.venue, venueCode);
