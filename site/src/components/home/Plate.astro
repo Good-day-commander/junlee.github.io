@@ -1,22 +1,16 @@
 ---
 /*
-  The home plate: one live cine frame under the identity block, in the same
-  first viewport at 1440 x 900. The VesselViewer runs quiet (pressure field
+  The home plate: one live cine frame under the identity block and its
+  Updates row. The VesselViewer runs quiet (pressure field
   only, the CFD | PINO wipe, the colorbar, the develop once, nothing in the
-  corners), hydrates when visible and preloads nothing. The frame is film
-  in both schemes (Frame plate).
+  corners; the idle drift stays on), hydrates when visible and preloads
+  nothing. The frame is film in both schemes (Frame plate).
 
   Under the frame, in Astro so the numbers are in the server HTML: one
-  mono caption line (case id, nodes, FFR CFD / PINO from the PINO
-  manifest, through lib/schema.ts plateCaptionItems) and one STIX line
-  (lib/schema.ts plateSentence, numbers interpolated) that carries the CFD
-  bound against the PINO time and says "slide or toggle", since phones
-  show a toggle, not a handle. The timing pair is not repeated as a second
-  caption line (round 3b): proof line 2 and the sentence already state it
-  in this viewport; timingItems stays in schema.ts for the Flow header and
-  the agent files. No link here: the Simulation row links to the Flow
-  chapter. Each value pair in the caption is one nowrap span, so phones
-  break only between pairs. No speed-up factor is printed.
+  STIX line (lib/schema.ts plateSentence, numbers interpolated) with the
+  CFD and PINO FFR readings, the CFD bound and the PINO time. There is no
+  mono caption line and no case identifier on the plate. No link here: the
+  Work rows link the research projects. No speed-up factor is printed.
 
   The poster: the plate's own still (scripts/vessel-still.mjs; the 2:1 one
   is the same render as the no-WebGL fallback), a server-rendered

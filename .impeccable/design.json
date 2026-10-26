@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T12:00:00+09:00",
+  "generatedAt": "2026-10-26T12:00:00+09:00",
   "title": "Design System: hyeongjunlee.me",
   "extensions": {
     "surfaces": {
@@ -20,7 +20,7 @@
           "--size-label": "0.75rem"
         },
         "themeColor": "#f9f8f6",
-        "note": "The light box is the page ground by default on every page."
+        "note": "The light box is the page ground by default on every page, and in print in either scheme (@media print forces these aliases on :root)."
       },
       "film": {
         "scope": "@media (prefers-color-scheme: dark) :root",
@@ -55,7 +55,24 @@
           "--size-mono": "0.8125rem",
           "--size-label": "0.8125rem"
         },
-        "note": "Every data plate (vessel viewer, FFR curve, spectrograms, CT phase scrubber, the 404 frame) re-declares the film aliases, so plates are film in both schemes."
+        "note": "Every data plate (vessel viewer, FFR curve, spectrograms, CT phase scrubber, A+4DCT results, paper figures, the CV photo lightbox, the 404 frame) re-declares the film aliases, so plates are film in both schemes and in print."
+      },
+      "print": {
+        "scope": "@media print :root",
+        "colorScheme": "light",
+        "aliases": {
+          "--bg": "box",
+          "--bg-1": "box-2",
+          "--bg-2": "box-3",
+          "--line": "box-line",
+          "--line-soft": "oklch(0.86 0.012 250 / 0.6)",
+          "--ink": "box-ink",
+          "--ink-2": "box-ink-2",
+          "--ink-3": "box-ink-3",
+          "--size-mono": "0.8rem",
+          "--size-label": "0.75rem"
+        },
+        "note": "Print is ink on white paper in either scheme; plates keep their film; the grain is removed."
       }
     },
     "colorMeta": {
@@ -372,35 +389,43 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Chapter names on /research."
+        "purpose": "Project titles on /research."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Home section headings (Work, Selected) and CV section headings, over a hairline."
+        "purpose": "Home section headings (Work, Selected) over a hairline; CV section headings over a primary-ink rule."
       },
       "row-title": {
         "displayName": "Row title",
-        "purpose": "Capability names, selected-paper titles, CV entry titles; Archivo 600, 0.975-1.0625rem."
+        "purpose": "Work names, selected-paper titles, CV entry titles; Archivo 600, 0.975-1.0625rem."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Tagline, capability clauses, research paragraphs and lede; 60ch measure."
+        "purpose": "Research paragraphs (60ch), Updates sentences, Work clauses; the tagline and CV intro at 1.125rem; 1rem at 640px and under."
       },
       "caption": {
         "displayName": "Caption",
-        "purpose": "Figure and table captions, at most 18 words; italic STIX in ink-2."
+        "purpose": "Figure and table captions; italic STIX in ink-2; 0.9rem at 640px and under."
       },
       "ui": {
         "displayName": "UI",
-        "purpose": "Nav, buttons, the identity role line, quiet in-page links."
+        "purpose": "Nav, buttons, the identity role line, the Method and metrics rows."
       },
       "mono": {
         "displayName": "Mono",
-        "purpose": "Link rows (identity, footer), the identity proof lines, the one-line plate caption, citations, DOIs, years, venues, metrics tables, BibTeX, the CV contact row in print; 0.8rem on the box, 13px (0.8125rem) on film."
+        "purpose": "Numbers, units, identifiers, DOIs, years, tables and link rows: identity and footer link rows, Updates dates, project years and outputs lines, CV periods, counts, contact and jump rows, metrics tables, BibTeX, the colophon. Never prose. 0.8rem on the box, 13px (0.8125rem) on film."
       },
       "label": {
         "displayName": "Label",
         "purpose": "Corner chrome, colorbar labels, tags, the wipe grip; 0.75rem on the box, 13px (0.8125rem) on film; uppercase only for short unit-free identifiers."
+      },
+      "name-ko": {
+        "displayName": "Korean name",
+        "purpose": "profile.nameKo beside the home h1 on the same baseline, ink-2, lang=ko; a Pretendard Medium subset of only those glyphs (scripts/subset-name-ko.py), preloaded."
+      },
+      "summary": {
+        "displayName": "Summary",
+        "purpose": "The one STIX sentence under a research project title; 1rem at 640px and under."
       }
     },
     "shadows": [
@@ -426,12 +451,12 @@
       {
         "name": "duration-quick",
         "value": "150ms",
-        "purpose": "State transitions: hover color, border, underline, skip link."
+        "purpose": "Hovers and state changes (color, border, underline), caret turns, the skip link, the lightbox fade-out."
       },
       {
         "name": "duration-base",
         "value": "250ms",
-        "purpose": "Reveals: spectrogram playhead fade."
+        "purpose": "Reveals: a fold a reader clicks eases its height (Updates, Method and metrics, CV phone folds; ::details-content, gated by data-motion); the lightbox fade-in; the viewer canvas, handle and segments fade in at ready; the home poster fades out after a 250ms delay."
       },
       {
         "name": "duration-slow",
@@ -441,12 +466,12 @@
       {
         "name": "duration-develop",
         "value": "1780ms",
-        "purpose": "The PINO layer develops over the CFD field once, on first visibility, for the measured inference time (1.78 s on one L40S); snaps under reduced motion."
+        "purpose": "The PINO layer develops over the CFD field once, on first visibility, for the measured inference time; snaps under reduced motion."
       },
       {
-        "name": "drift-period",
-        "value": "60s",
-        "purpose": "Idle drift of the chapter viewer on /research, one revolution; never on the quiet home plate; paused offscreen, on document.hidden and during drags; 0s under prefers-reduced-motion."
+        "name": "drift",
+        "value": "60s per revolution",
+        "purpose": "Idle drift on every vessel viewer, home plate included; paused offscreen, on document.hidden and during drags; stops only under prefers-reduced-motion. scene.ts holds the period as a constant; the --drift-period token is declared but not read."
       },
       {
         "name": "ease-out",
@@ -463,19 +488,24 @@
     ],
     "breakpoints": [
       {
+        "name": "zoom-200",
+        "value": "21.98rem",
+        "purpose": "A phone at 200% zoom: nav wraps, home portrait under the lead, figures, Method and metrics rows and projects take one track, outputs and talk formats may break inside, viewer field toggle wraps, every other tick on colour scales and time axes, dB scale halves, metric values under their labels, CV header stacks."
+      },
+      {
         "name": "nav-compact",
         "value": "480px",
-        "purpose": "Nav gaps 1rem, type 0.875rem; the four items still fit one row at 390px."
+        "purpose": "Nav gaps 1rem, type 0.875rem; the four items fit one row at 390px."
       },
       {
-        "name": "metrics-wrap",
-        "value": "599px",
-        "purpose": "Metrics table labels and heads wrap (about 18ch); values keep their readings whole; no horizontal scroll at 390px."
+        "name": "table-stack",
+        "value": "599.98px",
+        "purpose": "Metrics tables stack each metric as a block; CV citations use the venue code and the DOI the word DOI."
       },
       {
-        "name": "identity-compact",
+        "name": "phone",
         "value": "640px",
-        "purpose": "Identity portrait 4rem beside the name; role, tagline and link row full width. Research chapter header to one column."
+        "purpose": "The disclosure layer: identity compact (4rem portrait, short role line, address on its own line), Updates stacked, Work rows hidden, Selected DOI as the word, outputs line folded behind a caret, CV jump row and folds, prose one size smaller."
       },
       {
         "name": "viewer-rows",
@@ -485,41 +515,32 @@
       {
         "name": "cv-stack",
         "value": "760px",
-        "purpose": "CV period rows and skills to one column; talk rows put venue and format under the title; patent status and number go under the title; photos 96px."
+        "purpose": "CV period rows and skills to one column; talks and patents put their meta under the title; CV portrait 4rem; photos 96px."
       },
       {
         "name": "home-rows",
         "value": "899px",
-        "purpose": "Home capability and selected rows to one column; the home plate goes portrait (3/4, max 64svh)."
-      },
-      {
-        "name": "art-pair",
-        "value": "960px",
-        "purpose": "Research artifact pairs side by side at 7fr/5fr."
-      },
-      {
-        "name": "frame-width",
-        "value": "1280px",
-        "purpose": "Max width of the one container."
+        "purpose": "Work rows to one column; the home plate goes 3:4 at the full column width with the portrait poster."
       }
     ],
     "layout": {
-      "widthFrame": "1280px",
-      "measure": "60ch",
+      "widthFrame": "clamp(50rem, 58vw, 64rem), one centred fluid column for every block",
+      "widthRecord": "clamp(60rem, 66vw, 78rem) on /cv (html[data-width=record])",
+      "rootSize": "clamp(1rem, 0.75rem + 0.3125vw, 1.15rem)",
+      "measure": "60ch prose",
       "gutter": "clamp(1rem, 3vw, 2.5rem)",
       "navHeight": "3rem",
       "spacingBase": "8px",
-      "homePlateHeight": "min(44vh, 30rem), min 18rem",
-      "homeFirstViewport": "At 1440x900 the nav, identity block (with its three proof lines), the plate, its one mono caption line and the STIX line end above 900px.",
-      "homeBudget": "<= 240 visible words in <main>, <= 2 screens at 1440x900",
-      "researchBudget": "<= 750 words in <main>, <= 230 per chapter",
-      "cvSectionGap": "1.5rem (<= 40px)",
-      "captionMeasure": "62ch",
-      "leftEdge": "One left edge: every column starts where the nav, plates and footer start.",
-      "mailtoBudget": "exactly one mailto: per page (the nav Email), none in a redirect stub (scripts/budget.mjs: mailto 1, mailtoRedirect 0)",
-      "cvHeader": "80px portrait, the name as h1, the intro line (interestsLine, #interests, STIX 1.125rem, 68ch), two role lines; the mono contact row is display:none on screen and prints.",
-      "researchClosing": "Plain-text STIX line in ink-2, 72ch, under a hairline 4rem below the last chapter; no link.",
-      "identityProofGapPhone": "0.45rem between proof lines under 640px (0.15rem above)"
+      "widthLabel": "11rem (home Work name column)",
+      "homePlate": "2:1 at the column width, max-height 60vh, min-height 16rem; 3:4 at full column width under 900px",
+      "homeOrder": "identity block, closed Updates row, plate and its STIX sentence, Work, Selected",
+      "homeBudget": "<= 250 visible words in <main>; a closed <details> counts only its <summary> (scripts/budget.mjs)",
+      "researchBudget": "<= 1000 words in <main>, <= 260 per project (article[id])",
+      "researchProjectPad": "4rem above each project (3rem at 640px and under)",
+      "cvSectionGap": "1.5rem",
+      "leftEdge": "One left edge and one right edge: every block spans the column; text narrows by measure only.",
+      "mailtoBudget": "at most 3 mailto: per page (nav Email, the address as text, the footer address), 0 on redirect stubs, every target profile.email",
+      "cvHeader": "80px portrait, the name as h1, the intro line (interestsLine, #interests), two role lines, then the mono contact row on screen and in print (address as text, Google Scholar, ORCID, host)."
     },
     "formatting": {
       "source": "site/src/lib/format.ts",
@@ -543,14 +564,9 @@
           "digits": 2
         },
         {
-          "quantity": "FFR Pd/Pa (metrics table case column; CFD-PINO difference)",
+          "quantity": "FFR Pd/Pa (metrics tables: PINO case column and FFR MAE, A+4DCT no-script table; CFD-PINO difference)",
           "unit": "",
           "digits": 3
-        },
-        {
-          "quantity": "FFR cohort MAE",
-          "unit": "",
-          "digits": 4
         },
         {
           "quantity": "time",
@@ -563,12 +579,13 @@
           "digits": 1
         }
       ],
-      "manuscriptStatus": "under revision (EAAI): lowercase, venue short form, printed once per entry (CV publications; research citation line with the venue in an abbr).",
+      "manuscriptStatus": "manuscript under revision (EAAI): printed once per entry (CV publications; on /research inside the outputs line).",
       "doi": "doi:<identifier>, lowercase, no space, mono, linked to https://doi.org/",
       "proseCounts": "numberWord: counts in ledes spelled as words",
       "voice": "First person, present tense, plain, for copy that speaks for the owner (tagline, footer line, research paragraphs); third person for author lists and collaborators.",
-      "cfdReference": "CFD up to 35 min on 64 CPU cores (owner, 2026-10-16): a measured bound; never converted to hours or extrapolated; no speed-up factor above \"≈1,000×\".",
-      "framing": "Organ-agnostic: computational hemodynamics · physics-informed AI · wearable biosignals · medical devices; coronary only where a coronary result is named."
+      "cfdReference": "CFD up to 35 min on 64 CPU cores (owner): a measured bound; never converted to hours or extrapolated to fewer cores; no speed-up factor above \"about 1,000x\".",
+      "framing": "Organ-agnostic: computational hemodynamics · physics-informed AI · wearable biosignals · medical devices; coronary only where a coronary result is named.",
+      "shortVenue": "A printed short venue over 14 characters fails the build (schema.ts VENUE_MAX)."
     },
     "revisions": [
       {
@@ -587,7 +604,7 @@
         "round": 3,
         "date": "2026-10-16",
         "contract": "Revision 2",
-        "summary": "System-scheme theme (light box default, film in dark, .plate always film; bone-2 0.80, bone-3 0.64, 13px mono on film); three pages with /publications and /record redirected to CV anchors; identity-first home with the quiet plate; nav Email plus footer as the only contact route (at most 2 mailto); dense CV rows; agent layer (robots with 19 named AI agents and Content-Signal search=yes, ai-input=yes; llms.txt, llms-full.txt, markdown twins, cv.json; JSON-LD @graph); budget gate scripts/budget.mjs run by pnpm build; viewer quiet mode, bounding-box framing (centre 42%, width 8-92%), fixed symmetric error scale, uint16 quantized mesh (115 883 B gzipped).",
+        "summary": "System-scheme theme (light box default, film in dark, .plate always film; bone-2 0.80, bone-3 0.64, 13px mono on film); three pages with /publications and /record redirected to CV anchors; identity-first home with the quiet plate; nav Email plus footer as the only contact route (at most 2 mailto at the time); dense CV rows; agent layer (robots with 19 named AI agents and Content-Signal search=yes, ai-input=yes; llms.txt, llms-full.txt, markdown twins, cv.json; JSON-LD @graph); budget gate scripts/budget.mjs run by pnpm build; viewer quiet mode, bounding-box framing (centre 42%, width 8-92%), fixed symmetric error scale, uint16 quantized mesh (115 883 B gzipped).",
         "retired": [
           "what/result/consequence label stack",
           "consequence paragraphs",
@@ -609,7 +626,7 @@
         "round": "3a-3b",
         "date": "2026-10-16 to 2026-10-17",
         "contract": "Revisions 2a and 2b",
-        "summary": "Identity: three plain-text mono proof lines (0.45rem apart under 640px), link row LinkedIn · Google Scholar · ORCID. Footer: LinkedIn · Google Scholar · ORCID only; omit (cv: LinkedIn) and links:false (home). One mailto per page, none on redirect stubs; home budget 240 words. Plate: one mono caption line (case id, nodes, FFR CFD and PINO), plateSentence carries the CFD bound and 1.78 s. Home links one target each. Research: plain-text closing row, one Replay for both spectrograms (replayGroup), recordingS accessible names, FFR caption with the s range, Flow caption slide or toggle. CV: intro line under the h1 (#interests), print-only contact row, talk titles without a measure cap. Role marks and REGISTERED tag on ink borders. Agent layer: In brief block in llms.txt and llms-full.txt, ScholarlyArticle authors reference the Person @id, projectRole on funded projects.",
+        "summary": "Identity: three plain-text mono proof lines (retired from the page in round 4). Footer: LinkedIn, Google Scholar, ORCID; omit and links props. One mailto per page at the time. Plate: one mono caption line (retired in round 4) and plateSentence. Research: plain-text closing row (retired in round 4), one Replay for both spectrograms. Role marks and the REGISTERED tag on ink borders.",
         "retired": [
           "Email and CV (PDF) in the footer row",
           "CV (PDF) in the identity link row",
@@ -620,12 +637,30 @@
           "per-plate Replay buttons on the Pulse chapter",
           "counts line under Selected",
           "How it works link"
+        ]
+      },
+      {
+        "round": 4,
+        "date": "2026-10-18 to 2026-10-21",
+        "contract": "Revisions 2c to 2g",
+        "verified": "main d98ead9, 2026-10-26",
+        "summary": "Fluid centred column clamp(50rem, 58vw, 64rem) (CV clamp(60rem, 66vw, 78rem)); the address as text and up to three mailto per page; the Korean name in a Pretendard subset beside the h1; proof lines off the page; one closed Updates row; home budget 250 words with closed details counting only the summary; the 640px phone disclosure layer and the 21.98rem rules; research as a flat newest-first project list with outputs lines, closed Method and metrics rows, the PINO Pd/Pa curve in view, the bolus CWT folded and painted finished, the A+4DCT results plate and two paper figures, no citation line or closing row (budget 1000, 260 per project); the plate caption line removed, poster and no-WebGL still from one render, idle drift on the home plate; motion tokens applied to folds, the lightbox, the viewer at ready and the carets; four failure sentences; print forcing the light aliases; forced-colors rules; CV photo row of five with a lightbox; talks, patents and projects row grids.",
+        "retired": [
+          "proof lines on the page",
+          "plate mono caption line",
+          "research chapter headers, citation line and closing row",
+          "quiet plate without drift",
+          "fixed 1280px container",
+          "240-word home budget"
         ],
         "drift": [
-          "Identity.astro header comment and the proofLines comment in lib/schema.ts still say the project and award counts link to the CV; the rendered line is plain text",
-          "cv.astro header comment says 32px section gaps; CvSection pads 1.5rem (24px)",
-          "SpectrogramDevelop still declares the retired what/result/consequence props; no caller passes them",
-          "vessel cap mask still uses round-2 bone-3 (oklch 0.56, sRGB 120 116 109)"
+          "VesselViewer.tsx header comment says quiet mode has no idle drift; the code keeps it on",
+          "--drift-period is declared but not read; scene.ts uses a 60 000 ms constant",
+          "Identity.astro header comment describes the withdrawn run-in lead",
+          "Frame.astro and SpectrogramDevelop.tsx still carry the what/result/consequence stack; no caller uses it",
+          "Unused: Section.astro, .wrap--text, .link-icon, --section-pad, --width-text, --size-display; stale comments in tokens.css (68rem), Base.astro (50rem/60rem), Nav.astro, Footer.astro, cv.astro (three photos)",
+          "plateCaptionItems/plateCaption still exported; cv.json and the llms-full.txt artifact line carry the demo case identifier",
+          "vessel cap mask still uses round-2 bone-3 (oklch 0.56)"
         ]
       }
     ],
@@ -638,29 +673,58 @@
         "/cv.md",
         "/cv.json"
       ],
-      "inBrief": "llms.txt and llms-full.txt carry an In brief block: the three proof lines (proofText), then Record: countsLine.",
+      "inBrief": "llms.txt and llms-full.txt carry an In brief block built from proofLines; index.md, llms.txt and llms-full.txt print the derived updates under Recent.",
       "selectedVenue": "index.md and the home Selected rows print the short venue without its year (the year leads the row).",
-      "jsonLd": "@graph of Person (@id), WebSite, ProfilePage, ScholarlyArticle and the research WebPage; each ScholarlyArticle author list resolves the owner byline to { \"@id\": Person @id }, others to Person by name.",
-      "robots": "pointer to /llms.txt; Allow: / with Content-Signal: search=yes, ai-input=yes for * and 19 named AI agents.",
+      "jsonLd": "@graph of Person (@id, alternateName the Korean name), WebSite, ProfilePage, ScholarlyArticle and the research WebPage on every page.",
+      "robots": "pointer to /llms.txt; explicit AI user-agent groups with Content-Signal: search=yes, ai-input=yes.",
       "pdfLinks": "The CV PDF is linked from the /cv/ action bar, llms.txt, cv.md and cv.json; never from the footer or the identity block."
-    }
+    },
+    "failureStates": [
+      {
+        "plate": "vessel viewer, A+4DCT video",
+        "sentence": "The vessel did not load. Reload the page to try again."
+      },
+      {
+        "plate": "Pd/Pa curve",
+        "sentence": "The pressure curve did not load. Reload the page to try again."
+      },
+      {
+        "plate": "spectrogram",
+        "sentence": "The recording did not load.",
+        "control": "Retry"
+      },
+      {
+        "plate": "phase scrubber",
+        "sentence": "The CT frames did not load.",
+        "control": "Retry"
+      }
+    ],
+    "forcedColors": "Colormap strips keep their ramp (forced-color-adjust: none); the pressed segment is outlined in Highlight; the CFD trace takes CanvasText; the scrubber frame drops its multiply blend."
   },
   "components": [
     {
       "name": "Identity Block",
       "kind": "custom",
       "refersTo": "identity-portrait",
-      "description": "The first thing on home: a 96px hairline portrait, the name as the h1 (Archivo width 92), the role line and the four fields in Archivo 500, the owner's tagline in STIX, three plain-text mono proof lines in ink-2 (first-author papers and the paper award; PINO cohort, the CFD bound and the GPU time; patent, project and award counts), each item nowrap with its separator, 0.45rem apart under 640px, and one mono link row (LinkedIn · Google Scholar · ORCID), home's only link row. No Email and no CV; the nav carries both.",
-      "html": "<header class=\"ds-id\"><span class=\"ds-id-portrait\"></span><div class=\"ds-id-text\"><h1 class=\"ds-id-name\">Hyeong Jun Lee</h1><p class=\"ds-id-role\"><span>Postdoctoral Researcher · Multiscale Fluid Dynamics Lab, Yonsei University</span><span class=\"ds-id-fields\">computational hemodynamics · physics-informed AI · wearable biosignals · medical devices</span></p><p class=\"ds-id-tagline\">I turn clinical questions into engineering problems and bring back answers clinicians can act on, using simulation, AI and wearable signals.</p><ul class=\"ds-id-proofs\"><li>First author · DMD 2026 · CMPB 2025 · CMPB 2022 (co-first) · Merit Academic Paper Award 2026</li><li>PINO · 85 patients, 10-fold cross-validation · CFD up to 35 min on 64 CPU cores · 1.78 s on one GPU</li><li>16 patents (2 registered) · 7 funded projects · 4 awards</li></ul><ul class=\"ds-id-links\"><li><a href=\"#\">LinkedIn</a></li><li><a href=\"#\">Google Scholar</a></li><li><a href=\"#\">ORCID</a></li></ul></div></header>",
-      "css": ".ds-id { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 1rem 2rem; padding: 2rem 1.5rem 1.5rem; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-id-portrait { width: 6rem; height: 6rem; border: 1px solid var(--box-line, oklch(0.86 0.012 250)); border-radius: 2px; background: var(--box-2, oklch(0.94 0.006 85)); } .ds-id-text { display: grid; gap: 0.6rem; } .ds-id-name { margin: 0; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 92; font-weight: 600; font-size: clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem); line-height: 1; letter-spacing: -0.025em; } .ds-id-role { margin: 0; display: grid; gap: 0.1rem; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; line-height: 1.4; } .ds-id-fields { color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-id-tagline { margin: 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.125rem; line-height: 1.5; max-width: 68ch; } .ds-id-links { display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; } .ds-id-links a { display: inline-block; padding: 0.4rem 0; color: inherit; text-decoration: none; border-bottom: 1px solid var(--box-line, oklch(0.86 0.012 250)); transition: border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-id-links a:hover { border-bottom-color: var(--signal, oklch(0.62 0.21 27)); } .ds-id-proofs { display: grid; gap: 0.15rem; margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; line-height: 1.5; color: var(--box-ink-2, oklch(0.4 0.02 250)); } @media (max-width: 640px) { .ds-id-proofs { gap: 0.45rem; } }"
+      "description": "The first thing on home: the text column at the left edge and a 96px hairline portrait at the right. The name as the h1 (Archivo width 92) with the Korean name beside it on the same baseline (Pretendard subset, ink-2); the role line and the four fields in Archivo 500; the owner's tagline in STIX; one mono link row: the address as text, then LinkedIn, Google Scholar, ORCID. No Email button and no CV; the nav carries both.",
+      "html": "<header class=\"ds-id\"><div class=\"ds-id-text\"><div class=\"ds-id-lead\"><h1 class=\"ds-id-name\">Hyeong Jun Lee</h1><span class=\"ds-id-ko\" lang=\"ko\">이형준</span></div><p class=\"ds-id-role\"><span>Postdoctoral Researcher · Multiscale Fluid Dynamics Lab, Yonsei University</span><span class=\"ds-id-fields\">computational hemodynamics · physics-informed AI · wearable biosignals · medical devices</span></p><p class=\"ds-id-tagline\">The owner's one sentence (profile.tagline).</p><ul class=\"ds-id-links\"><li><a href=\"#\">hjunlee96@gmail.com</a></li><li><a href=\"#\">LinkedIn</a></li><li><a href=\"#\">Google Scholar</a></li><li><a href=\"#\">ORCID</a></li></ul></div><span class=\"ds-id-portrait\"></span></header>",
+      "css": ".ds-id { display: grid; grid-template-columns: minmax(0, 1fr) 6rem; gap: 1rem 2rem; align-items: start; padding: 2rem 1.5rem 1.5rem; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-id-portrait { width: 6rem; height: 6rem; margin-top: 0.35rem; border: 1px solid var(--box-line, oklch(0.86 0.012 250)); border-radius: 2px; background: var(--box-2, oklch(0.94 0.006 85)); } .ds-id-text { display: grid; gap: 0.6rem; min-width: 0; } .ds-id-lead { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.6rem; } .ds-id-name { margin: 0; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 92; font-weight: 600; font-size: clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem); line-height: 1; letter-spacing: -0.025em; } .ds-id-ko { font-family: 'Pretendard Name', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; font-weight: 500; font-size: clamp(1.125rem, 0.8rem + 1.1vw, 1.5rem); line-height: 1; color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-id-role { margin: 0; display: grid; gap: 0.1rem; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; line-height: 1.4; } .ds-id-fields { color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-id-tagline { margin: 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.125rem; line-height: 1.5; } .ds-id-links { display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; } .ds-id-links a { display: inline-block; padding: 0.4rem 0; color: inherit; text-decoration: none; border-bottom: 1px solid var(--box-line, oklch(0.86 0.012 250)); transition: border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-id-links a:hover { border-bottom-color: var(--signal, oklch(0.62 0.21 27)); } .ds-id-links a:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } @media (max-width: 640px) { .ds-id { grid-template-columns: minmax(0, 1fr) 4rem; } .ds-id-portrait { width: 4rem; height: 4rem; } .ds-id-links li:first-child { flex-basis: 100%; } }"
+    },
+    {
+      "name": "Updates Row",
+      "kind": "custom",
+      "refersTo": "updates-row",
+      "description": "One native details under the identity block, closed at every width: the newest update (mono date in a 5rem column, STIX sentence) and a Phosphor caret that turns over when open; open, the rest follow as ruled rows. No heading, no label, no links. Height eases over 250ms when a reader clicks.",
+      "html": "<details class=\"ds-up\"><summary class=\"ds-up-sum\"><span class=\"ds-up-when\">Sep 2026</span><span class=\"ds-up-text\">A dated event from the record, as one sentence.</span><span class=\"ds-up-caret\"><svg viewBox=\"0 0 256 256\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z\"/></svg></span></summary><ol class=\"ds-up-list\"><li class=\"ds-up-row\"><span class=\"ds-up-when\">2026</span><span class=\"ds-up-text\">An older update in the same columns.</span></li></ol></details>",
+      "css": ".ds-up { background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); padding: 0 1.5rem; } .ds-up-sum, .ds-up-row { display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto; column-gap: 1.5rem; align-items: baseline; padding: 0.6rem 0; border-top: 1px solid var(--box-line, oklch(0.86 0.012 250)); } .ds-up-row { grid-template-columns: 5rem minmax(0, 1fr); } .ds-up-row:first-child { border-top: 0; } .ds-up-sum, .ds-up-list { border-bottom: 1px solid var(--box-line, oklch(0.86 0.012 250)); } .ds-up-list { margin: 0; padding: 0; list-style: none; } .ds-up-sum { list-style: none; cursor: pointer; } .ds-up-sum::-webkit-details-marker { display: none; } .ds-up-when { font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; line-height: 1.6; color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-up-text { font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.0625rem; line-height: 1.5; } .ds-up-caret { justify-self: end; align-self: center; width: 1rem; height: 1rem; color: var(--box-ink-3, oklch(0.52 0.02 250)); transition: transform 150ms cubic-bezier(0.16,1,0.3,1), color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-up-caret svg { display: block; width: 100%; height: 100%; } .ds-up[open] .ds-up-caret { transform: rotate(180deg); } .ds-up-sum:hover .ds-up-caret { color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-up-sum:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-up-caret { transition-property: color; } }"
     },
     {
       "name": "Home Plate",
       "kind": "custom",
       "refersTo": "home-plate",
-      "description": "The one live proof on home: a film plate (height min(44vh, 30rem), min 18rem; portrait 3/4 under 900px) holding the quiet viewer (pressure only, the centred CFD | PINO wipe, the five-tick colorbar), then one mono caption line (case id, nodes, FFR CFD and PINO; no timing line, Revision 2b) and, 0.35rem below, one STIX line (plateSentence) that carries the CFD bound against the PINO 1.78 s and says slide or toggle. No link. Shown on the light box.",
-      "html": "<section class=\"ds-hp\"><div class=\"ds-hp-plate\"><span class=\"ds-hp-seam\"></span><span class=\"ds-hp-grip\">CFD<span class=\"ds-hp-bar\"></span>PINO</span></div><p class=\"ds-hp-cap\"><span>8 649 nodes · FFR CFD 0.83 · PINO 0.82</span></p><p class=\"ds-hp-line\">The same vessel solved twice. CFD took up to 35 minutes on 64 cores. The neural operator took 1.78 seconds. Slide or toggle to compare.</p></section>",
-      "css": ".ds-hp { display: grid; gap: 1rem; padding: 1.5rem; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-hp-plate { position: relative; height: 16rem; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-hp-seam { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: color-mix(in oklab, var(--bone, oklch(0.94 0.006 85)) 38%, transparent); } .ds-hp-grip { position: absolute; top: 88%; left: 50%; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.55rem; border: 1px solid var(--bone, oklch(0.94 0.006 85)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8125rem; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; } .ds-hp-bar { width: 1px; height: 0.95em; background: var(--bone-3, oklch(0.64 0.012 85)); } .ds-hp-cap { margin: 0; display: grid; gap: 0.1rem; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; line-height: 1.4; color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-hp-line { margin: 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1rem; line-height: 1.5; color: var(--box-ink-2, oklch(0.4 0.02 250)); max-width: 62ch; } .ds-hp-line a { font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; color: var(--box-ink, oklch(0.18 0.012 250)); text-decoration-color: var(--box-line, oklch(0.86 0.012 250)); text-underline-offset: 0.18em; white-space: nowrap; } .ds-icon { display: inline-flex; width: 1em; height: 1em; margin-left: 0.3em; vertical-align: -0.125em; color: var(--box-ink-3, oklch(0.52 0.02 250)); } .ds-icon svg { width: 100%; height: 100%; } .ds-hp-line a:hover .ds-icon { color: var(--signal, oklch(0.62 0.21 27)); }"
+      "description": "The one live proof on home, under the Updates row: a film plate with no corner chrome, 2:1 at the column width (at most 60vh, at least 16rem; 3:4 under 900px), holding the quiet viewer (pressure only, the CFD | PINO wipe, the five-tick colorbar, the develop once, the idle drift) over a server-rendered poster of itself; then one STIX line (plateSentence) with both FFR readings, the CFD bound and the PINO time. No mono caption line, no link.",
+      "html": "<section class=\"ds-hp\"><div class=\"ds-hp-plate\"><span class=\"ds-hp-seam\"></span><span class=\"ds-hp-grip\">CFD<span class=\"ds-hp-bar\"></span>PINO</span></div><p class=\"ds-hp-line\">CFD: FFR 0.83, up to 35 minutes on 64 CPU cores. PINO: FFR 0.82, 1.78 seconds on one GPU.</p></section>",
+      "css": ".ds-hp { display: grid; gap: 1rem; padding: 1.5rem; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-hp-plate { position: relative; aspect-ratio: 2 / 1; min-height: 16rem; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-hp-seam { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: color-mix(in oklab, var(--bone, oklch(0.94 0.006 85)) 38%, transparent); } .ds-hp-grip { position: absolute; top: 88%; left: 50%; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.55rem; border: 1px solid var(--bone, oklch(0.94 0.006 85)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8125rem; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; } .ds-hp-bar { width: 1px; height: 0.95em; background: var(--bone-3, oklch(0.64 0.012 85)); } .ds-hp-line { margin: 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1rem; line-height: 1.5; color: var(--box-ink-2, oklch(0.4 0.02 250)); } @media (max-width: 899px) { .ds-hp-plate { aspect-ratio: 3 / 4; } }"
     },
     {
       "name": "Primary Button",
@@ -674,7 +738,7 @@
       "name": "Ghost Button",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Bordered in the ground's ink, inverts on hover: Download PDF on the CV action bar, Copy BibTeX, Replay, Play/Pause. Shown on film.",
+      "description": "Bordered in the ground's ink, inverts on hover: Download PDF on the CV action bar, Copy BibTeX, Replay, Play/Pause and Retry on plates.",
       "html": "<a class=\"ds-btn ds-btn-ghost\" href=\"#\">Download PDF</a>",
       "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.6rem 1.1rem; border: 1px solid transparent; border-radius: 2px; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; user-select: none; transition: background-color 150ms cubic-bezier(0.16,1,0.3,1), border-color 150ms cubic-bezier(0.16,1,0.3,1), color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-ghost { background: transparent; border-color: var(--bone, oklch(0.94 0.006 85)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-btn-ghost:hover { background: var(--bone, oklch(0.94 0.006 85)); color: var(--film-0, oklch(0.15 0.008 250)); } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-btn:active { transform: none; } }"
     },
@@ -682,8 +746,8 @@
       "name": "Frame",
       "kind": "card",
       "refersTo": "frame",
-      "description": "The plate container: hairline border, 2px radius, mono corner chrome inside the border, film in both schemes (.plate). Records are never framed; there is no caption stack.",
-      "html": "<figure class=\"ds-frame\"><span class=\"ds-frame-corner ds-frame-corner-tl ds-caps\">Demo case</span><span class=\"ds-frame-corner ds-frame-corner-tr\">8 649 nodes</span><div class=\"ds-frame-body\"></div></figure>",
+      "description": "The plate container: hairline border, 2px radius, mono corner chrome inside the border, film in both schemes (.plate). Records are never framed; the home plate carries no corner chrome.",
+      "html": "<figure class=\"ds-frame\"><span class=\"ds-frame-corner ds-frame-corner-tl\">Pd / Pa along s</span><span class=\"ds-frame-corner ds-frame-corner-tr\">8 649 nodes</span><div class=\"ds-frame-body\"></div></figure>",
       "css": ".ds-frame { position: relative; margin: 0; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); --corner-inset: 0.5rem; } .ds-frame-corner { position: absolute; z-index: 2; padding: 0.1rem 0.25rem; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8125rem; line-height: 1.3; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: var(--bone-3, oklch(0.64 0.012 85)); white-space: nowrap; pointer-events: none; } .ds-caps { letter-spacing: 0.08em; text-transform: uppercase; } .ds-frame-corner-tl { top: var(--corner-inset); left: var(--corner-inset); } .ds-frame-corner-tr { top: var(--corner-inset); right: var(--corner-inset); text-align: right; } .ds-frame-body { position: relative; z-index: 1; aspect-ratio: 16 / 9; background: var(--film-1, oklch(0.21 0.008 250)); }"
     },
     {
@@ -701,6 +765,14 @@
       "description": "The signature control: a full-height hairline with a mono CFD | PINO grip (signal border on hover/drag), and the segmented field toggle whose pressed state carries a 2px signal underline.",
       "html": "<div class=\"ds-stage\"><div class=\"ds-handle\" tabindex=\"0\" role=\"slider\" aria-label=\"CFD | PINO wipe\"><span class=\"ds-grip\">CFD<span class=\"ds-grip-bar\"></span>PINO</span></div><fieldset class=\"ds-segment\"><button class=\"ds-seg-btn\" aria-pressed=\"true\">Pressure</button><button class=\"ds-seg-btn\" aria-pressed=\"false\">Error</button><button class=\"ds-seg-btn\" aria-pressed=\"false\">Speed</button></fieldset></div>",
       "css": ".ds-stage { position: relative; height: 180px; background: var(--film-1, oklch(0.21 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); } .ds-handle { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; cursor: ew-resize; outline: none; } .ds-handle::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: color-mix(in oklab, var(--bone, oklch(0.94 0.006 85)) 38%, transparent); } .ds-grip { position: absolute; top: 50%; left: 0; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.55rem; border: 1px solid var(--bone, oklch(0.94 0.006 85)); border-radius: 2px; background: var(--film-0, oklch(0.15 0.008 250)); font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8125rem; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; transition: border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-grip-bar { width: 1px; height: 0.95em; background: var(--bone-3, oklch(0.64 0.012 85)); } .ds-handle:hover .ds-grip { border-color: var(--signal, oklch(0.62 0.21 27)); } .ds-handle:focus-visible .ds-grip { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } .ds-segment { position: absolute; left: 0.75rem; bottom: 0.75rem; display: inline-flex; margin: 0; padding: 0; border: 0; } .ds-seg-btn { margin: 0 0 0 -1px; padding: 0.4rem 0.75rem; min-height: 2rem; border: 1px solid var(--film-line, oklch(0.38 0.01 250)); border-radius: 0; background: var(--film-0, oklch(0.15 0.008 250)); font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.85rem; line-height: 1.2; color: var(--bone-2, oklch(0.8 0.012 85)); cursor: pointer; transition: color 150ms cubic-bezier(0.16,1,0.3,1), border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-seg-btn:first-of-type { margin-left: 0; border-radius: 2px 0 0 2px; } .ds-seg-btn:last-of-type { border-radius: 0 2px 2px 0; } .ds-seg-btn:hover { position: relative; z-index: 1; color: var(--bone, oklch(0.94 0.006 85)); border-color: var(--bone-3, oklch(0.64 0.012 85)); } .ds-seg-btn[aria-pressed='true'] { position: relative; z-index: 1; color: var(--bone, oklch(0.94 0.006 85)); border-color: var(--bone, oklch(0.94 0.006 85)); box-shadow: inset 0 -2px 0 var(--signal, oklch(0.62 0.21 27)); } .ds-seg-btn:focus-visible { position: relative; z-index: 2; outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; }"
+    },
+    {
+      "name": "Method and Metrics Row",
+      "kind": "custom",
+      "refersTo": "disclosure-row",
+      "description": "One native details per research demo, closed at every width and a real control everywhere: a ruled row in the UI face, ink-2 (ink on hover), with the Phosphor caret at the right edge; inside, the paragraph, an optional folded plate and the metrics table.",
+      "html": "<details class=\"ds-more\"><summary class=\"ds-more-sum\"><span>Method and metrics</span><span class=\"ds-more-caret\"><svg viewBox=\"0 0 256 256\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z\"/></svg></span></summary><p class=\"ds-more-p\">The method paragraph, then the metrics table.</p></details>",
+      "css": ".ds-more { padding: 0 1.5rem; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-more-sum { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1.5rem; align-items: center; padding: 0.6rem 0; border-block: 1px solid var(--box-line, oklch(0.86 0.012 250)); font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.95rem; line-height: 1.5; color: var(--box-ink-2, oklch(0.4 0.02 250)); list-style: none; cursor: pointer; transition: color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-more-sum::-webkit-details-marker { display: none; } .ds-more-sum:hover { color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-more-caret { width: 1rem; height: 1rem; color: var(--box-ink-3, oklch(0.52 0.02 250)); transition: transform 150ms cubic-bezier(0.16,1,0.3,1); } .ds-more-caret svg { display: block; width: 100%; height: 100%; } .ds-more[open] .ds-more-caret { transform: rotate(180deg); } .ds-more-sum:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; } .ds-more-p { margin: 1.5rem 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.0625rem; line-height: 1.65; max-width: 60ch; } @media (prefers-reduced-motion: reduce) { .ds-more-caret { transition: none; } }"
     },
     {
       "name": "Navigation",
@@ -722,7 +794,7 @@
       "name": "Role Mark",
       "kind": "chip",
       "refersTo": "rolemark",
-      "description": "Author-role mark, bordered not filled. Rank by border ink: signal for first author, ink for co-first, hairline for co-author. Shown on light box.",
+      "description": "Author-role mark, bordered not filled. Rank by border ink: primary ink for first author, secondary ink for co-first, hairline for co-author; never signal. Shown on light box.",
       "html": "<div class=\"ds-rolemarks\"><span class=\"ds-rolemark\" data-role=\"first\">First author</span><span class=\"ds-rolemark\" data-role=\"co-first\">Co-first author</span><span class=\"ds-rolemark\" data-role=\"co-author\">Co-author</span></div>",
       "css": ".ds-rolemarks { display: flex; gap: 0.75rem; padding: 1rem; background: var(--box, oklch(0.975 0.004 85)); } .ds-rolemark { display: inline-flex; align-items: center; min-height: 1.5rem; padding: 0 0.5rem; border: 1px solid var(--box-line, oklch(0.86 0.012 250)); border-radius: 2px; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 500; font-size: 0.75rem; line-height: 1; letter-spacing: 0.01em; color: var(--box-ink-2, oklch(0.4 0.02 250)); white-space: nowrap; } .ds-rolemark[data-role='first'] { border-color: var(--signal, oklch(0.62 0.21 27)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-rolemark[data-role='co-first'] { border-color: var(--box-ink, oklch(0.18 0.012 250)); color: var(--box-ink, oklch(0.18 0.012 250)); }"
     },
@@ -730,46 +802,48 @@
       "name": "Tag",
       "kind": "chip",
       "refersTo": "tag",
-      "description": "Short mono uppercase tag; the signal tone marks REGISTERED on a CV patent row. Rank by border ink, never by fill. Shown on light box.",
-      "html": "<div class=\"ds-tags\"><span class=\"ds-tag\" data-tone=\"signal\">Registered</span><span class=\"ds-tag\">PCT</span></div>",
+      "description": "Short mono uppercase tag, hairline border, ink-2; the ink tone (primary-ink border, primary ink) marks REGISTERED on a CV patent row. Rank by border ink, never by fill or signal.",
+      "html": "<div class=\"ds-tags\"><span class=\"ds-tag\" data-tone=\"ink\">Registered</span><span class=\"ds-tag\">PCT</span></div>",
       "css": ".ds-tags { display: flex; gap: 0.5rem; padding: 1rem; background: var(--box, oklch(0.975 0.004 85)); } .ds-tag { display: inline-flex; align-items: center; min-height: 1.25rem; padding: 0 0.4rem; border: 1px solid var(--box-line, oklch(0.86 0.012 250)); border-radius: 2px; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: var(--box-ink-2, oklch(0.4 0.02 250)); white-space: nowrap; } .ds-tag[data-tone='ink'] { border-color: var(--box-ink-2, oklch(0.4 0.02 250)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-tag[data-tone='signal'] { border-color: var(--signal, oklch(0.62 0.21 27)); color: var(--box-ink, oklch(0.18 0.012 250)); }"
     },
     {
       "name": "Text Link",
       "kind": "custom",
       "refersTo": "body",
-      "description": "Inline link: inherits color, 1px underline in the tertiary ink offset 0.18em, underline turns signal on hover. Quiet in-page links add the Phosphor arrow-right icon at 1em in ink-3 (signal on hover), never a glyph.",
-      "html": "<p class=\"ds-prose\">Pressure fields from the <a class=\"ds-link\" href=\"#\">DMD 2026 proceedings</a> and the <a class=\"ds-link\" href=\"#\">CMPB 2025 paper</a>.</p>",
+      "description": "Inline link: inherits color, 1px underline in the tertiary ink offset 0.18em, underline turns signal on hover over 150ms. Link rows use a 1px bottom border instead.",
+      "html": "<p class=\"ds-prose\">Every output links its row on the <a class=\"ds-link\" href=\"#\">CV</a>.</p>",
       "css": ".ds-prose { margin: 0; padding: 1rem; background: var(--film-0, oklch(0.15 0.008 250)); color: var(--bone, oklch(0.94 0.006 85)); font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.0625rem; line-height: 1.65; max-width: 60ch; } .ds-link { color: inherit; text-decoration-line: underline; text-decoration-thickness: 1px; text-decoration-color: var(--bone-3, oklch(0.64 0.012 85)); text-underline-offset: 0.18em; transition: text-decoration-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-link:hover { text-decoration-color: var(--signal, oklch(0.62 0.21 27)); } .ds-link:focus-visible { outline: 2px solid var(--signal, oklch(0.62 0.21 27)); outline-offset: 2px; border-radius: 2px; }"
     },
     {
       "name": "Footer",
       "kind": "custom",
       "refersTo": "footer",
-      "description": "The ending every page shares: one STIX line, the mono link row (LinkedIn · Google Scholar · ORCID only, Revision 2b) with 1px bottom-border links, and a mono colophon with the build date and the host. No Email (the nav's) and no CV (PDF) (the /cv/ action bar, llms.txt, cv.md, cv.json). Props via Base footer: omit drops labels (/cv/ omits LinkedIn), links:false drops the row (home). Hidden in print.",
-      "html": "<footer class=\"ds-foot\"><p class=\"ds-foot-line\">Open to collaboration, positions and paper requests.</p><ul class=\"ds-foot-links\"><li><a href=\"#\">LinkedIn</a></li><li><a href=\"#\">Google Scholar</a></li><li><a href=\"#\">ORCID</a></li></ul><p class=\"ds-foot-colophon\"><span>Updated 2026-10-17</span><span>hyeongjunlee.me</span></p></footer>",
+      "description": "The ending every page shares: one STIX line, the mono link row (the address, then LinkedIn, Google Scholar, ORCID, minus whatever the last viewport already shows via omit: home shows the address alone, /cv/ omits LinkedIn) with 1px bottom-border links, and a mono colophon with the build date and the host. No Email button and no CV (PDF). Hidden in print.",
+      "html": "<footer class=\"ds-foot\"><p class=\"ds-foot-line\">Open to collaboration, positions and paper requests.</p><ul class=\"ds-foot-links\"><li><a href=\"#\">hjunlee96@gmail.com</a></li><li><a href=\"#\">LinkedIn</a></li><li><a href=\"#\">Google Scholar</a></li><li><a href=\"#\">ORCID</a></li></ul><p class=\"ds-foot-colophon\"><span>Updated 2026-10-26</span><span>hyeongjunlee.me</span></p></footer>",
       "css": ".ds-foot { display: grid; gap: 1rem; justify-items: start; padding: 1.5rem 1.5rem 2rem; border-top: 1px solid var(--box-line, oklch(0.86 0.012 250)); background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-foot-line { margin: 0; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-size: 1.125rem; line-height: 1.45; } .ds-foot-links { display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; } .ds-foot-links a { display: inline-block; padding: 0.45rem 0; color: inherit; text-decoration: none; border-bottom: 1px solid var(--box-line, oklch(0.86 0.012 250)); transition: border-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-foot-links a:hover { border-bottom-color: var(--signal, oklch(0.62 0.21 27)); } .ds-foot-colophon { margin: 0; display: flex; gap: 0 1.5rem; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; color: var(--box-ink-3, oklch(0.52 0.02 250)); }"
     },
     {
       "name": "CV Row",
       "kind": "list",
       "refersTo": "cv-row",
-      "description": "Dense record rows on /cv: a mono lead column (period, year or id), an Archivo 600 title and one mono or STIX line; ruled in --line-soft; no frames. Talks are one row each (2.5rem year, flexible title with no measure cap, 7.5rem venue, 15rem format · role): author line only where not H.J. Lee et al., short venue as an abbr carrying the full venue and location. The CV header's mono contact row is print-only; on screen the nav and footer carry those links.",
+      "description": "Dense record rows on /cv: a mono lead column (10.5rem period, or a 2.5rem year or id), an Archivo 600 title and one STIX or mono line; ruled in --line-soft; no frames. Talks: 2.5rem year, title (76ch), 7rem short venue as an abbr with the full venue and location, 15rem format and role, right-aligned. Patents: id, title, right-aligned status and application number. Projects: title over the funder line with the grant number in mono. The header contact row shows on screen and in print.",
       "html": "<ol class=\"ds-cv\"><li class=\"ds-talk\"><span class=\"ds-mono ds-ink2\">2026</span><p class=\"ds-talk-title\">Patient-Specific Coronary Flow Field Prediction Using Physics-Informed Neural Operators</p><abbr class=\"ds-mono ds-ink2\" title=\"ASME Design of Medical Devices Conference (DMD2026), Minneapolis, MN, USA\">DMD2026</abbr><span class=\"ds-mono ds-ink2 ds-right\">Poster · presented</span></li><li class=\"ds-talk\"><span class=\"ds-mono ds-ink2\">2026</span><p class=\"ds-talk-title\">Dynamic Fractional Flow Reserve from 4D Coronary CT Synthesized by a Diffusion Model<span class=\"ds-note\">T.H. Han et al. (incl. H.J. Lee)</span></p><abbr class=\"ds-mono ds-ink2\" title=\"ASME Design of Medical Devices Conference (DMD2026), Minneapolis, MN, USA\">DMD2026</abbr><span class=\"ds-mono ds-ink2 ds-right\">Poster · co-author</span></li></ol>",
-      "css": ".ds-cv { margin: 0; padding: 1rem 1.5rem; list-style: none; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-talk { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 7.5rem 15rem; gap: 0 1rem; align-items: baseline; padding: 0.3rem 0; border-bottom: 1px solid oklch(0.86 0.012 250 / 0.6); } .ds-mono { font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; font-variant-numeric: tabular-nums; } .ds-ink2 { color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-right { text-align: right; } abbr.ds-mono { text-decoration: underline dotted; text-decoration-color: var(--box-line, oklch(0.86 0.012 250)); text-underline-offset: 0.18em; } .ds-talk-title { margin: 0; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 600; font-size: 0.975rem; line-height: 1.4; } .ds-note { margin-left: 0.5rem; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-weight: 400; font-size: 0.9375rem; color: var(--box-ink-3, oklch(0.52 0.02 250)); }"
+      "css": ".ds-cv { margin: 0; padding: 1rem 1.5rem; list-style: none; background: var(--box, oklch(0.975 0.004 85)); color: var(--box-ink, oklch(0.18 0.012 250)); } .ds-talk { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 7rem 15rem; gap: 0 1rem; align-items: baseline; padding: 0.3rem 0; border-bottom: 1px solid oklch(0.86 0.012 250 / 0.6); } .ds-mono { font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; font-variant-numeric: tabular-nums; } .ds-ink2 { color: var(--box-ink-2, oklch(0.4 0.02 250)); } .ds-right { text-align: right; } abbr.ds-mono { text-decoration: underline dotted; text-decoration-color: var(--box-line, oklch(0.86 0.012 250)); text-underline-offset: 0.18em; } .ds-talk-title { margin: 0; font-family: 'Archivo Variable', Archivo, system-ui, sans-serif; font-weight: 600; font-size: 0.975rem; line-height: 1.4; } .ds-note { margin-left: 0.5rem; font-family: 'STIX Two Text', 'Times New Roman', Georgia, serif; font-weight: 400; font-size: 0.9375rem; color: var(--box-ink-3, oklch(0.52 0.02 250)); }"
     }
   ],
   "narrative": {
     "northStar": "The Light Box and the Film",
-    "overview": "The world is the cath-lab reading room: a light box with angiographic film clipped to it. The page is the light box, white and quiet, carrying who he is and the record in rows. The research is the film: every data artifact (the vessel viewer, the FFR curve, the spectrograms, the CT phase scrubber) is a dark film plate with a hairline and mono corner chrome, sitting on the box. Nothing decorative competes with the plates; UI chrome is thin and mono, so it reads as instrument marking rather than interface.\n\nThree pages. `/` is a Read surface, identity first: name, role, the four fields, the owner's one sentence, three proof lines, a link row, then one quiet live plate inside the same 1440×900 viewport, then rows of work and three selected papers. `/research` is an Experience surface: three worked examples with data (Flow, Image, Pulse), one artifact, one paragraph, one table and one citation line each. `/cv` is the whole record, dense: rows, not frames. `/publications` and `/record` are meta-refresh redirects to `/cv/#publications` and `/cv/#talks`.\n\nThe ground follows the system scheme. The light box is the default; `prefers-color-scheme: dark` turns the whole page to film. Plates are film in both schemes, so in dark mode a plate is film on film, separated by its hairline. There is no manual toggle and no per-page surface switch. Components read semantic aliases only (`--bg`, `--ink`, `--line` and their tiers), which the scheme resolves for the page and the `.plate` scope re-declares to film for a plate.\n\nRank is carried by border ink, never by weight, fill or color flooding. First-author work carries a primary-ink border on its role mark; co-first a secondary-ink border; co-authored a hairline. Signal never marks rank. Type weight stays even (one heading weight, 600), so the eye ranks by geometry.",
+    "overview": "The world is the cath-lab reading room: a light box with angiographic film clipped to it. The page is the light box, white and quiet, carrying who he is and the record in rows. The research is the film: every data artifact (the vessel viewer, the FFR curve, the spectrograms, the CT phase scrubber, the A⁺4DCT results chart) is a dark film plate with a hairline, sitting on the box. Nothing decorative competes with the plates; UI chrome is thin and mono, so it reads as instrument marking rather than interface.\n\nThree pages. `/` is a Read surface, identity first: the name with the Korean name beside it, the role line with the four fields, the owner's one sentence, the address and the profile links, then one closed Updates row, then one quiet live plate and the sentence under it, then the Work rows and three selected papers. `/research` is an Experience surface: every research project in one flat list, newest first, each a title with its years, one sentence and an outputs line that links into the CV; three of them carry live demos (PINO, 4D CT, fluid bolus) whose plates stay in view while the method and metrics fold into one row closed at every width, one carries the A⁺4DCT results plate and two carry a paper figure. There is no citation line: the outputs line links each paper's CV row. `/cv` is the whole record, dense: rows, not frames. `/publications` and `/record` are meta-refresh redirects to `/cv/#publications` and `/cv/#talks`.\n\nThe ground follows the system scheme. The light box is the default; `prefers-color-scheme: dark` turns the whole page to film. Plates are film in both schemes, so in dark mode a plate is film on film, separated by its hairline. There is no manual toggle and no per-page surface switch. Components read semantic aliases only (`--bg`, `--ink`, `--line` and their tiers), which the scheme resolves for the page and the `.plate` scope re-declares to film for a plate. Print is ink on white paper in either scheme.\n\nRank is carried by border ink, never by weight, fill or color flooding. First-author work carries a primary-ink border on its role mark; co-first a secondary-ink border; co-authored a hairline. Signal never marks rank. Type weight stays even (one heading weight, 600), so the eye ranks by geometry.",
     "keyCharacteristics": [
       "Light box by default, film under the dark scheme; data plates are film in both. One ink family per ground, one clinical red on both.",
-      "Identity first: the name is the h1; the plate is the one live proof in the first viewport, quiet (pressure only, the CFD | PINO wipe, the colorbar).",
-      "Rows, not frames, for everything that is a record: capability rows and selected papers on home, dense CV rows on /cv.",
-      "Three faces with fixed jobs: Archivo (width 92 for the name and page titles) for naming and UI, STIX Two Text for reading, JetBrains Mono for every number, unit, identifier and link row.",
+      "Identity first: the name is the h1; the plate is the one live proof near the top of home, quiet (pressure only, the CFD | PINO wipe, the colorbar, the idle drift).",
+      "Rows, not frames, for everything that is a record: the Updates row, the Work rows and selected papers on home, the outputs lines on /research, dense CV rows on /cv.",
+      "One centred fluid column for every block; text narrows by measure, never by a narrower box.",
+      "Three faces with fixed jobs: Archivo (width 92 for the name and page titles) for naming and UI, STIX Two Text for reading, JetBrains Mono for numbers, units, identifiers, DOIs, years, tables and link rows; a Pretendard subset only for the Korean name.",
+      "Phones (640px and under) are a disclosure layer over the same HTML, never a different site.",
       "Flat throughout; depth is a hairline or a one-step tonal lift, plus one static grain sheet on a film page.",
-      "Signal red is reserved: probes, the PINO trace, active underlines, focus rings, selection, the hover state of icons and underlines, and the one primary action (the nav's Email).",
-      "Motion is physical evidence: the PINO layer develops over the measured 1.78 s once, and everything stops under reduced motion."
+      "Signal red is reserved: probes, the PINO trace and the A⁺4DCT marks, active underlines, focus rings, selection, the hover state of icons and underlines, and the one primary action (the nav's Email).",
+      "Motion is physical evidence and quiet state: the PINO layer develops over the measured 1.78 s once, the vessel drifts, folds ease their height; reduced motion stops all of it."
     ],
     "rules": [
       {
@@ -779,22 +853,22 @@
       },
       {
         "name": "The Alias Rule",
-        "body": "Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme. Raw `film-*` and `box-*` values are referenced directly only where an element must hold the other ground inside a plate (the scrubber's light-box sheet).",
+        "body": "Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `@media print` forces the light set back on `:root`; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme and in print. Raw `film-*` and `box-*` values are referenced directly only where an element must hold the other ground inside a plate (the scrubber's light-box sheet).",
         "section": "colors"
       },
       {
         "name": "The Plate Rule",
-        "body": "A plate is any Frame that holds a viewer, a chart, a spectrogram or a CT frame (`<Frame plate>`). It is film in both schemes: dark film on the light box, film on film (separated by its hairline) in dark. Nothing that is not data sits on film.",
+        "body": "A plate is any element in the `.plate` scope that holds a viewer, a chart, a spectrogram, a CT frame, a paper figure or an enlarged photograph (`<Frame plate>`, the paper-figure image, the CV lightbox dialog). It is film in both schemes: dark film on the light box, film on film (separated by its hairline) in dark. Nothing that is not data or an image sits on film.",
         "section": "colors"
       },
       {
         "name": "The Light-Box Rule",
-        "body": "White inside a film plate is the light box of the world, never a bare rectangle: it carries a hairline and mono corner chrome or a caption, and holds only a raster from the paper or the data, composited with `mix-blend-mode: multiply` so the figure's own white becomes the box ground.",
+        "body": "White inside a film plate is the light box of the world, never a bare rectangle: it carries a hairline and mono corner chrome or a caption, and holds only a raster from the paper or the data, composited with `mix-blend-mode: multiply` so the figure's own white becomes the box ground (normal blending under forced colors).",
         "section": "colors"
       },
       {
         "name": "The Signal-Is-A-Stroke Rule",
-        "body": "Signal red is a border, underline, ring, curve or icon state. It is a fill only on the nav's Email action and the skip link, and then as `signal-fill`.",
+        "body": "Signal red is a border, underline, ring, curve, data mark or icon state. Under text it is a fill only on the nav's Email action and the skip link, and then as `signal-fill`.",
         "section": "colors"
       },
       {
@@ -809,17 +883,17 @@
       },
       {
         "name": "The Mono Number Rule",
-        "body": "Every measured number, unit, identifier, DOI, year and readout is set in JetBrains Mono with tabular numerals; `code`, `time` and `data` inherit it globally. A measured value in Archivo or STIX running text is wrapped in `.num`.",
+        "body": "Numbers, units, identifiers, DOIs, years, tables and link rows are set in JetBrains Mono with tabular numerals; `code`, `time` and `data` inherit it globally. Prose is never mono: a measured value inside a STIX caption is wrapped in `.num` but reads in the caption's own face.",
         "section": "typography"
       },
       {
         "name": "The One Formatter Rule",
-        "body": "A precision is a property of the quantity, not of the page: kPa at one decimal, FFR at two (three in the metrics table), seconds at two, mm at one.",
+        "body": "A precision is a property of the quantity, not of the page: kPa at one decimal, FFR at two (three in metrics tables), seconds at two, mm at one.",
         "section": "typography"
       },
       {
         "name": "The Even Weight Rule",
-        "body": "Headings carry one weight (600), UI 500, body 400. Rank is carried by size, measure and border ink, never by bolding.",
+        "body": "Headings carry one weight (600), UI 500, body 400. Rank is carried by size, measure and border ink, never by bolding (the owner's name in an author list is the one bold).",
         "section": "typography"
       },
       {
@@ -828,60 +902,64 @@
         "section": "typography"
       },
       {
-        "name": "The One Left Edge Rule",
-        "body": "Every column starts where the nav, plates and footer start. Measure is the only thing that narrows text; a centered narrower box, a centered plate or an indented caption breaks the rule.",
+        "name": "The One Column Rule",
+        "body": "Every block (nav, identity, Updates, plates, rows, tables, footer) starts and ends where the column does. Measure is the only thing that narrows text; a centred narrower box, a centred plate or an indented caption breaks the rule.",
         "section": "layout"
       },
       {
         "name": "The One Target Rule",
-        "body": "A link target appears once per page in the human layer, and an action word once per viewport. Home links each capability row to its own target and nothing repeats one; the sticky nav carries Email and CV on every page, so no footer, identity block, closing row or proof line repeats them. A page carries exactly one `mailto:` (the nav's), a redirect stub none; `scripts/budget.mjs` fails the build otherwise.",
+        "body": "A link target appears once per page in the human layer, and an action word once per viewport. Each Work row links its own research project (`#lbm-ctffr`, `#pino`, `#viscosity`, `#ffr-simulator`) and nothing repeats one; the sticky nav carries Email and CV on every page. A page carries at most three `mailto:`: the nav's Email, the address written as text (home identity row) and the footer's address; a redirect stub carries none; every target is `profile.email`; `scripts/budget.mjs` fails the build otherwise.",
         "section": "layout"
       },
       {
         "name": "The Two Things Rule",
-        "body": "The human layer is short and uneven: two big things (the identity block and the plate on home; the artifacts on research), everything else as rows and counts. The machine layer (markdown twins, `llms.txt`, `llms-full.txt`, `cv.json`, JSON-LD) is complete.",
+        "body": "The human layer is short and uneven: two big things (the identity block and the plate on home; the artifacts on research), everything else as rows. The machine layer (markdown twins, `llms.txt`, `llms-full.txt`, `cv.json`, JSON-LD) is complete.",
         "section": "layout"
       },
       {
         "name": "The Hairline-Not-Shadow Rule",
-        "body": "Separation is a 1px line or a tonal step. The only `box-shadow` in the build is the inset 2px signal underline on a pressed segmented button, an underline by another property.",
+        "body": "Separation is a 1px line or a tonal step. The only `box-shadow` in the build is the inset 2px signal underline on a pressed segmented button (viewer and scrubber), an underline by another property.",
         "section": "elevation"
       },
       {
         "name": "The One Anatomy Rule",
-        "body": "A paper reads the same everywhere (home Selected, the research citation line, the CV): title (linked to the DOI when one exists), venue in mono, role mark, `doi:`. A role mark, tag or label never sits directly above a heading; that is the eyebrow the craft floor bans.",
+        "body": "A paper reads the same everywhere (home Selected, the CV): title (linked to the DOI when one exists), venue in mono, role mark, `doi:`. A role mark, tag or label never sits directly above a heading.",
         "section": "components"
       }
     ],
     "dos": [
-      "Lead home with who this is: the name as the h1, the role line, the four fields, the tagline, the three proof lines, the link row, then the quiet plate in the same 1440×900 viewport.",
-      "Put every data artifact on a film plate (`Frame plate`) with mono corner chrome, in both schemes.",
-      "Keep records as rows: capability rows and selected papers on home, dense rows on /cv.",
-      "Keep Email to the nav's one primary action and CV to the nav's page link on every page; the footer carries LinkedIn, Google Scholar and ORCID only, minus any link the page's last viewport already shows (`omit`, `links: false`).",
-      "Keep the home plate caption to one mono line (case id, node count, FFR CFD and PINO) and let proof line 2 and the sentence under the plate carry the 1.78 s and the CFD bound.",
-      "Read only the semantic aliases in components, so they work on the light box, on a film page and on a plate.",
-      "Set every number, unit, identifier and readout in JetBrains Mono, computed from content.ts or a manifest and formatted by `lib/format.ts`.",
-      "Carry rank by border ink: primary ink for first author, secondary ink for co-first, hairline for co-author; never signal.",
-      "Draw field colors from `lib/colormaps.ts` only, with five ticks on every bar and the error field on its fixed symmetric scale.",
-      "Honor `prefers-reduced-motion` on every autonomous motion.",
-      "Describe the work organ-agnostically (computational hemodynamics, physics-informed AI, wearable biosignals, medical devices); coronary appears only where a coronary result is named.",
-      "Write the owner's voice in the first person, present tense, plain."
+      "Do lead home with who this is: the name as the h1 with the Korean name beside it, the role line, the four fields, the tagline, the address and profile links, then the closed Updates row and the quiet plate.",
+      "Do span every block across the one centred column and narrow text by measure (ch) only.",
+      "Do put every data artifact on a film plate (`Frame plate`), in both schemes.",
+      "Do keep records as rows: Updates, Work and Selected on home, outputs lines on /research, dense rows on /cv.",
+      "Do keep Email to the nav's one primary action and CV to the nav's page link on every page; the footer carries the address and LinkedIn, Google Scholar and ORCID minus whatever the last viewport already shows (`omit`).",
+      "Do ship every disclosure closed (Updates, Method and metrics) or open-and-folded-by-script (the CV phone folds) as a native `<details>` with the Phosphor caret, and keep the server HTML whole.",
+      "Do keep the idle drift on everywhere, home plate included; only reduced motion stops it.",
+      "Do read only the semantic aliases in components, so they work on the light box, on a film page, on a plate and in print.",
+      "Do set numbers, units, identifiers, DOIs, years, tables and link rows in JetBrains Mono, computed from content.ts or a manifest and formatted by `lib/format.ts`.",
+      "Do carry rank by border ink: primary ink for first author, secondary ink for co-first, hairline for co-author; never signal.",
+      "Do draw field colors from `lib/colormaps.ts` only, with five ticks on every bar and the error field on its fixed symmetric scale.",
+      "Do print nothing while a plate loads, and only its approved sentence when it fails.",
+      "Do honor `prefers-reduced-motion` on every autonomous motion.",
+      "Do describe the work organ-agnostically (computational hemodynamics, physics-informed AI, wearable biosignals, medical devices); coronary appears only where a coronary result is named."
     ],
     "donts": [
       "Don't switch a page's ground by attribute or add a theme toggle; the system scheme decides, and plates are always film.",
-      "Don't print a contact or CV action twice in one place or one viewport: no Email or CV (PDF) in the identity block or the footer, no per-chapter mail links, no per-entry mail links, no closing contact block, no on-screen contact row on /cv.",
-      "Don't link a home target twice, or turn a count or a closing line into a link.",
-      "Don't stack labels over a result (\"what / result / consequence\") or write consequence sentences; a chapter is one artifact, one paragraph, one table, one citation line.",
+      "Don't print a contact or CV action twice in one viewport: no Email button or CV (PDF) in the identity block or the footer, no per-project or per-entry mail links, no closing contact block.",
+      "Don't link a home target twice, or turn a count into a link.",
+      "Don't put mono type in prose, or a `key value · key value` readout string where a sentence belongs.",
+      "Don't print a case id, file name, array name or other dataset identifier in visible text, a caption or a failed plate.",
+      "Don't stack labels over a result (\"what / result / consequence\") or write consequence sentences; a demo project is its plates in view and one closed Method and metrics row.",
       "Don't frame a record; frames are for data.",
       "Don't use drop shadows, glows, gradients outside colormaps, blur or translucent panels.",
       "Don't add kickers, eyebrows or section numbers above headings.",
       "Don't introduce a second accent or a fourth ink tier.",
       "Don't uppercase a unit or a ratio or track it.",
       "Don't fill a role mark or tag.",
-      "Don't use icon fonts or glyph characters as icons (no \"→\"); icons are inline Phosphor SVGs sized to the text.",
+      "Don't use icon fonts or glyph characters as icons; icons are inline Phosphor SVGs sized to the text.",
       "Don't print a manuscript's status twice, as a tag, or in another wording.",
       "Don't set mono or label type below 13px on film, or secondary ink darker than 0.80 on film.",
-      "Don't state a speed-up factor larger than \"≈1,000×\", or convert the CFD bound into hours."
+      "Don't state a speed-up factor larger than \"about 1,000x\", convert the CFD bound into hours, or extrapolate it to fewer cores."
     ]
   }
 }
