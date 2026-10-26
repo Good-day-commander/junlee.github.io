@@ -445,3 +445,34 @@
 a:hover > .link-icon {
   color: var(--signal);
 }
+
+/*
+  Under 22rem (a phone at 200 % zoom), /research: a figure and a Method and
+  metrics row take the column as their one track, so a plate's chrome cannot
+  widen them past the screen. Inside the plates, the viewer's field toggle
+  wraps and its colour scale and the spectrograms' time axes name every
+  other tick (the last one, with its unit, always; a last tick set flush
+  right also drops the one two before it); the dB scale is half as long,
+  and a metric's value takes the line under its label. The research page
+  and its islands keep their own styles; these rules only narrow them.
+*/
+@media (max-width: 21.98rem) {
+  .art,
+  .more {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-island='VesselViewer'] fieldset {
+    flex-wrap: wrap;
+  }
+  [data-island='VesselViewer'] [data-colorbar] li:nth-child(even):not(:last-child),
+  .pulse .pulse__x > span:nth-child(even):not(:last-child),
+  .pulse .pulse__x:has(> .pulse__tick--end) > span:nth-last-child(3) {
+    visibility: hidden;
+  }
+  .pulse .pulse__scale-bar {
+    width: 3rem;
+  }
+  .metrics .metrics__scroll td {
+    flex-wrap: wrap;
+  }
+}

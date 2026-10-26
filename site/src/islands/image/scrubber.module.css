@@ -472,6 +472,34 @@
   }
 }
 
+/*
+  Under 22rem (a phone at 200 % zoom): the readout may wrap, so the side
+  column never widens the plate past the screen; the state corner wraps
+  inside the plate; the rail names only the two acquired phases (the grip
+  names the current one), and the colour ramp is half as long.
+*/
+@media (max-width: 21.98rem) {
+  .root,
+  .root[data-compact='true'] {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--space-1);
+  }
+  .readout {
+    white-space: normal;
+  }
+  .cornerBr {
+    left: var(--plate-inset);
+    white-space: normal;
+    text-align: right;
+  }
+  .tick:not([data-acquired='true']) .tickLabel {
+    display: none;
+  }
+  .ramp {
+    width: 3rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .grip,
   .segBtn,

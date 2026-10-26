@@ -1118,6 +1118,30 @@ const description = `Curriculum vitae of ${profile.name}: education, appointment
       height: 96px;
     }
   }
+  /*
+    Under 22rem (a phone at 200 % zoom): the portrait sits over the name, a
+    talk's venue and format take their own lines under the title, a format
+    may break inside itself, and a patent's mark and number may stack.
+  */
+  @media (max-width: 21.98rem) {
+    .cv-head,
+    .cv-head__id {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .talk {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+    .talk__venue,
+    .talk__format {
+      grid-column: 2;
+    }
+    .talk__unit {
+      white-space: normal;
+    }
+    .patent__status {
+      flex-wrap: wrap;
+    }
+  }
 
   @media print {
     .cv-head {
