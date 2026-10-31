@@ -288,7 +288,7 @@ Two inks (a tinted near-black and a tinted bone) on two grounds, with one clinic
 - **Signal Soft** (`signal-soft`): 18% alpha; text selection on both grounds.
 
 ### Neutral: Light Box (the default page ground)
-- **Box** (`box`): page ground in the light scheme and in print; also the light box inside a film plate (the phase scrubber's sheet).
+- **Box** (`box`): page ground in the light scheme and in print. No plate holds it.
 - **Box 2 / Box 3** (`box-2`, `box-3`): one and two tonal steps up (image placeholders, the BibTeX panel, the selected row on the A⁺4DCT chart).
 - **Box Ink / Box Ink 2 / Box Ink 3** (`box-ink`, `box-ink-2`, `box-ink-3`): primary, secondary and tertiary ink on the box.
 - **Box Line** (`box-line`): every hairline on the box; its 60% alpha (`--line-soft`) draws row and table rules.
@@ -315,11 +315,11 @@ Masked regions (inlet and outlet caps) are painted in a bone tint so they read a
 ### Named Rules
 **The Two-Ink Rule.** Each ground has exactly one ink family in three tiers (box-ink on the light box, bone on film), plus the one signal red. No other UI color exists; colormaps belong to the data.
 
-**The Alias Rule.** Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `@media print` forces the light set back on `:root`; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme and in print. Raw `film-*` and `box-*` values are referenced directly only where an element must hold the other ground inside a plate (the scrubber's light-box sheet).
+**The Alias Rule.** Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `@media print` forces the light set back on `:root`; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme and in print. Raw `film-*` and `box-*` values are not referenced by components.
 
 **The Plate Rule.** A plate is any element in the `.plate` scope that holds a viewer, a chart, a spectrogram, a CT frame, a paper figure or an enlarged photograph (`<Frame plate>`, the paper-figure image, the CV lightbox dialog). It is film in both schemes: dark film on the light box, film on film (separated by its hairline) in dark. Nothing that is not data or an image sits on film.
 
-**The Light-Box Rule.** White inside a film plate is the light box of the world, never a bare rectangle: it carries a hairline and mono corner chrome or a caption, and holds only a raster from the paper or the data, composited with `mix-blend-mode: multiply` so the figure's own white becomes the box ground (normal blending under forced colors).
+**The No-White Rule.** No white inside a film plate. A paper raster with a baked white backdrop is unmixed to alpha before it goes on film (`site/scripts/ct4d-film.py` for the phase scrubber): opaque surfaces keep their rendered colour, translucent ones and antialiased edges take the least alpha that explains them over white.
 
 **The Signal-Is-A-Stroke Rule.** Signal red is a border, underline, ring, curve, data mark or icon state. Under text it is a fill only on the nav's Email action and the skip link, and then as `signal-fill`.
 
@@ -330,7 +330,7 @@ Masked regions (inlet and outlet caps) are painted in a bone tint so they read a
 - `@media print` forces the light aliases and the light mono and label sizes on `:root` in either scheme, so a dark-scheme print is ink on white; plates keep their film.
 - `<meta name="color-scheme" content="light dark">` and two `theme-color` metas (`#f9f8f6` light, `#1a1b1f` dark).
 - Selection, caret, focus ring, form accent and scrollbar are themed from the palette in both schemes.
-- Forced colors (Windows high contrast): every colormap strip keeps its ramp (`forced-color-adjust: none` on the viewer colorbars, the spectrogram scale, the scrubber ramp and the FFR key swatches), the pressed segment is outlined in `Highlight`, the CFD trace takes `CanvasText`, and the scrubber's CT frame drops its multiply blend.
+- Forced colors (Windows high contrast): every colormap strip keeps its ramp (`forced-color-adjust: none` on the viewer colorbars, the spectrogram scale, the scrubber ramp and the FFR key swatches), the pressed segment is outlined in `Highlight`, and the CFD trace takes `CanvasText`.
 - **The Dark Floor Rule.** On film, secondary ink is no darker than 0.80 lightness and mono and label type never fall below 13px. Every text and ground pair holds at least 4.5:1 in both schemes.
 - **The One Grain Rule.** A film page (the dark scheme) carries exactly one grain layer, applied by `body::after`: a static feTurbulence sheet tiled at 256px at 5% opacity, never animated, removed in print. The light box carries none, and plates add none of their own.
 
@@ -505,7 +505,7 @@ Rows, not frames; one entry is about two lines; section gaps 1.5rem; one left ed
 **The One Anatomy Rule.** A paper reads the same everywhere (home Selected, the CV): title (linked to the DOI when one exists), venue in mono, role mark, `doi:`. A role mark, tag or label never sits directly above a heading.
 
 ### Phase scrubber (`islands/PhaseScrubber.tsx`)
-The current frame of J1's Case 1 on a light-box sheet inside the film plate, with mono corner readouts (phase; acquired or synthesized). A ten-phase rail with taller primary-ink ticks and a CT mark on the two acquired phases; the shared grip as a `role="slider"`; a mono readout; the Pressure | WSS segmented control; a Play/Pause ghost; the diverging legend with the mmHg range and its kPa reading (both legends server-rendered, the inactive one `hidden`). Phase 0 is server-rendered; the cycle plays once on first visibility and never under reduced motion. While the shown field is missing frames, Play and the rail are disabled.
+The current frame of J1's Case 1 on the film plate (the paper's white backdrop unmixed to alpha), with mono corner readouts (phase; acquired or synthesized). A ten-phase rail with taller primary-ink ticks and a CT mark on the two acquired phases; the shared grip as a `role="slider"`; a mono readout; the Pressure | WSS segmented control; a Play/Pause ghost; the diverging legend with the mmHg range and its kPa reading (both legends server-rendered, the inactive one `hidden`). Phase 0 is server-rendered; the cycle plays once on first visibility and never under reduced motion. While the shown field is missing frames, Play and the rail are disabled.
 
 ### Plate states: loading, failure, no WebGL
 - A plate prints nothing while it loads; the server-rendered colorbar, axes, ticks and the home poster hold it.

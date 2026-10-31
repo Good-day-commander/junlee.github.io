@@ -699,7 +699,7 @@
         "control": "Retry"
       }
     ],
-    "forcedColors": "Colormap strips keep their ramp (forced-color-adjust: none); the pressed segment is outlined in Highlight; the CFD trace takes CanvasText; the scrubber frame drops its multiply blend."
+    "forcedColors": "Colormap strips keep their ramp (forced-color-adjust: none); the pressed segment is outlined in Highlight; the CFD trace takes CanvasText."
   },
   "components": [
     {
@@ -853,7 +853,7 @@
       },
       {
         "name": "The Alias Rule",
-        "body": "Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `@media print` forces the light set back on `:root`; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme and in print. Raw `film-*` and `box-*` values are referenced directly only where an element must hold the other ground inside a plate (the scrubber's light-box sheet).",
+        "body": "Components read `--bg`, `--bg-1`, `--bg-2`, `--line`, `--line-soft`, `--ink`, `--ink-2`, `--ink-3` only. `:root` resolves them to the light box; `@media (prefers-color-scheme: dark)` resolves them to film; `@media print` forces the light set back on `:root`; `.plate` re-declares them to film (with `color-scheme: dark` and the film mono and label sizes) for a plate in either scheme and in print. Raw `film-*` and `box-*` values are not referenced by components.",
         "section": "colors"
       },
       {
@@ -862,8 +862,8 @@
         "section": "colors"
       },
       {
-        "name": "The Light-Box Rule",
-        "body": "White inside a film plate is the light box of the world, never a bare rectangle: it carries a hairline and mono corner chrome or a caption, and holds only a raster from the paper or the data, composited with `mix-blend-mode: multiply` so the figure's own white becomes the box ground (normal blending under forced colors).",
+        "name": "The No-White Rule",
+        "body": "No white inside a film plate. A paper raster with a baked white backdrop is unmixed to alpha before it goes on film (`site/scripts/ct4d-film.py` for the phase scrubber): opaque surfaces keep their rendered colour, translucent ones and antialiased edges take the least alpha that explains them over white.",
         "section": "colors"
       },
       {
