@@ -83,8 +83,8 @@ Run from `site/` (pnpm; Node 20.3 or newer):
 
 ## Git
 
-- Never push. A push to `main` deploys the live site and is the owner's call.
-- Commit only when asked. Short imperative subject in plain words, as in `git log`.
+- Push = deploy. As of 2026-11-02 the owner delegates commit, push and deploy to the Hermes `web` agent: push only after `pnpm check`, `pnpm build` and `pnpm smoke` pass and the screenshots are compared; afterwards confirm the Actions run and the live site, and `git revert` (never force-push) if anything breaks. Other agents: never push.
+- Commit when asked or when shipping as the `web` agent. Short imperative subject in plain words, as in `git log`.
 - End every commit message with a `Co-Authored-By: Claude <model> <noreply@anthropic.com>` line naming the model that did the work, as the history does.
 - Never commit `website_assets/`, `assets-raw/`, `.claude/` or `REDESIGN_PLAN.md`. Edit `site/public/uploads/resume.pdf` only through the redaction recipe in MAINTENANCE.md.
 
