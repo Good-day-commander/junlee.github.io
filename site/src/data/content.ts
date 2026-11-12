@@ -293,8 +293,8 @@ export const profile: Profile = {
   phdCompleted: "Aug. 2026",
   appointmentNote:
     "Technical Research Personnel (alternative military service, through Aug. 2027), Engineering Research Institute, Yonsei University",
-  // Chosen with the owner on 2026-11-12 (replaces the 2026-10-16 placeholder).
-  tagline: "I model blood flow in individual patients and check those models against clinical measurements.",
+  // Chosen by the owner on 2026-11-12: the 2026-10-16 sentence without its trailing list of methods (the fields line above carries them).
+  tagline: "I turn clinical questions into engineering problems and bring back answers clinicians can act on.",
   fields: ["computational hemodynamics", "physics-informed AI", "wearable biosignals", "medical devices"],
 };
 
