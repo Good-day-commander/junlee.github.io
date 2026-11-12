@@ -1,10 +1,10 @@
 /*
   PhaseScrubber: Case 1 of the 4D coronary CT paper (J1, Fig. 8) through
-  one cardiac cycle, phase by phase, on a light-box plate inside the film
-  frame. Two phases are acquired CT (marked on the rail); the eight between
+  one cardiac cycle, phase by phase, on a film plate. Two phases are acquired CT (marked on the rail); the eight between
   them were synthesized by the diffusion deformable model and then solved
-  with CFD. The frames are the authors' own renders; this island only
-  chooses which one is on the light box.
+  with CFD. The frames are the authors' own renders with the paper's white
+  backdrop taken out (scripts/ct4d-film.py); this island only chooses which
+  one is on the plate.
 
   Public API
     <PhaseScrubber client:visible manifestUrl="/data/image/manifest.json"
@@ -31,7 +31,7 @@
              printed while they load.
     failure  a frame of the shown field that does not load (or a manifest
              that does not) prints one sentence, FAILED below, with Retry;
-             the light box gives way to the film, and Play and the rail are
+             the frame and corners go, and Play and the rail are
              disabled until the frames are in. The reason goes to the
              console only.
 */
@@ -184,7 +184,7 @@ export default function PhaseScrubber({
 
   const readyField = (f: ImageField) => loaded[f].every(Boolean);
   const ready = readyField(field);
-  /* The shown field is missing frames: the sentence and Retry replace the light box; Play and the rail wait. */
+  /* The shown field is missing frames: the sentence and Retry replace the frame; Play and the rail wait. */
   const missing = failed[field];
   const retryFrames = () => {
     setFailed((prev) => ({ ...prev, [field]: false }));
@@ -317,7 +317,7 @@ export default function PhaseScrubber({
     setWanted((prev) => (prev.includes(f) ? prev : [...prev, f]));
   };
 
-  /* Which frame is on the light box: the asked-for one once decoded, else the last one drawn. */
+  /* Which frame is on the plate: the asked-for one once decoded, else the last one drawn. */
   const drawable = (f: ImageField, k: number) => (f === initialField && k === 0) || loaded[f][k];
   if (manifest && drawable(field, phase)) shownRef.current = { field, phase };
   const shown = shownRef.current;

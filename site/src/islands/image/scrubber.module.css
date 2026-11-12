@@ -1,10 +1,9 @@
 /*
-  PhaseScrubber chrome: the light-box plate, the phase rail and its grip,
-  the readout, the legend strip, and (full mode) the field toggle and the
-  Play/Pause ghost. Reads the semantic aliases, plus the light-box values
-  for the plate, which holds the opposite surface inside a film frame (the
-  Alias Rule's one exception). The grip, the segmented control and the
-  ghost repeat the CFD | PINO grip, the Flow field toggle and the Replay
+  PhaseScrubber chrome: the plate, the phase rail and its grip, the
+  readout, the legend strip, and (full mode) the field toggle and the
+  Play/Pause ghost. Reads the semantic aliases only; inside the film frame
+  they are the film set, so the plate is film like every other. The grip,
+  the segmented control and the ghost repeat the CFD | PINO grip, the Flow field toggle and the Replay
   ghost rectangle so the three islands read as one instrument.
 
   Layout
@@ -31,25 +30,25 @@
   min-width: 0;
 }
 
-/* The light box: white ground with a hairline and its own mono corners. */
+/* The plate: film ground with a hairline and its own mono corners. */
 .plate {
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--box);
-  color: var(--box-ink-3);
+  background: var(--bg);
+  color: var(--ink-3);
 }
 .stage {
   position: absolute;
   inset: 0;
 }
 /*
-  The renders sit on pure white; multiplied over the light-box ground they
-  take its tone, so no white rectangle shows inside the plate. The vessel
-  tree fills ~71% of the frame height, centred, so a 16/10 cover crop keeps
-  all of it and drops only empty margin.
+  The renders carry alpha (scripts/ct4d-film.py took the paper's white
+  backdrop out), so the heart shell is translucent over the film and the
+  tree opaque. The vessel tree fills ~71% of the frame height, centred, so
+  a 16/10 cover crop keeps all of it and drops only empty margin.
 */
 .frame {
   position: absolute;
@@ -58,7 +57,6 @@
   height: 100%;
   object-fit: cover;
   object-position: 50.5% 51%;
-  mix-blend-mode: multiply;
   visibility: hidden;
 }
 .frame[data-on='true'] {
@@ -74,7 +72,7 @@
   line-height: 1.3;
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
-  color: var(--box-ink-3);
+  color: var(--ink-3);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -91,7 +89,7 @@
   right: var(--plate-inset);
 }
 .cornerBr[data-acquired='true'] {
-  color: var(--box-ink);
+  color: var(--ink);
 }
 
 /* Phase rail: hairline track, ten ticks, the acquired two marked CT, one grip. */
@@ -395,8 +393,8 @@
 
 /*
   A failed load: one STIX sentence and the Retry ghost, centred. Over the
-  plate, the light box gives way to the film (no empty sheet, no corner
-  labels for a frame that is not there).
+  plate, the frame and its corner labels go (no corner labels for a frame
+  that is not there).
 */
 .failure {
   position: absolute;
@@ -418,9 +416,6 @@
   color: var(--ink-2);
   text-wrap: pretty;
 }
-.plate[data-failed] {
-  background: transparent;
-}
 .plate[data-failed] .corner,
 .plate[data-failed] .frame {
   visibility: hidden;
@@ -436,9 +431,6 @@
 @media (forced-colors: active) {
   .ramp {
     forced-color-adjust: none;
-  }
-  .frame {
-    mix-blend-mode: normal; /* multiplied onto a forced black sheet, the frame disappeared */
   }
   .segBtn[aria-pressed='true'] {
     outline: 2px solid Highlight;
