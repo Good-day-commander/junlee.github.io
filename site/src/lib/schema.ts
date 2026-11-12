@@ -417,7 +417,7 @@ export const capabilities: { id: string; name: string; href: string; row: string
     id: 'simulation',
     name: 'Simulation',
     href: '/research/#lbm-ctffr',
-    row: `I run patient-specific CFD from CT for FFR and wall shear stress. We designed a tricuspid valve device with it.`,
+    row: `I run patient-specific CFD from CT for FFR and wall shear stress. We also designed a tricuspid valve device.`,
   },
   {
     id: 'ai',
