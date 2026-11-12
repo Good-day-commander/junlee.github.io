@@ -366,7 +366,8 @@ async function checkLayer(page, where, spec, vp) {
     }
     if (spec.layer === 'research') {
       const s = await page.evaluate(() => {
-        const lines = [...document.querySelectorAll('.project__outputs')].filter((p) => p.querySelector('.project__outputs-rest'));
+        /* The projects folded into the closed "Other projects" row are not on screen; the layer is checked on the ones that are. */
+        const lines = [...document.querySelectorAll('.project__outputs')].filter((p) => p.querySelector('.project__outputs-rest') && !p.closest('details:not([open])'));
         return {
           multi: lines.length,
           buttons: lines.filter((p) => p.querySelector('.project__more')?.checkVisibility()).length,
@@ -714,19 +715,21 @@ async function checkStudy(page, where) {
   }
 }
 
-/* /research/ is newest first by start year, and titles carry no status label in parentheses. */
+/* /research/ is newest first by start year within each of its two lists (the full projects, then the folded "Other projects"), and titles carry no status label in parentheses. */
 async function checkOrder(page, where) {
   try {
     const rows = await page.$$eval('article.project', (els) =>
       els.map((a) => ({
         id: a.id,
+        folded: a.classList.contains('project--compact'),
         start: Number((a.querySelector('.project__years')?.textContent ?? '').match(/\d{4}/)?.[0] ?? NaN),
         title: (a.querySelector('.project__title')?.textContent ?? '').trim(),
       })),
     );
-    const outOfOrder = rows.filter((r, i) => i > 0 && !(r.start <= rows[i - 1].start)).map((r) => r.id);
+    const outOfOrder = rows.filter((r, i) => i > 0 && r.folded === rows[i - 1].folded && !(r.start <= rows[i - 1].start)).map((r) => r.id);
+    const mixed = rows.some((r, i) => i > 0 && !r.folded && rows[i - 1].folded);
     const labelled = rows.filter((r) => /\([^)]*\)\s*$/.test(r.title)).map((r) => r.id);
-    const ok = rows.length > 0 && outOfOrder.length === 0 && labelled.length === 0;
+    const ok = rows.length > 0 && outOfOrder.length === 0 && labelled.length === 0 && !mixed;
     record(
       'order',
       where,

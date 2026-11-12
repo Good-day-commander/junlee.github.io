@@ -293,9 +293,8 @@ export const profile: Profile = {
   phdCompleted: "Aug. 2026",
   appointmentNote:
     "Technical Research Personnel (alternative military service, through Aug. 2027), Engineering Research Institute, Yonsei University",
-  // Placeholder (2026-10-16): the owner is choosing between candidates; replace this one string.
-  tagline:
-    "I turn clinical questions into engineering problems and bring back answers clinicians can act on, using simulation, AI and wearable signals.",
+  // Chosen with the owner on 2026-11-12 (replaces the 2026-10-16 placeholder).
+  tagline: "I model blood flow in individual patients and check those models against clinical measurements.",
   fields: ["computational hemodynamics", "physics-informed AI", "wearable biosignals", "medical devices"],
 };
 
@@ -933,7 +932,7 @@ export const researchProjects: ResearchProject[] = [
     title: "Neural operator for patient-specific coronary flow",
     start: "2024",
     summary:
-      "A physics-informed neural operator trained on CFD returns a vessel's pressure and velocity field in {pino.inference} instead of a {cfd.minutes}-minute run.",
+      "I train a physics-informed neural operator on CFD so that it returns a vessel's pressure and velocity field in {pino.inference}. The CFD run takes up to {cfd.minutes} minutes.",
     pubs: ["C1"],
     patents: ["P3"],
     talks: ["I1", "I3", "D8"],
@@ -945,7 +944,7 @@ export const researchProjects: ResearchProject[] = [
     start: "2024",
     end: "2026",
     summary:
-      "The study reconstructs a full cardiac cycle from CT; its dynamic FFR reaches {image.ffrAccuracy} accuracy against invasive FFR.",
+      "We synthesize a full cardiac cycle from two CT phases and solve the flow in every phase. The FFR across the cycle reaches {image.ffrAccuracy} accuracy against invasive FFR.",
     pubs: ["J1", "C2"],
     patents: ["P4", "P5", "P8"],
     projects: ["R2"],
@@ -957,7 +956,7 @@ export const researchProjects: ResearchProject[] = [
     title: "Fluid-bolus prediction from smartwatch PPG",
     start: "2024",
     summary:
-      "Smartwatch PPG predicts intravenous fluid-bolus need within 24 hours of emergency-department arrival (AUC {pulse.auc}).",
+      "I predict from smartwatch PPG whether an emergency patient will need an intravenous fluid bolus within 24 hours of arrival (AUC {pulse.auc}).",
     pubs: ["M1"],
     demo: "pulse",
   },
@@ -975,7 +974,7 @@ export const researchProjects: ResearchProject[] = [
     start: "2023",
     end: "2025",
     summary:
-      "A physics-informed model estimates non-Newtonian blood viscosity from PPG and biometrics.",
+      "I estimate non-Newtonian blood viscosity from smartwatch PPG and biometrics with a physics-informed model.",
     pubs: ["J2"],
     patents: ["P6", "P7", "P11", "P12"],
     talks: ["D1", "I4", "D3", "D5"],
@@ -1021,7 +1020,7 @@ export const researchProjects: ResearchProject[] = [
     start: "2020",
     end: "2022",
     summary:
-      "Hemodynamic features and biometrics support FFR prediction near the diagnostic threshold.",
+      "We predict FFR near the diagnostic threshold from CT flow features and patient biometrics.",
     figure: {
       src: "/media/papers/extracted/ffr-000.webp",
       full: "/media/papers/extracted/ffr-000.png",
@@ -1057,7 +1056,7 @@ export const researchProjects: ResearchProject[] = [
     start: "2020",
     end: "2025",
     summary:
-      "CFD guides membrane-device design for a patient-specific tricuspid implant.",
+      "We use CFD to design the membrane of a patient-specific tricuspid implant.",
     figure: {
       src: "/media/papers/extracted/tricuspid-000.webp",
       full: "/media/papers/extracted/tricuspid-000.png",

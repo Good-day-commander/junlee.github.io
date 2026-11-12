@@ -274,7 +274,7 @@ export const timingItems = [`CFD up to ${flow.cfdMaxMin} min on ${flow.cfdCores}
 export const timingLine = timingItems.join(' · ');
 
 /** The home plate's STIX line (device-agnostic: phones show a toggle, not a handle). */
-export const plateSentence = `CFD: FFR ${flow.ffrCfd2}, up to ${flow.cfdMaxMin} minutes on ${flow.cfdCores} CPU cores. PINO: FFR ${flow.ffrPino2}, ${formatDecimal(pino.timing.pino.inference_ms_median / 1000, 2)} seconds on one GPU.`;
+export const plateSentence = `On this vessel, CFD takes up to ${flow.cfdMaxMin} minutes on ${flow.cfdCores} CPU cores and reads FFR ${flow.ffrCfd2}. My neural operator takes ${formatDecimal(pino.timing.pino.inference_ms_median / 1000, 2)} seconds on one GPU and reads ${flow.ffrPino2}.`;
 
 /*
   The identity block's three mono proof lines (home, index.md, llms.txt):
@@ -586,6 +586,8 @@ export interface ResearchEntry {
   talks: Talk[];
   outputs: OutputItem[];
   demo?: ResearchProject['demo'];
+  /** Printed in full on /research: it has a demo, a results plate, a paper figure or a paper. The rest fold into "Other projects". */
+  featured: boolean;
 }
 
 const ROLE_WORD: Record<AuthorRole, string> = { first: 'first author', 'co-first': 'co-first author', 'co-author': 'co-author' };
@@ -689,6 +691,7 @@ export const researchEntries: ResearchEntry[] = (() => {
       talks: (rp.talks ?? []).map(lookup(talks, 'talk', rp.id)),
       outputs: [],
       demo: rp.demo,
+      featured: Boolean(rp.demo || rp.results || rp.figure || rp.pubs?.length),
     };
     entry.outputs = outputItems(entry);
     return { entry, index };
@@ -706,6 +709,12 @@ export const researchEntries: ResearchEntry[] = (() => {
   }
   return resolved.map((x) => x.entry);
 })();
+
+/** /research prints these in full, newest first. */
+export const researchFeatured = researchEntries.filter((e) => e.featured);
+/** /research folds these into one closed "Other projects" row, newest first. */
+export const researchOther = researchEntries.filter((e) => !e.featured);
+export const OTHER_PROJECTS_LABEL = 'Other projects';
 
 /** The project a demo belongs to (the research page mounts each demo inside it). */
 export function researchEntryFor(demo: NonNullable<ResearchProject['demo']>): ResearchEntry {
@@ -1049,10 +1058,11 @@ function coronaryResultsMd(results: NonNullable<ResearchProject['results']>): st
 
 /** One section per research project, in page order: heading with years, the sentence, the results plate or paper figure where there is one, the outputs, and the demo blocks where there is one. */
 function researchProjectsMd(): string[] {
-  return researchEntries.flatMap((e) => {
+  return [...researchFeatured, ...researchOther].flatMap((e, i) => {
     const outputs = outputsMd(e);
     const demo = e.demo ? DEMO_MD[e.demo]() : [];
     return [
+      ...(i === researchFeatured.length ? [`# ${OTHER_PROJECTS_LABEL}`, ''] : []),
       `## ${e.title} (${e.years})`,
       '',
       `Page: ${abs(`/research/#${e.id}`)}`,

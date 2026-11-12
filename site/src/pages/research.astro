@@ -1,8 +1,11 @@
 ---
 /*
   /research: every research project, project by project as the owner did
-  them (2026-10-19), not grouped into the home's four fields. A flat list,
-  newest first (lib/schema.ts researchEntries orders it): each project is a
+  them (2026-10-19), not grouped into the home's four fields. Two lists,
+  each newest first (lib/schema.ts orders them): the projects with a demo,
+  a results plate, a paper figure or a paper print in full; the rest fold
+  into one closed "Other projects" row at the end (2026-11-12), which opens
+  by itself when a link lands on a project inside it. Each project is a
   header row (title, years), one sentence and its outputs line, every output
   a link to its CV row. A⁺4DCT carries its results plate
   (components/research/A4dctResults.astro) and two older projects a paper
@@ -38,7 +41,7 @@ import { pino, pulse, urls } from '@/components/research/data';
 import replayIcon from '@phosphor-icons/core/assets/regular/arrow-counter-clockwise.svg?raw';
 import caretDown from '@phosphor-icons/core/assets/regular/caret-down.svg?raw';
 import Button from '@/components/Button.astro';
-import { flow, image, pulseFacts, researchEntries, LEGACY_ANCHORS } from '@/lib/schema';
+import { flow, image, pulseFacts, researchFeatured, researchOther, OTHER_PROJECTS_LABEL, LEGACY_ANCHORS } from '@/lib/schema';
 
 const c = pino.metrics.case;
 const im = imageManifest;
@@ -59,7 +62,7 @@ const description = `${profile.name}'s research, project by project, newest firs
   </header>
 
   {
-    researchEntries.map((entry) =>
+    researchFeatured.map((entry) =>
       entry.demo === 'flow' ? (
         <Project entry={entry} anchor={LEGACY_ANCHORS.flow}>
           <div class="art-grid">
@@ -206,6 +209,34 @@ const description = `${profile.name}'s research, project by project, newest firs
       ),
     )
   }
+  {
+    researchOther.length > 0 && (
+      <section class="others wrap" aria-label={OTHER_PROJECTS_LABEL}>
+        <details class="others__fold" id="other-projects">
+          <summary class="more__summary">
+            <span class="more__label">{OTHER_PROJECTS_LABEL}</span>
+            <span class="more__chevron" aria-hidden="true" set:html={caretDown} />
+          </summary>
+          {researchOther.map((entry) => <Project entry={entry} compact />)}
+        </details>
+      </section>
+    )
+  }
+  <script is:inline>
+    /* A link to a project inside the folded "Other projects" row opens the row and lands on the project. */
+    (function () {
+      const land = () => {
+        const target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        const fold = target && target.closest('details.others__fold');
+        if (fold && !fold.open) {
+          fold.open = true;
+          target.scrollIntoView();
+        }
+      };
+      land();
+      addEventListener('hashchange', land);
+    })();
+  </script>
   <script is:inline>
     /* Phones: each outputs line shows its first item and a +N control that shows the rest in place. The markup ships whole with the control hidden, so wide screens, agents and no-JS readers see every item. */
     if (window.matchMedia('(max-width: 640px)').matches) {
@@ -360,6 +391,13 @@ const description = `${profile.name}'s research, project by project, newest firs
     display: grid;
     gap: var(--space-3);
     width: 100%;
+  }
+  /* The folded projects: the same ruled row as Method and metrics, a project's distance under the last full project. */
+  .others {
+    padding-top: var(--space-6);
+  }
+  .others__fold[open] > .more__summary .more__chevron {
+    transform: rotate(180deg);
   }
   /*
     A plate folded into the row keeps the plate rhythm above and below it, so

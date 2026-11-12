@@ -34,6 +34,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - Precision: kPa one decimal; FFR two decimals in captions and readouts, three in metrics tables and for CFD-PINO differences; seconds two decimals; mm one decimal.
 - Project titles are noun phrases and carry no parenthetical status label ("(ongoing)", "(published)"); status belongs to the outputs line and the years.
 - `/research` orders projects newest first by start year; within a year the demo projects come first, then content.ts order (the comparator in `schema.ts`).
+- `/research` prints in full only the projects with a demo, a results plate, a paper figure or a paper (`featured` in `schema.ts`); the rest fold into one closed "Other projects" row at the end, in the same order. Home runs identity, plate with its result sentence, Updates, Work, Selected.
 - Fixed labels: PINO metrics read "current model, 85 cases, 10-fold CV", always. Manuscript status reads "manuscript under revision (EAAI)", printed once per entry (on /research it sits in the outputs line).
 - Never state a speed-up above "about 1,000x", never convert the CFD bound to hours, never extrapolate it to fewer cores.
 - Never fabricate testimonials, press, citation counts or download numbers.
