@@ -408,7 +408,7 @@ const linkRowMd = links.map((l) => `[${l.label}](${l.href})`).join(' · ');
 
 /*
   What I work on, by capability rather than organ (home rows, index.md,
-  llms.txt). Full sentences in the first person (2026-11-12), every number computed; each
+  llms.txt). One first-person sentence each, all of one kind (owner, 2026-11-12): what I do in the field, with no numbers, results or project lists; each
   row links to one research project that shows the field (its /research
   anchor), once (no other home link points there).
 */
@@ -417,25 +417,25 @@ export const capabilities: { id: string; name: string; href: string; row: string
     id: 'simulation',
     name: 'Simulation',
     href: '/research/#lbm-ctffr',
-    row: `I run patient-specific CFD from CT for FFR and wall shear stress. We also designed a tricuspid valve device.`,
+    row: `I simulate blood flow in patient-specific vessels reconstructed from CT.`,
   },
   {
     id: 'ai',
     name: 'Physics-informed AI',
     href: '/research/#pino',
-    row: `My neural operator gives a vessel's pressure field in ${flow.inference} where CFD takes up to ${flow.cfdMaxMin} minutes. Synthesized 4D CT gives FFR across the cycle.`,
+    row: `I train neural operators that predict the same flow fields without running the simulation.`,
   },
   {
     id: 'biosignals',
     name: 'Wearable biosignals',
     href: '/research/#viscosity',
-    row: `From smartwatch PPG I estimate blood viscosity and predict a fluid bolus within 24 h (AUC ${pulseFacts.devAuc}, under revision). Patents cover blood pressure, glucose and glaucoma.`,
+    row: `I estimate blood properties and patient state from smartwatch pulse signals.`,
   },
   {
     id: 'devices',
     name: 'Devices and translation',
     href: '/research/#ffr-simulator',
-    row: `My device work covers an FFR simulator, a tricuspid implant, a negative-pressure tunnel and AI urodynamics. Parts ship in CARDIOS and EASYCHECK, and ${counts.patentsRegistered} of ${counts.patents} patents are registered.`,
+    row: `I carry these methods into medical devices, patents and commercial products.`,
   },
 ];
 
