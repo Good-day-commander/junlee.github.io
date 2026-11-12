@@ -1,55 +1,10 @@
-# ============================================================================
-# Hugo Site .gitignore
-# ============================================================================
-
-# ============================================================================
-# Hugo Build Artifacts
-# ============================================================================
-
-# Generated site output
-public/
-!site/client/public/
-!site/client/public/**
-
-# Hugo resources (processed assets)
-resources/
-
-# Hugo build lock
-.hugo_build.lock
-
-# Hugo stats
-hugo_stats.json
-
-# Auto-generated JS config
-**/assets/jsconfig.json
-
-# ============================================================================
-# Node.js & Package Managers
-# ============================================================================
-
 # Dependencies
 node_modules/
-
-# ============================================================================
-# Environment & Configuration
-# ============================================================================
 
 # Environment variables
 .env
 .env.local
 .env.*.local
-
-# ============================================================================
-# Generated Content
-# ============================================================================
-
-# Pagefind search index
-pagefind/
-static/pagefind/
-
-# ============================================================================
-# Operating System
-# ============================================================================
 
 # macOS
 .DS_Store
@@ -63,20 +18,12 @@ Desktop.ini
 # Linux
 *~
 
-# ============================================================================
-# Logs & Temporary Files
-# ============================================================================
-
 *.log
 npm-debug.log*
 
 # Raw website source data (meshes, recordings); never publish
 website_assets/
 assets-raw/
-
-# Astro site public assets (the generic public/ rule above must not swallow them)
-!site/public/
-!site/public/**
 
 # Impeccable local caches and review captures
 .impeccable/review/

@@ -6,8 +6,6 @@
 
 이 문서는 저장소 안의 문서가 담지 못하는 것만 적는다. 규칙은 `CLAUDE.md`, 제품 결정은 `PRODUCT.md`, 디자인 시스템은 `DESIGN.md`와 `.impeccable/design.json`, 디자인 컨트랙트는 `.impeccable/surfaces/site-src-pages-index-astro.md`(Revision 2 ~ 2g), 반복 작업 레시피는 `MAINTENANCE.md`에 있다. 그 다섯 개를 먼저 읽고 이 문서를 읽는다.
 
-같은 폴더의 `cowork-handoff.md`, `portfolio-final-guide.md`, `README.md`는 2026년 2~3월 Hugo Blox 시절 문서다. 지금 사이트와 무관하니 읽지 말고, 소유자가 허락하면 지워도 된다.
-
 ---
 
 ## 1. 지금 사이트가 무엇인지 (30초 요약)
