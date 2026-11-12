@@ -50,7 +50,6 @@ import {
   applicationLabel,
   awardPublication,
   capitalize,
-  leads,
   normRange,
   period,
   publicPatents,
@@ -70,7 +69,6 @@ const pubGroups: { heading: string; items: Publication[] }[] = [
   { heading: 'Peer-reviewed proceedings', items: publications.filter((p) => p.type === 'proceedings') },
   { heading: 'Manuscript under revision', items: publications.filter((p) => p.type === 'under-review') },
 ];
-const leadCount = publications.filter(leads).length;
 
 /* An empty category prints nothing (no heading over an empty list), as pubGroups does. */
 const talkGroups: { heading: string; items: Talk[] }[] = [

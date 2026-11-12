@@ -121,7 +121,7 @@ Reading the output: tables for words per page, research sections, mailto per pag
 - Pushing is the owner's decision. Agents do not push.
 
 Confirm a deploy:
-1. GitHub, repository Actions tab: the "Deploy website to GitHub Pages" run for the commit is green in all three jobs (config, build, deploy).
+1. GitHub, repository Actions tab: the "Deploy website to GitHub Pages" run for the commit is green in both jobs (build, deploy).
 2. `curl -sI https://hyeongjunlee.me/` returns 200 with a fresh `last-modified`.
 3. The footer colophon reads `Updated <build date>` with the deploy date: `curl -s https://hyeongjunlee.me/ | grep -o 'Updated [0-9-]*'`.
 4. `curl -s https://hyeongjunlee.me/cv.json | head -c 300` and `curl -s https://hyeongjunlee.me/llms.txt | head` show the new facts.

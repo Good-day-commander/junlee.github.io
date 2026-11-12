@@ -412,7 +412,6 @@ const linkRowMd = links.map((l) => `[${l.label}](${l.href})`).join(' · ');
   row links to one research project that shows the field (its /research
   anchor), once (no other home link points there).
 */
-const firstYear = Math.min(...experience.map((x) => Number(x.start.match(/\d{4}/)?.[0] ?? 9999)));
 export const capabilities: { id: string; name: string; href: string; row: string; inline?: { text: string; href: string } }[] = [
   {
     id: 'simulation',
