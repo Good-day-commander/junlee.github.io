@@ -1,4 +1,5 @@
 # Agent-readable summary: https://hyeongjunlee.me/llms.txt (full text: /llms-full.txt, CV as JSON: /cv.json)
+# Agent discovery: /.well-known/ai-catalog.json (what to fetch), /.well-known/agent-skills/index.json (how to read and cite).
 # Content signals (contentsignals.org): search and AI input are allowed; training is not stated either way.
 
 User-agent: *
@@ -82,3 +83,5 @@ Content-Signal: search=yes, ai-input=yes
 Allow: /
 
 Sitemap: https://hyeongjunlee.me/sitemap-index.xml
+
+Agentmap: https://hyeongjunlee.me/.well-known/ai-catalog.json

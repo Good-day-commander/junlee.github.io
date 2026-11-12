@@ -48,7 +48,10 @@ const DIST = join(ROOT, 'dist', 'public');
 
 /* mailto: up to 3 per page since revision 2c (the nav's Email, the address shown as text, the footer), 0 in a redirect stub. */
 const BUDGET = { home: 250, research: 1000, researchArticle: 260, mailto: 3, mailtoRedirect: 0 };
-const AGENT_FILES = ['llms.txt', 'llms-full.txt', 'index.md', 'research.md', 'cv.md', 'cv.json'];
+const AGENT_FILES = [
+  'llms.txt', 'llms-full.txt', 'index.md', 'research.md', 'cv.md', 'cv.json',
+  '.well-known/ai-catalog.json', '.well-known/agent-skills/index.json', '.well-known/agent-skills/hyeongjunlee-site/SKILL.md',
+];
 const CV_JSON_KEYS = ['basics', 'work', 'education', 'publications', 'awards', 'skills', 'projects'];
 
 const failures = [];

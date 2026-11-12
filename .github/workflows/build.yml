@@ -58,8 +58,18 @@ jobs:
         working-directory: site
         run: pnpm smoke
 
+      # upload-pages-artifact v4 leaves every dot-folder out of the archive, which would drop
+      # /.well-known (the agent discovery files). This is the same archive without that exclusion.
+      - name: Archive artifact
+        run: |
+          tar --dereference --hard-dereference --directory site/dist/public \
+            -cvf "$RUNNER_TEMP/artifact.tar" --exclude=.git --exclude=.github .
+
       - name: Upload artifact
         id: upload
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
-          path: site/dist/public
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
