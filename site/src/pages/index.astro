@@ -1,7 +1,8 @@
 ---
 /*
   Home, a Read surface (contract revision 2): identity first, then one
-  closed Updates row (revision 2d), then the one live plate, then four rows
+  live plate with its result sentence, then one closed Updates row
+  (the plate moved above it on 2026-11-12), then four rows
   on what I work on (by capability, not organ), three selected papers,
   and the shared footer without its link row (the identity block carries
   LinkedIn, Google Scholar and ORCID once; round 3b). Each home link has
@@ -37,8 +38,8 @@ const shortVenue = (venue: string) =>
 
 <Base title={title} description={description} footer={{ omit: ['LinkedIn', 'Google Scholar', 'ORCID'] }}>
   <Identity />
-  <Updates />
   <Plate />
+  <Updates />
 
   <section class="home-sec home-sec--work wrap" aria-labelledby="work-heading">
     <h2 id="work-heading" class="home-sec__heading">Work</h2>
@@ -107,7 +108,7 @@ const shortVenue = (venue: string) =>
     grid-template-columns: var(--width-label) minmax(0, 1fr);
     gap: 0.25rem var(--space-3);
     align-items: baseline;
-    padding-block: 0.65rem;
+    padding-block: 0.75rem;
     border-bottom: 1px solid var(--line-soft);
   }
   .caps__name {
@@ -150,7 +151,7 @@ const shortVenue = (venue: string) =>
     grid-template-columns: 3rem minmax(0, 1fr);
     gap: 0.25rem var(--space-3);
     align-items: baseline;
-    padding-block: 0.6rem;
+    padding-block: 0.75rem;
     border-bottom: 1px solid var(--line-soft);
   }
   .sel__year {

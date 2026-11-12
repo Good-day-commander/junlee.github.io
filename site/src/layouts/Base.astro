@@ -125,6 +125,8 @@ const ogAlt =
     <meta name="generator" content={Astro.generator} />
     {mdTwin && <link rel="alternate" type="text/markdown" href={mdTwin} />}
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json" />
+    <link rel="describedby" type="application/json" href="/cv.json" />
     <JsonLd graph={graph} />
   </head>
   <body>
@@ -134,6 +136,53 @@ const ogAlt =
       <slot />
     </main>
     <Footer {...footer} />
+    <script is:inline>
+      /*
+        WebMCP: three read-only tools for a browser agent, registered only where the API exists
+        (document.modelContext, navigator.modelContext on older builds). They return the same
+        generated files the page links: nothing is scraped and nothing is sent anywhere.
+      */
+      (function () {
+        const mc = document.modelContext || navigator.modelContext;
+        if (!mc || typeof mc.registerTool !== 'function') return;
+        const out = (t) => ({ content: [{ type: 'text', text: t }] });
+        const cv = async () => (await fetch('/cv.json')).json();
+        const pages = { home: '/index.md', research: '/research.md', cv: '/cv.md' };
+        const tools = [
+          {
+            name: 'get_profile',
+            description: 'Name, role, affiliation, summary, email and profile links of the site owner, from the CV as JSON Resume.',
+            inputSchema: { type: 'object', properties: {} },
+            execute: async () => out(JSON.stringify((await cv()).basics)),
+          },
+          {
+            name: 'list_publications',
+            description: 'Publications with venue, date, DOI link and the stated author role. Optionally only those of one year.',
+            inputSchema: { type: 'object', properties: { year: { type: 'string', description: 'Four-digit year, for example 2026.' } } },
+            execute: async (a) => {
+              const list = (await cv()).publications || [];
+              const year = a && a.year ? String(a.year) : '';
+              return out(JSON.stringify(year ? list.filter((p) => String(p.releaseDate || '').startsWith(year)) : list));
+            },
+          },
+          {
+            name: 'read_page',
+            description: 'One page of this site as markdown, with every number the page shows.',
+            inputSchema: {
+              type: 'object',
+              properties: { page: { type: 'string', enum: ['home', 'research', 'cv'], description: 'Which page to read.' } },
+              required: ['page'],
+            },
+            execute: async (a) => out(await (await fetch(pages[a && a.page] || pages.home)).text()),
+          },
+        ];
+        for (const tool of tools) {
+          try {
+            Promise.resolve(mc.registerTool(tool)).catch(() => {});
+          } catch (e) {}
+        }
+      })();
+    </script>
     <script is:inline>
       addEventListener(
         'click',

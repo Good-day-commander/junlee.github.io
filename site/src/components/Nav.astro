@@ -61,7 +61,7 @@ const isCurrent = (href: string) => current === strip(href) || current.startsWit
     font-weight: 500;
     font-size: var(--size-ui);
     line-height: 1;
-    letter-spacing: -0.01em;
+    letter-spacing: 0; /* no negative tracking under 16px */
     color: var(--ink);
     text-decoration: none;
     white-space: nowrap;

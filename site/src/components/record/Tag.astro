@@ -22,16 +22,16 @@ const { tone = 'soft', title, class: className } = Astro.props;
   .tag {
     display: inline-flex;
     align-items: center;
-    min-height: 1.25rem;
-    padding: 0 0.4rem;
+    min-height: 1.5rem;
+    padding: 0 0.5rem;
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    font-family: var(--font-mono);
-    font-size: var(--size-label);
+    /* The same mark as RoleMark ("First author"): sentence case in the UI face, not an uppercase tracked label. */
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.75rem;
     line-height: 1;
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
     color: var(--ink-2);
     white-space: nowrap;
     vertical-align: middle;
