@@ -435,7 +435,7 @@ export const capabilities: { id: string; name: string; href: string; row: string
     id: 'devices',
     name: 'Devices and translation',
     href: '/research/#ffr-simulator',
-    row: `I carry these methods into medical devices, patents and commercial products.`,
+    row: `I carry these methods into medical devices, patents and the commercial products CARDIOS and EASYCHECK.`,
   },
 ];
 
