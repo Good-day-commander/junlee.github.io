@@ -118,7 +118,7 @@ Reading the output: tables for words per page, research sections, mailto per pag
 
 - `.github/workflows/deploy.yml` runs on every push to `main` (and by hand via workflow_dispatch). It calls `.github/workflows/build.yml`, which installs with pnpm in `site/`, runs `pnpm build` (so a budget failure blocks the deploy) and uploads `site/dist/public`; then `actions/deploy-pages` publishes it. Pull requests to `main` run the build only.
 - The custom domain comes from `site/public/CNAME` (hyeongjunlee.me, DNS at Cloudflare).
-- Pushing is the owner's decision. Agents do not push.
+- A push deploys. An agent pushes when the owner has asked for the change to be applied, after the gate passes; see the Git section of CLAUDE.md.
 
 Confirm a deploy:
 1. GitHub, repository Actions tab: the "Deploy website to GitHub Pages" run for the commit is green in both jobs (build, deploy).

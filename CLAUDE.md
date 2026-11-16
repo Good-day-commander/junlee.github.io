@@ -2,8 +2,8 @@
 
 Personal research site of Hyeong Jun Lee. Astro static site in `site/`, deployed to GitHub Pages.
 Read `PRODUCT.md`, `DESIGN.md` and `.impeccable/surfaces/site-src-pages-index-astro.md` (Revisions 2, 2a, 2b) before changing anything visible.
-Where those files and this one disagree, the owner rules below win. DESIGN.md still records a 240-word budget,
-a 1280px container and a quiet plate without drift; all three are superseded.
+Where those files and this one disagree, this file wins. DESIGN.md still records a 240-word budget, a 1280px
+container, a quiet plate without drift and the Updates row above the plate; all four are superseded.
 The owner writes in Korean; the site stays English. Recipes for routine edits are in `MAINTENANCE.md`.
 
 ## Owner rules (bind every change)
@@ -20,7 +20,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 
 - `site/src/data/content.ts` is the single source of truth, derived from the October 2026 CV. The CV wins over older site copy.
 - Never type a number, count, date, DOI or name in a component, page or twin. Import it from content.ts and format it with `src/lib/format.ts`; shared lines come from `src/lib/schema.ts`.
-- `profile.email` is the only public address. `profile.tagline` is the owner's one sentence (swap it in one edit). `profile.nameKo` is the Korean name shown beside the English one in the lead (and in the agent files' headings); its glyphs ship as a Pretendard subset (recipe in MAINTENANCE.md). `profile.fields` holds the four fields in display order. `cfdReference` holds the CFD bound (up to 35 min on 64 CPU cores); `public/data/pino/manifest.json` mirrors it and schema.ts fails the build if they drift.
+- `profile.email` is the only public address. `profile.tagline` is the owner's one sentence, chosen 2026-11-12 (swap it in one edit; do not rewrite it unasked). `profile.nameKo` is the Korean name shown beside the English one in the lead (and in the agent files' headings); its glyphs ship as a Pretendard subset (recipe in MAINTENANCE.md). `profile.fields` holds the four fields in display order. `cfdReference` holds the CFD bound (up to 35 min on 64 CPU cores); `public/data/pino/manifest.json` mirrors it and schema.ts fails the build if they drift.
 - Everything exported from content.ts ships in the JS bundle: export only public fields. Maintainer notes go in comments.
 - Never export or render the phone number, the referee section, or anything patient-identifiable.
 
@@ -34,7 +34,10 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - Precision: kPa one decimal; FFR two decimals in captions and readouts, three in metrics tables and for CFD-PINO differences; seconds two decimals; mm one decimal.
 - Project titles are noun phrases and carry no parenthetical status label ("(ongoing)", "(published)"); status belongs to the outputs line and the years.
 - `/research` orders projects newest first by start year; within a year the demo projects come first, then content.ts order (the comparator in `schema.ts`).
-- `/research` prints in full only the projects with a demo, a results plate, a paper figure or a paper (`featured` in `schema.ts`); the rest fold into one closed "Other projects" row at the end, in the same order. Home runs identity, plate with its result sentence, Updates, Work, Selected.
+- `/research` prints in full only the projects with a demo, a results plate, a paper figure or a paper (`featured` in `schema.ts`); the rest fold into one closed "Other projects" row at the end, in the same order.
+- Home runs identity, plate with its result sentence, Updates, Work, Selected. The plate sentence (`plateSentence`) is the one place on home that states the result; it reads at the tagline's size and ink.
+- Parallel lines say one kind of thing in one shape. The four home Work rows (`capabilities`) are one qualitative first-person sentence each on what he does in the field: no numbers, no results, no project or patent lists.
+- A research summary says who did the work: "I" where he led, "We" where the paper is co-authored. Do not write a role you cannot source; ask the owner.
 - Fixed labels: PINO metrics read "current model, 85 cases, 10-fold CV", always. Manuscript status reads "manuscript under revision (EAAI)", printed once per entry (on /research it sits in the outputs line).
 - Never state a speed-up above "about 1,000x", never convert the CFD bound to hours, never extrapolate it to fewer cores.
 - Never fabricate testimonials, press, citation counts or download numbers.
@@ -65,7 +68,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 - `public/robots.txt` keeps explicit AI user-agent groups with `Content-Signal: search=yes, ai-input=yes` (ai-train unstated).
 - Generated from content.ts via `lib/schema.ts`: `/llms.txt`, `/llms-full.txt`, markdown twins `/index.md`, `/research.md`, `/cv.md`, `/cv.json` (JSON Resume with `meta.canonical`), and JSON-LD (`Person` and friends) on every page.
 - Agent discovery, generated by `lib/agents.ts`: `/.well-known/ai-catalog.json` (ARD), `/.well-known/agent-skills/index.json` and its one `SKILL.md`; `Base.astro` registers three read-only WebMCP tools where the browser has the API. The site has no API, MCP server or sign-in, so it publishes no API catalog, server card, OAuth metadata or auth.md; do not add placeholders for them. `build.yml` archives the Pages artifact itself because `upload-pages-artifact` drops dot-folders.
-- `updates` is derived in `schema.ts` from experience, education, awards, publications, registered patents and funded projects, newest first, capped at `UPDATES_MAX`, and printed on home (one closed `<details>` under the identity block), `index.md`, `llms.txt` and `llms-full.txt`. Never type an update by hand.
+- `updates` is derived in `schema.ts` from milestones only (the current appointment, the Ph.D., awards, registered patents), newest first, capped at `UPDATES_MAX`, and printed on home (one closed `<details>` under the plate), `index.md`, `llms.txt` and `llms-full.txt`. Papers, funded projects and talks are not updates. Never type an update by hand.
 - Every visible number must also be in the server-rendered HTML (Astro markup, not only inside an island) and in the twins. Change a page, change its twin in the same edit.
 
 ## Build gate and checks
@@ -85,8 +88,10 @@ Run from `site/` (pnpm; Node 20.3 or newer):
 
 ## Git
 
-- Push = deploy. As of 2026-11-02 the owner delegates commit, push and deploy to the Hermes `web` agent: push only after `pnpm check`, `pnpm build` and `pnpm smoke` pass and the screenshots are compared; afterwards confirm the Actions run and the live site, and `git revert` (never force-push) if anything breaks. Other agents: never push.
-- Commit when asked or when shipping as the `web` agent. Short imperative subject in plain words, as in `git log`.
+- Push = deploy. When the owner says to apply a change ("반영하자", "바꾸자", "적용해줘"), the agent he is talking to ships it without asking again: commit, push `main`, wait for the Actions run, check the live page (owner, 2026-11-12). The Hermes `web` agent ships the same way.
+- Gate before every push: `pnpm check`, `pnpm build` and `pnpm smoke` pass, and the screenshots are compared when anything visible moved. If the deploy breaks, `git revert` and push; never force-push.
+- Work the owner has not asked to apply (drafts, experiments, a subagent's branch) stays on a branch and is not pushed.
+- Short imperative subject in plain words, as in `git log`.
 - End every commit message with a `Co-Authored-By: Claude <model> <noreply@anthropic.com>` line naming the model that did the work, as the history does.
 - Never commit `website_assets/`, `assets-raw/`, `.claude/` or `REDESIGN_PLAN.md`. Edit `site/public/uploads/resume.pdf` only through the redaction recipe in MAINTENANCE.md.
 

@@ -444,9 +444,10 @@ export const capabilities: { id: string; name: string; href: string; row: string
 /*
   The home Updates row and its twins: dated events taken from the record,
   newest first, at most UPDATES_MAX. Sources: the current appointment, the
-  completed Ph.D., publications with a year, awards, registered patents and
-  funded projects. Talks and pending patents are not updates; a publication
-  without a year (the manuscript under revision) has no date to place it.
+  completed Ph.D., awards and registered patents. Papers are not updates
+  (owner, 2026-11-16: "a co-authored paper appeared in DMD" tells a reader
+  nothing; Selected and the CV carry the papers), and neither are funded
+  projects, talks or pending patents.
   `when` is the sort key: "YYYY-MM" when the month is known, "YYYY-00" when
   only the year is, so a year-only item follows every dated item of its
   year. Ties keep UPDATE_KINDS order, then content.ts order.
@@ -456,9 +457,9 @@ export interface UpdateItem {
   label: string;
   text: string;
 }
-export const UPDATES_MAX = 8;
+export const UPDATES_MAX = 5;
 
-const UPDATE_KINDS = ['appointment', 'degree', 'publication', 'award', 'patent', 'project'] as const;
+const UPDATE_KINDS = ['appointment', 'degree', 'award', 'patent'] as const;
 type UpdateKind = (typeof UPDATE_KINDS)[number];
 
 /** "09" → "Sep" (from MONTHS, so the month names live in one table). */
@@ -482,11 +483,6 @@ function updateLabel(when: string): string {
   return mm === '00' ? year : `${MONTH_ABBR[mm]} ${year}`;
 }
 
-/** The author role as the update sentence's adjective: "A first-author paper appeared in DMD." */
-const UPDATE_ROLE: Record<AuthorRole, string> = { first: 'first-author', 'co-first': 'co-first-author', 'co-author': 'co-authored' };
-/** "CMPB 2025" → "CMPB": the date column already carries the year. */
-const shortVenue = (p: Publication) => shortVenueYear(p).replace(new RegExp(`\\s*${p.year}$`), '');
-
 export const updates: UpdateItem[] = (() => {
   const pool: { when: string; kind: UpdateKind; order: number; text: string }[] = [];
   const add = (kind: UpdateKind, date: string | undefined, text: string) => {
@@ -499,17 +495,11 @@ export const updates: UpdateItem[] = (() => {
   for (const e of education.filter((d) => /^Ph\.D\./.test(d.degree))) {
     add('degree', e.end, `Completed the ${e.degree.replace(/\s*\([^)]*\)/g, '').trim()} at ${e.institution}.`);
   }
-  for (const p of publications.filter((x) => x.year)) {
-    add('publication', p.year, `A ${UPDATE_ROLE[p.myRole]} paper appeared in ${shortVenue(p)}.`);
-  }
   for (const a of awards) {
     add('award', a.year, `Received the ${a.title} from the ${a.org}.`);
   }
   for (const p of publicPatents.filter((x) => x.status === 'registered')) {
     add('patent', p.registrationDate ?? p.year, `The patent “${p.title}” was registered.`);
-  }
-  for (const r of projects) {
-    add('project', r.start, `Joined the ${r.funder} project “${r.title}” as ${projectRole}.`);
   }
   const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
   pool.sort(
