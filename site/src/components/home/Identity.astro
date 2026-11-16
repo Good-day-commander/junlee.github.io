@@ -50,7 +50,7 @@ const links = [
         The full line is one text run, so wide screens render it exactly as before; phones show the
         short line instead (role and university, no lab), the PubEntry full/short pattern.
       */}
-      <span class="identity__role-full">{profile.role} · {profile.lab}, {profile.university}</span>
+      <span class="identity__role-full"><span class="identity__item">{profile.role} ·</span> <span class="identity__item">{profile.lab}, {profile.university} ·</span> <span class="identity__item">{profile.concurrent.org}</span></span>
       <span class="identity__role-short">{profile.role} · {profile.university}</span>
       <span class="identity__fields">{profile.fields.map((f, i) => <><span class="identity__item">{f}{i < profile.fields.length - 1 && " ·"}</span>{" "}</>)}</span>
     </p>

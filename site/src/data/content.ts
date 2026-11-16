@@ -276,8 +276,9 @@ export const profile: Profile = {
   department: "School of Mechanical Engineering",
   university: "Yonsei University",
   pi: "Prof. Joon Sang Lee",
+  // Owner, 2026-11-16: the employment record says only "연구원"; as a post-Ph.D. research post it reads "Postdoctoral Researcher" in English.
   concurrent: {
-    role: "Project Researcher",
+    role: "Postdoctoral Researcher",
     org: "Yonsei University Health System",
     project: "4D CT-FFR project",
     pi: "Prof. Jung-Sun Kim, Department of Internal Medicine, College of Medicine",
