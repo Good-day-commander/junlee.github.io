@@ -489,8 +489,17 @@ export const updates: UpdateItem[] = (() => {
     const when = updateWhen(date);
     if (when) pool.push({ when, kind, order: pool.length, text });
   };
+  /* Current posts that began together under one title read as one line: "… at Yonsei University and Yonsei University Health System." */
+  const current = new Map<string, { start: string; title: string; orgs: string[] }>();
   for (const x of experience.filter((e) => e.end === 'Present')) {
-    add('appointment', x.start, `Started as a ${profile.role.toLowerCase()} at ${profile.university}.`);
+    const title = x.role.split(',')[0].toLowerCase();
+    const key = `${x.start}|${title}`;
+    const group = current.get(key) ?? { start: x.start, title, orgs: [] };
+    group.orgs.push(x.org);
+    current.set(key, group);
+  }
+  for (const g of current.values()) {
+    add('appointment', g.start, `Started as a ${g.title} at ${listAnd(g.orgs)}.`);
   }
   for (const e of education.filter((d) => /^Ph\.D\./.test(d.degree))) {
     add('degree', e.end, `Completed the ${e.degree.replace(/\s*\([^)]*\)/g, '').trim()} at ${e.institution}.`);

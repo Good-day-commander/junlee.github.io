@@ -348,6 +348,17 @@ export const experience: Experience[] = [
       "Dynamic 4D CT-FFR and 4D flow-based coronary risk assessment in government-funded projects (KHIDI, NRF).",
     ],
   },
+  // Owner, 2026-11-20: the Health System post is a main appointment and gets its own row. The October CV lists it as
+  // "Concurrent" under the Sep. 2026 appointment, which is where the start date comes from; the owner has not given another.
+  {
+    role: `${profile.concurrent.role}, ${profile.concurrent.project} (PI: ${profile.concurrent.pi})`,
+    org: profile.concurrent.org,
+    location: "Seoul, Republic of Korea",
+    start: "Sep. 2026",
+    end: "Present",
+    notes: ["Concurrent with the Yonsei University appointment."],
+    bullets: [],
+  },
   {
     role: "Graduate Research Assistant, Multiscale Fluid Dynamics Lab (Advisor: Prof. Joon Sang Lee)",
     org: "Yonsei University",
