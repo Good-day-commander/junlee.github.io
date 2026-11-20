@@ -47,7 +47,7 @@
 // - R5 program: CV gives only funder + grant number, so program is left empty.
 // - Education, research experience, skills, research projects, awards, fellowships and teaching are now rendered (Background and Achievements sections). Fellowships and projects are kept in CV order here; the pages sort them by end date.
 // - Resume link points to /uploads/resume.pdf; md5-identical to CV_HyeongJunLee.pdf (4 pages) as of this revision. Re-copy it whenever the CV changes.
-// - D9 (BESCO Winter Meeting, Seoul, 2022): the CV prints "Best Paper Award nominee" in the talk list but "Best Paper Award, BESCO, 2022" under AWARDS AND HONORS. Owner confirmed on 2026-10-12 that it was an award, so D9.format says "Best Paper Award"; the CV talk line should be corrected to match.
+// - D9 (BESCO Winter Meeting, Seoul, 2022): the CV prints "Best Paper Award nominee" in the talk list but "Best Paper Award, BESCO, 2022" under AWARDS AND HONORS. Owner confirmed on 2026-10-12 that it was an award, so D9.format says "Best Paper Award"; the CV of 2026-11-20 prints it the same way.
 
 /** A research appointment split into the parts the page composes prose from. */
 export type Appointment = {
@@ -833,7 +833,7 @@ export const projects: Project[] = [
     program: "Clinical-Needs Translational Research",
     grantNo: "RS-2024-00406717",
     start: "Apr. 2024",
-    end: "Dec. 2026",
+    end: "Dec. 2027", // extended through 2027 (owner, 2026-11-20)
     short: "KHIDI",
   },
   {
@@ -954,7 +954,7 @@ export const researchProjects: ResearchProject[] = [
     id: "ct4d",
     title: "Diffusion-synthesized 4D CT for FFR",
     start: "2024",
-    end: "2026",
+    end: "2027",
     summary:
       "We synthesize a full cardiac cycle from two CT phases and solve the flow in every phase. The FFR across the cycle reaches {image.ffrAccuracy} accuracy against invasive FFR.",
     pubs: ["J1", "C2"],

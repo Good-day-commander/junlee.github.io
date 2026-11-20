@@ -18,7 +18,7 @@ The owner writes in Korean; the site stays English. Recipes for routine edits ar
 
 ## Where facts live
 
-- `site/src/data/content.ts` is the single source of truth, derived from the October 2026 CV. The CV wins over older site copy.
+- `site/src/data/content.ts` is the single source of truth, derived from the owner's CV (current copy: 2026-11-20). The CV wins over older site copy.
 - Never type a number, count, date, DOI or name in a component, page or twin. Import it from content.ts and format it with `src/lib/format.ts`; shared lines come from `src/lib/schema.ts`.
 - `profile.email` is the only public address. `profile.tagline` is the owner's one sentence, chosen 2026-11-12 (swap it in one edit; do not rewrite it unasked). `profile.nameKo` is the Korean name shown beside the English one in the lead (and in the agent files' headings); its glyphs ship as a Pretendard subset (recipe in MAINTENANCE.md). `profile.fields` holds the four fields in display order. `cfdReference` holds the CFD bound (up to 35 min on 64 CPU cores); `public/data/pino/manifest.json` mirrors it and schema.ts fails the build if they drift.
 - Everything exported from content.ts ships in the JS bundle: export only public fields. Maintainer notes go in comments.
